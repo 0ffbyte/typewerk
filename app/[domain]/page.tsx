@@ -1,0 +1,22 @@
+import Renderer from "@/components/renderer/_main";
+import { getSiteByDomain } from "@/db/queries";
+import { notFound } from "next/navigation";
+
+export const revalidate = 60;
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ domain: string }>;
+}) {
+  const { domain } = await params;
+  const site = await getSiteByDomain(domain);
+
+  if (!site) return notFound();
+
+  return (
+    <div className="flex flex-col min-h-screen items-start justify-start w-[800px] py-[92] px-[64px] mx-auto font-sans">
+      <Renderer siteObject={site.siteObject} />
+    </div>
+  );
+}
