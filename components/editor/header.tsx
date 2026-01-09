@@ -17,7 +17,7 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
       )}
       <div>
         <input
-          className="text-[32px] w-[700px] leading-0 font-medium outline-none placeholder:text-zinc-400"
+          className="text-[32px] w-[300] leading-0 font-medium outline-none placeholder:text-zinc-400"
           placeholder="Heading"
           spellCheck={false}
           value={state.data.header.heading}
@@ -28,7 +28,7 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
           }
         />
         <input
-          className="text-[32px] w-[700px] leading-0 font-medium outline-none placeholder:text-zinc-400 text-zinc-500"
+          className="text-[32px] w-[300] leading-0 font-medium outline-none placeholder:text-zinc-400 text-zinc-500"
           placeholder="Subheading"
           value={state.data.header.subheading}
           onChange={(e) =>

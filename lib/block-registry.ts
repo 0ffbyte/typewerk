@@ -1,7 +1,9 @@
 import Section from "@/components/editor/section";
 import Image from "@/components/editor/image";
 import Text from "../components/editor/text";
-import RenderText from "@/components/renderer/text";
+import R_Text from "@/components/renderer/text";
+import R_Section from "@/components/renderer/section";
+import R_Image from "@/components/renderer/image";
 import type { TextBlock, SectionBlock, ImageBlock } from "@/app/types";
 
 export type BlockDefinition = {
@@ -14,7 +16,7 @@ export type BlockDefinition = {
 export const BlockRegistry: Record<string, BlockDefinition> = {
   text: {
     component: Text,
-    renderedComponent: RenderText,
+    renderedComponent: R_Text,
     displayName: "Text",
     defaultProps: {
       content: "",
@@ -22,7 +24,7 @@ export const BlockRegistry: Record<string, BlockDefinition> = {
   },
   section: {
     component: Section,
-    renderedComponent: Section,
+    renderedComponent: R_Section,
     displayName: "Section",
     defaultProps: {
       title: "",
@@ -30,7 +32,7 @@ export const BlockRegistry: Record<string, BlockDefinition> = {
   },
   image: {
     component: Image,
-    renderedComponent: Image,
+    renderedComponent: R_Image,
     displayName: "Image",
     defaultProps: {
       url: "https://i.pinimg.com/originals/12/9b/5d/129b5d93ed185765b112be03e9f617d1.gif",

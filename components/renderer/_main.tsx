@@ -2,17 +2,16 @@
 
 import type { SiteObject } from "@/store/editor-store";
 import { BlockRegistry } from "@/lib/block-registry";
+import Header from "./header";
 
 export default function Renderer({ siteObject }: { siteObject: SiteObject }) {
   return (
-    <div className="flex flex-col items-start justify-start gap-[24px] h-full flex-1">
-      <h1>{siteObject.header.heading}</h1>
+    <div className="flex flex-col items-start justify-start gap-[24px]">
+      <Header {...siteObject.header} />
 
       {siteObject.blocks.map((block, index) => {
-        const definition = BlockRegistry[block.type];
-        if (!definition) return null;
-
-        const Block = definition.renderedComponent;
+        const Block = BlockRegistry[block.type]["renderedComponent"];
+        if (!Block) return null;
 
         return (
           <div key={block.uuid} className="w-full">
