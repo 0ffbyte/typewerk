@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import type { SiteObject } from "@/store/editor-store";
+import { revalidatePath } from "next/cache";
 
 export const CreateSiteAction = async (domain: string) => {
   try {
@@ -52,6 +53,7 @@ export const CreateSiteAction = async (domain: string) => {
 export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
   try {
     await db.update(sites).set({ siteObject }).where(eq(sites.id, id));
+    revalidatePath("site-" + id);
 
     return { success: true };
   } catch (error) {

@@ -17,4 +17,6 @@
 
 - [x] db sync with debounce
 
+- [x] suspense, ppr, use cache and revalidate
+
 - [ ] multi tenancy
