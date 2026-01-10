@@ -14,7 +14,7 @@ export default async function UserSites() {
           <p>{site.domain}</p>
 
           <div className="flex items-center gap-2">
-            <Link href={`/${site.domain}`}>
+            <Link href={`/${site.domain}`} prefetch>
               <p className="underline">view</p>
             </Link>
 
