@@ -15,7 +15,7 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
           />
         </div>
       )}
-      <div>
+      <div className="flex flex-col">
         <input
           className="text-[32px] w-[300] leading-0 font-medium outline-none placeholder:text-zinc-400"
           placeholder="Heading"
