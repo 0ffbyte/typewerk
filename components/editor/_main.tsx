@@ -4,8 +4,15 @@ import { BlockRegistry } from "@/lib/block-registry";
 import BlockControls from "@/components/editor/wrapper";
 import { SiteObject, useEditorStore } from "@/store/editor-store";
 import { useEffect, useState } from "react";
+import useSync from "@/hooks/use-sync";
 
-export default function Editor({ initialState }: { initialState: SiteObject }) {
+export default function Editor({
+  initialState,
+  siteId,
+}: {
+  initialState: SiteObject;
+  siteId: string;
+}) {
   const state = useEditorStore((state) => state);
   const [isInitialized, setIsInitialized] = useState(false);
   const initialize = useEditorStore((state) => state.initialize);
@@ -20,6 +27,8 @@ export default function Editor({ initialState }: { initialState: SiteObject }) {
   useEffect(() => {
     if (state.data.blocks.length === 0) addBlock("text", 0);
   }, [state.data.blocks, addBlock]);
+
+  useSync(siteId, 1000);
 
   if (!isInitialized) return <p>Initialzing editor...</p>;
 

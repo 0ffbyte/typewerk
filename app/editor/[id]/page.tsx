@@ -13,7 +13,7 @@ export default async function EditorPage({
   if (!siteObject) return notFound();
   return (
     <div className="flex flex-col min-h-screen items-start justify-start md:w-[800px] pt-[44] md:pt-[64] pb-[24] px-[12] md:px-[64px] mx-auto font-sans">
-      <Editor initialState={siteObject} />
+      <Editor initialState={siteObject} siteId={id} />
     </div>
   );
 }

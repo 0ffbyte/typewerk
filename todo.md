@@ -11,4 +11,10 @@
 
 - [x] renderer and isr with reserved domains
 
-- [ ] db sync with debounce
+---
+
+- [x] site creation form submission
+
+- [x] db sync with debounce
+
+- [ ] multi tenancy
