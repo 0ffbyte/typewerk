@@ -9,6 +9,6 @@
 
 - [x] home page and editor page
 
-- [ ] renderer and isr with reserved domains
+- [x] renderer and isr with reserved domains
 
 - [ ] db sync with debounce

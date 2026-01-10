@@ -14,7 +14,7 @@ const ImageBlock = ({ url, index }: Props) => {
     <div
       ref={ref}
       tabIndex={index}
-      className="w-full h-[420px] relative overflow-hidden outline-none"
+      className="w-full aspect-video relative overflow-hidden outline-none"
     >
       <img
         className="w-full h-full object-cover rounded-[20px]"

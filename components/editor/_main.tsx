@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 
 export default function Editor({ initialState }: { initialState: SiteObject }) {
   const state = useEditorStore((state) => state);
+  const [isInitialized, setIsInitialized] = useState(false);
   const initialize = useEditorStore((state) => state.initialize);
   const addBlock = useEditorStore((state) => state.addBlock);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize store with initialState
   useEffect(() => {
@@ -21,20 +21,10 @@ export default function Editor({ initialState }: { initialState: SiteObject }) {
     if (state.data.blocks.length === 0) addBlock("text", 0);
   }, [state.data.blocks, addBlock]);
 
+  if (!isInitialized) return <p>Initialzing editor...</p>;
+
   return (
-    <div
-      className="flex flex-col items-start justify-start gap-[24px] h-full flex-1"
-      style={{
-        backgroundColor: !isInitialized
-          ? "var(--color-rose-200)"
-          : "transparent",
-      }}
-    >
-      {false && (
-        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state, null, 2)}
-        </pre>
-      )}
+    <div className="flex flex-col items-start justify-start gap-[24px] h-full flex-1">
       <Header state={state} />
 
       {state.data.blocks.map((block, index) => {
@@ -70,3 +60,12 @@ export default function Editor({ initialState }: { initialState: SiteObject }) {
     </div>
   );
 }
+
+// DEBUG
+/**
+ *  {false && (
+        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
+          {JSON.stringify(state, null, 2)}
+        </pre>
+      )}
+ */
