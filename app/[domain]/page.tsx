@@ -1,3 +1,4 @@
+"use cache";
 import Renderer from "@/components/renderer/_main";
 import { getSiteByDomain } from "@/db/queries";
 import { notFound } from "next/navigation";
