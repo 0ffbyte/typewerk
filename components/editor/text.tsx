@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import type { BlockProps } from "@/app/types";
 import useFocus from "@/hooks/use-focus";
+import sanitizeHtml from "sanitize-html";
 
 export type Props = BlockProps & {
   content: string;
@@ -107,7 +108,7 @@ export default function TextBlock({ content, index }: Props) {
 
       if (editorRect) {
         setToolbarPos({
-          top: rect.bottom - editorRect.top + 5,
+          top: rect.top - editorRect.bottom - 4,
           left: rect.left - editorRect.left + rect.width / 2 - 75,
         });
       }
@@ -118,27 +119,15 @@ export default function TextBlock({ content, index }: Props) {
       document.removeEventListener("selectionchange", handleSelectionChange);
   }, []);
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData("text/plain");
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(document.createTextNode(text));
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-    handleInput();
-  };
-
   const handleInput = () => {
     if (ref.current) {
       setState((s) => {
         const block = s.data.blocks[index];
         if (block.type === "text") {
-          block.props.content = ref.current?.innerHTML ?? "";
+          const sanizitedContent = sanitizeHtml(ref.current?.innerHTML ?? "", {
+            allowedTags: ["b", "u", "i", "strong", "em", "br", "a", "p"],
+          });
+          block.props.content = sanizitedContent;
         }
       });
     }
@@ -202,7 +191,6 @@ export default function TextBlock({ content, index }: Props) {
       <div
         ref={ref}
         onInput={handleInput}
-        onPaste={handlePaste}
         onKeyDown={handleKeyDown}
         spellCheck={true}
         contentEditable

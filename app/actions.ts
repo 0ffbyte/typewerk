@@ -10,7 +10,7 @@ export const CreateSiteAction = async (domain: string) => {
   try {
     console.log("creating site...");
 
-    const cleanDomain = domain.replace(/\s/g, "").trim();
+    const cleanDomain = domain.replace(/\s/g, "").trim().toLowerCase();
 
     if (!cleanDomain) throw new Error("Domain is required");
 
