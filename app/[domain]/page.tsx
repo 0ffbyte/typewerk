@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   return (
     <div className="flex flex-col min-h-screen items-start justify-start md:w-[800px] pt-[44] md:pt-[64] pb-[24] px-[12] md:px-[64px] mx-auto font-sans">
-      <Suspense fallback={<div>...</div>}>
+      <Suspense>
         <RendererPage params={params} />
       </Suspense>
     </div>
