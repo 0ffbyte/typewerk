@@ -52,8 +52,12 @@ export const CreateSiteAction = async (domain: string) => {
 
 export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
   try {
-    await db.update(sites).set({ siteObject }).where(eq(sites.id, id));
-    revalidateTag("site-" + id, "max");
+    const data = await db
+      .update(sites)
+      .set({ siteObject })
+      .where(eq(sites.id, id))
+      .returning();
+    revalidateTag("site-" + data[0].domain, "max");
 
     return { success: true };
   } catch (error) {
