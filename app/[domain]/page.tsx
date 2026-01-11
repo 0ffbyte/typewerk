@@ -1,6 +1,6 @@
-"use cache";
 import Renderer from "@/components/renderer/_main";
 import { getSiteByDomain } from "@/db/queries";
+import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -23,8 +23,12 @@ const RendererPage = async ({
 }: {
   params: Promise<{ domain: string }>;
 }) => {
+  "use cache";
   const { domain } = await params;
   const site = await getSiteByDomain(domain);
+
+  cacheLife("hours");
+  cacheTag("site-" + site.id);
 
   if (!site) return notFound();
 
