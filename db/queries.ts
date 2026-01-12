@@ -14,19 +14,19 @@ export const getSite = async (id: string) => {
   return data[0];
 };
 
-export const getSiteByDomain = async (domain: string) => {
+export const getSiteBySubdomain = async (subdomain: string) => {
   const cached_user = unstable_cache(
     async () => {
       const data = await db
         .select()
         .from(sites)
-        .where(eq(sites.domain, domain))
+        .where(eq(sites.subdomain, subdomain))
         .limit(1);
       return data[0];
     },
-    [domain],
+    [subdomain],
     {
-      tags: [`site-${domain}`],
+      tags: [`site-${subdomain}`],
     }
   );
 

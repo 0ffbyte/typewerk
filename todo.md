@@ -2,6 +2,8 @@
 
 - [ ] multi tenancy
 
+---
+
 - [x] HTML sanitizer
 
 ---

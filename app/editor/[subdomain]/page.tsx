@@ -1,15 +1,15 @@
 import Editor from "@/components/editor/_main";
-import { getSite } from "@/db/queries";
+import { getSiteBySubdomain } from "@/db/queries";
 import { notFound } from "next/navigation";
 import { sanitizeSiteObject } from "@/lib/sanitize";
 
 export default async function Page({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ subdomain: string }>;
 }) {
-  const { id } = await params;
-  const { siteObject } = await getSite(id);
+  const { subdomain } = await params;
+  const { siteObject, id } = await getSiteBySubdomain(subdomain);
   if (!siteObject) return notFound();
 
   const sanitizedSite = sanitizeSiteObject(siteObject);

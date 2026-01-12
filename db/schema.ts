@@ -14,7 +14,7 @@ export const sites = pgTable("sites", {
   id: text("id")
     .primaryKey()
     .$default(() => sql`gen_random_uuid()`),
-  domain: varchar("domain", { length: 256 }).unique().notNull(),
+  subdomain: varchar("subdomain", { length: 256 }).unique().notNull(),
   siteObject: jsonb("site_object").$type<EditorState["data"]>().notNull(),
   published: boolean("published").default(false).notNull(),
   thumbnail: text("thumbnail"),

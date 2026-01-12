@@ -6,20 +6,27 @@ import { eq } from "drizzle-orm";
 import type { SiteObject } from "@/store/editor-store";
 import { revalidateTag } from "next/cache";
 
-export const CreateSiteAction = async (domain: string) => {
+export const CreateSiteAction = async (subdomain: string) => {
   try {
     console.log("creating site...");
 
-    const cleanDomain = domain.replace(/\s/g, "").trim().toLowerCase();
+    const sanitizedSubdomain = subdomain
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 63); // Enforce max length
 
-    if (!cleanDomain) throw new Error("Domain is required");
+    if (!sanitizedSubdomain || sanitizedSubdomain.length === 0) {
+      throw new Error("Subdomain is required");
+    }
 
     const starerTemplate: SiteObject = {
-      title: domain,
+      title: subdomain,
       header: {
         image:
           "https://i.pinimg.com/736x/85/50/37/8550374002b693961ea0274cbd733e37.jpg",
-        heading: "Hello World",
+        heading: `Hello, ${subdomain}`,
         subheading: "Welcome to your new site",
       },
       blocks: [
@@ -43,7 +50,7 @@ export const CreateSiteAction = async (domain: string) => {
 
     await db
       .insert(sites)
-      .values({ domain: cleanDomain, siteObject: starerTemplate });
+      .values({ subdomain: sanitizedSubdomain, siteObject: starerTemplate });
   } catch (error) {
     console.error("Failed to create site:", error);
     throw new Error("Failed to create site");
@@ -57,7 +64,7 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
       .set({ siteObject })
       .where(eq(sites.id, id))
       .returning();
-    revalidateTag("site-" + data[0].domain, "max");
+    revalidateTag("site-" + data[0].subdomain, "max");
 
     return { success: true };
   } catch (error) {
