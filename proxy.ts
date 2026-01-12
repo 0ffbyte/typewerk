@@ -1,44 +1,64 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { rootDomain } from "@/lib/utils";
 
-const BASE_DOMAIN = "localhost:3000";
-const SUBDOMAIN_RE = /^[a-z0-9-]{1,63}$/;
+function extractSubdomain(request: NextRequest): string | null {
+  const url = request.url;
+  const host = request.headers.get("host") || "";
+  const hostname = host.split(":")[0];
 
-function extractSubdomain(host: string): string | null {
-  if (!host) return null;
+  // Local development environment
+  if (url.includes("localhost") || url.includes("127.0.0.1")) {
+    // Try to extract subdomain from the full URL
+    const fullUrlMatch = url.match(/http:\/\/([^.]+)\.localhost/);
+    if (fullUrlMatch && fullUrlMatch[1]) {
+      return fullUrlMatch[1];
+    }
 
-  const hostParts = host.split(".");
+    // Fallback to host header approach
+    if (hostname.includes(".localhost")) {
+      return hostname.split(".")[0];
+    }
 
-  // Need at least 2 parts for a subdomain
-  if (hostParts.length < 2) return null;
-
-  let subdomain = hostParts[0] || null;
-
-  // Skip 'www' subdomain
-  if (subdomain === "www") {
-    subdomain = hostParts.length >= 3 ? hostParts[1] : null;
+    return null;
   }
 
-  return subdomain;
-}
+  // Production environment
+  const rootDomainFormatted = rootDomain.split(":")[0];
 
-function createSubdomainUrl(request: NextRequest, subdomain: string): URL {
-  const url = request.nextUrl.clone();
-  const pathname = url.pathname === "/" ? "" : url.pathname;
-  url.pathname = `/${subdomain}${pathname}`;
-  return url;
+  // Handle preview deployment URLs (tenant---branch-name.vercel.app)
+  if (hostname.includes("---") && hostname.endsWith(".vercel.app")) {
+    const parts = hostname.split("---");
+    return parts.length > 0 ? parts[0] : null;
+  }
+
+  // Regular subdomain detection
+  const isSubdomain =
+    hostname !== rootDomainFormatted &&
+    hostname !== `www.${rootDomainFormatted}` &&
+    hostname.endsWith(`.${rootDomainFormatted}`);
+
+  return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, "") : null;
 }
 
 export async function proxy(request: NextRequest) {
-  const host = request.headers.get("host") || "";
-  const sub = extractSubdomain(host);
+  const { pathname } = request.nextUrl;
+  const subdomain = extractSubdomain(request);
 
-  // If no subdomain found, continue with original request
-  if (!sub) return NextResponse.next();
+  if (subdomain) {
+    // Block access to admin page from subdomains
+    if (pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
 
-  // Rewrite to the subdomain route
-  const rewrittenUrl = createSubdomainUrl(request, sub);
-  return NextResponse.rewrite(rewrittenUrl);
+    // For the root path on a subdomain, rewrite to the subdomain page
+    if (pathname === "/") {
+      return NextResponse.rewrite(new URL(`/${subdomain}`, request.url));
+    }
+  }
+
+  // On the root domain, allow normal access
+  return NextResponse.next();
 }
 
 export const config = {

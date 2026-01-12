@@ -1,6 +1,6 @@
 # Quests
 
-- [ ] multi tenancy
+- [x] multi tenancy
 
 ---
 
