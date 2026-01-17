@@ -89,7 +89,6 @@ export default function TextBlock({ content, index }: Props) {
     }
     const handleSelectionChange = () => {
       const selection = window.getSelection();
-      console.log(selection);
       if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
         setToolbarPos(null);
         return;

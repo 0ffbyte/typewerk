@@ -19,7 +19,7 @@ export default function Renderer({ siteObject }: { siteObject: SiteObject }) {
         return (
           <div key={block.uuid} className="w-full">
             {index >= 1 && block.type === "section" && (
-              <div className="h-[68px] w-[24px] border-t border-zinc-600" />
+              <div className="h-[68px] w-[24px] bg-rose-200 border-rose-500" />
             )}
 
             <FadeIn delay={index * 0.2 + 0.2} duration={0.4}>

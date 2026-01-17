@@ -1,7 +1,6 @@
+import { DeleteSiteAction } from "@/app/actions";
 import { getSites } from "@/db/queries";
 import Link from "next/link";
-
-export const dynamic = "force-dynamic";
 
 export default async function UserSites() {
   const sites = await getSites();
@@ -10,7 +9,7 @@ export default async function UserSites() {
   return (
     <ul className="space-y-2">
       {sites.map((site) => (
-        <li key={site.id} className="flex items-center gap-8">
+        <li key={site.id} className="grid grid-cols-2 gap-2">
           <p>{site.subdomain}</p>
 
           <div className="flex items-center gap-2">
@@ -21,6 +20,13 @@ export default async function UserSites() {
             <Link href={`/editor/${site.subdomain}`} prefetch>
               <p className="underline text-blue-600">edit</p>
             </Link>
+
+            <form action={DeleteSiteAction}>
+              <input type="hidden" name="id" value={site.id} />
+              <button type="submit" className="text-rose-600 cursor-pointer">
+                delete
+              </button>
+            </form>
           </div>
         </li>
       ))}

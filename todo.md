@@ -1,20 +1,16 @@
 # Quests
 
-- [x] multi tenancy
-
----
-
-- [x] HTML sanitizer
-
----
-
-- [x] isr with on demand-revalidation using cacheTags
+- [x] caching with on demand revalidation
 
 - [x] db sync with debounce
 
-- [x] site creation form submission
+- [x] multi tenancy
 
----
+- [x] HTML sanitizer
+
+- [x] isr with on demand-revalidation using cacheTags
+
+- [x] site creation form submission
 
 - [x] Migrate state to use Zustand and Immer
 

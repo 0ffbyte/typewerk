@@ -64,11 +64,23 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
       .set({ siteObject })
       .where(eq(sites.id, id))
       .returning();
-    revalidateTag("site-" + data[0].subdomain, "max");
+    console.log("site updated");
 
-    return { success: true };
+    revalidateTag("site-" + data[0].subdomain, "max");
   } catch (error) {
     console.error("Failed to update site:", error);
     throw new Error("Failed to update site");
+  }
+};
+
+export const DeleteSiteAction = async (formdata: FormData) => {
+  try {
+    const id = formdata.get("id") as string;
+    console.log("id:", id);
+    if (!id) throw new Error("No id provided");
+    await db.delete(sites).where(eq(sites.id, id));
+  } catch (error) {
+    console.error("Failed to delete site:", error);
+    throw new Error("Failed to delete site");
   }
 };

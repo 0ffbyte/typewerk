@@ -5,19 +5,18 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
   const setState = useEditorStore((state) => state.setState);
   return (
     <div className="flex flex-col mb-[68px] gap-[16px]">
-      {false && (
-        <div>
-          <img
-            width={64}
-            height={64}
-            className="object-fit rounded-[20px]"
-            src={state.data.header.image ?? ""}
-          />
-        </div>
-      )}
+      <div>
+        <img
+          width={64}
+          height={64}
+          className="object-fit rounded-[20px] hidden"
+          src={state.data.header.image ?? ""}
+        />
+      </div>
+
       <div className="flex flex-col">
         <input
-          className="text-[32px] w-[300] leading-0 font-medium outline-none placeholder:text-zinc-400"
+          className="text-[28px] leading-[32px] w-[300] font-semibold outline-none placeholder:text-zinc-400"
           placeholder="Heading"
           spellCheck={false}
           value={state.data.header.heading}
@@ -28,7 +27,7 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
           }
         />
         <input
-          className="text-[32px] w-[300] leading-0 font-medium outline-none placeholder:text-zinc-400 text-zinc-500"
+          className="text-[28px] leading-[32px] w-[300] font-semibold outline-none placeholder:text-zinc-400 text-zinc-500"
           placeholder="Subheading"
           value={state.data.header.subheading}
           onChange={(e) =>

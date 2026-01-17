@@ -3,8 +3,8 @@ import Header from "@/components/editor/header";
 import { BlockRegistry } from "@/lib/block-registry";
 import BlockControls from "@/components/editor/wrapper";
 import { SiteObject, useEditorStore } from "@/store/editor-store";
-import { useEffect, useState } from "react";
-import useSync from "@/hooks/use-sync";
+import { useEffect, useRef, useState } from "react";
+import { UpdateSiteAction } from "@/app/actions";
 
 export default function Editor({
   initialState,
@@ -18,20 +18,39 @@ export default function Editor({
   const initialize = useEditorStore((state) => state.initialize);
   const addBlock = useEditorStore((state) => state.addBlock);
 
-  // Initialize store with initialState
+  const isFirstRender = useRef(true);
+  const prevState = useRef(state.data);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    } else if (
+      JSON.stringify(state.data) !== JSON.stringify(prevState.current)
+    ) {
+      let timeout: ReturnType<typeof setTimeout> | null = null;
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        console.log("updating site...");
+        UpdateSiteAction(siteId, state.data);
+        prevState.current = state.data;
+      }, 1000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [state.data]);
+
+  // Initializes store
   useEffect(() => {
     initialize(initialState);
     setIsInitialized(true);
   }, [initialState, initialize]);
 
+  // Adds a default text block if none exist
   useEffect(() => {
     if (state.data.blocks.length === 0) addBlock("text", 0);
   }, [state.data.blocks, addBlock]);
 
-  useSync(siteId, 1000);
-
   if (!isInitialized) return <p>Initialzing editor...</p>;
-
   return (
     <div className="flex flex-col items-start justify-start gap-[24px] h-full flex-1">
       <Header state={state} />
@@ -45,7 +64,7 @@ export default function Editor({
         return (
           <div key={block.uuid} className="w-full">
             {index >= 1 && block.type === "section" && (
-              <div className="h-[68px] w-[24px] border-t border-zinc-600" />
+              <div className="h-[68px] w-[24px] bg-rose-200" />
             )}
 
             <BlockControls index={index}>
@@ -58,7 +77,7 @@ export default function Editor({
       {state.data.blocks[state.data.blocks.length - 1]?.type !== "text" && (
         <div
           id="foreword"
-          className="w-full min-h-[92px] h-full flex flex-1 cursor-text"
+          className="w-full min-h-[92px] h-full flex flex-1 cursor-text bg-rose-200"
           onClick={() => {
             const insertAt = state.data.blocks.length;
             state.addBlock("text", insertAt);
