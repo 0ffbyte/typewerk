@@ -3,8 +3,8 @@ import Header from "@/components/editor/header";
 import { BlockRegistry } from "@/lib/block-registry";
 import BlockControls from "@/components/editor/wrapper";
 import { SiteObject, useEditorStore } from "@/store/editor-store";
-import { useEffect, useRef, useState } from "react";
-import { UpdateSiteAction } from "@/app/actions";
+import { useEffect, useState } from "react";
+import useSync from "@/hooks/use-sync";
 
 export default function Editor({
   initialState,
@@ -18,26 +18,8 @@ export default function Editor({
   const initialize = useEditorStore((state) => state.initialize);
   const addBlock = useEditorStore((state) => state.addBlock);
 
-  const isFirstRender = useRef(true);
-  const prevState = useRef(state.data);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    } else if (
-      JSON.stringify(state.data) !== JSON.stringify(prevState.current)
-    ) {
-      let timeout: ReturnType<typeof setTimeout> | null = null;
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        console.log("updating site...");
-        UpdateSiteAction(siteId, state.data);
-        prevState.current = state.data;
-      }, 1000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [state.data]);
+  // Syncs state with server
+  useSync(siteId, state.data);
 
   // Initializes store
   useEffect(() => {
@@ -53,6 +35,12 @@ export default function Editor({
   if (!isInitialized) return <p>Initialzing editor...</p>;
   return (
     <div className="flex flex-col items-start justify-start gap-[24px] h-full flex-1">
+      {true && (
+        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
+          {JSON.stringify(state, null, 2)}
+        </pre>
+      )}
+
       <Header state={state} />
 
       {state.data.blocks.map((block, index) => {

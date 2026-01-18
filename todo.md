@@ -1,3 +1,9 @@
+# Bugs to fix
+
+- [x] HTML ui vs state inconsitencies 
+(anserting br manually on enter + propagating input event to update state when formatting)
+
+
 # Quests
 
 - [x] caching with on demand revalidation

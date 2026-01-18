@@ -79,6 +79,10 @@ export default function TextBlock({ content, index }: Props) {
     }
 
     ref.current?.focus();
+
+    // Trigger input event to update state
+    const inputEvent = new Event("input", { bubbles: true });
+    ref.current?.dispatchEvent(inputEvent);
   };
 
   useEffect(() => {
@@ -132,25 +136,38 @@ export default function TextBlock({ content, index }: Props) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    const isAtStart =
-      range.startOffset === 0 &&
-      range.startContainer === ref.current?.firstChild;
-    const isAtEnd =
-      range.startOffset === (range.startContainer.textContent?.length ?? 0);
-
-    if (isAtStart) {
-      //setTraversal("backward");
-    } else if (isAtEnd) {
-      //setTraversal("forward");
-    } else {
-      //setTraversal(null);
+   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      
+      const range = selection.getRangeAt(0);
+      
+      // Check if selection is within our editor
+      if (!ref.current?.contains(range.commonAncestorContainer)) {
+        return;
+      }
+      
+      // Insert br tag manually
+      const br = document.createElement("br");
+      range.deleteContents();
+      range.insertNode(br);
+      
+      // Move cursor after the br
+      range.setStartAfter(br);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      // Trigger input event to update state
+      const inputEvent = new Event("input", { bubbles: true });
+      ref.current?.dispatchEvent(inputEvent);
     }
   };
+
+  
   return (
     <div className="w-full relative">
       {toolbarPos && (

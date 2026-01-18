@@ -66,7 +66,7 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
       .returning();
     console.log("site updated");
 
-    revalidateTag("site-" + data[0].subdomain, "max");
+    //revalidateTag("site-" + data[0].subdomain, "max");
   } catch (error) {
     console.error("Failed to update site:", error);
     throw new Error("Failed to update site");
