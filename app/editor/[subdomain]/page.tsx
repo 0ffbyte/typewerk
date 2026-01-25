@@ -16,7 +16,7 @@ export default async function Page({
 
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (
-    <div className="flex flex-col min-h-screen items-start justify-start md:w-[800px] pt-[44] md:pt-[92] pb-[24] px-[12] mx-auto font-sans">
+    <div className="flex flex-col min-h-screen items-start justify-start md:w-[800px] pt-[44] md:pt-[128] pb-[92] px-[12] md:px-0 mx-auto font-sans">
       <Editor initialState={sanitizedSite} siteId={id} />
     </div>
   );

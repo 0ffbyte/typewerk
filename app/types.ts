@@ -2,7 +2,7 @@ export type BlockProps = {
   index: number;
 };
 
-export type Block = TextBlock | SectionBlock | ImageBlock;
+export type Block = TextBlock | SectionBlock | ImageBlock | BlockquoteBlock;
 
 export type TextBlock = {
   uuid: string;
@@ -25,5 +25,13 @@ export type ImageBlock = {
   type: "image";
   props: {
     url: string;
+  };
+};
+
+export type BlockquoteBlock = {
+  uuid: string;
+  type: "blockquote";
+  props: {
+    content: string;
   };
 };

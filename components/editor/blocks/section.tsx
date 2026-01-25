@@ -1,7 +1,7 @@
 import { useEditorStore } from "@/store/editor-store"; // access editor
 import type { BlockProps } from "@/app/types";
-import useFocus from "@/hooks/use-focus";
-import { useEffect } from "react";
+import { useRef } from "react";
+import useFocused from "@/hooks/use-focused";
 
 // define block props
 export type Props = BlockProps & {
@@ -10,20 +10,12 @@ export type Props = BlockProps & {
 
 // define block component
 const SectionBlock = ({ title = "", index }: Props) => {
-  const { ref, isFocused } = useFocus(index);
   const setState = useEditorStore((state) => state.setState);
   const addBlock = useEditorStore((state) => state.addBlock);
   const removeBlock = useEditorStore((state) => state.removeBlock);
 
-  // Move caret to the end position of input element
-  useEffect(() => {
-    if (isFocused && ref.current) {
-      const el = ref.current;
-
-      const length = el.value.length;
-      el.setSelectionRange(length, length);
-    }
-  }, [isFocused]);
+  const ref = useRef<HTMLInputElement>(null);
+  useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -36,8 +28,9 @@ const SectionBlock = ({ title = "", index }: Props) => {
 
   return (
     <input
+      id={title}
       ref={ref}
-      className="text-[16px] w-full leading-0 font-medium outline-none placeholder:text-zinc-400"
+      className="text-[24px] w-full leading-0 font-semibold outline-none placeholder:text-zinc-400"
       placeholder="Section"
       maxLength={30}
       value={title}

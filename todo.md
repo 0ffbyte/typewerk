@@ -1,10 +1,19 @@
 # Bugs to fix
 
-- [x] HTML ui vs state inconsitencies 
-(anserting br manually on enter + propagating input event to update state when formatting)
+- [ ] drag position mismatch when dragging beyond screen space
 
+- [x] HTML ui vs state inconsitencies
+      (anserting br manually on enter + propagating input event to update state when formatting)
 
 # Quests
+
+- [x] block toolbar
+
+- [x] contenteditable component
+
+- [x] handle block refactor and cleanup
+
+- [x] dnd-kit integration
 
 - [x] caching with on demand revalidation
 

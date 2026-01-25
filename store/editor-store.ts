@@ -26,6 +26,7 @@ type Actions = {
   setSelectedIndex: (index: number) => void;
   addBlock: (type: BlockType, index: number) => void;
   removeBlock: (index: number) => void;
+  reorderBlocks: (activeId: string, overId: string) => void;
 };
 
 export const useEditorStore = create<EditorState & Actions>()(
@@ -68,7 +69,7 @@ export const useEditorStore = create<EditorState & Actions>()(
       removeBlock: (index: number) =>
         set((state) => {
           state.data.blocks.splice(index, 1);
-          state.selectedIndex = Math.max(0, index - 1);
+          state.selectedIndex = Math.max(-1, index - 1);
         }),
       setState: (updater: (draft: EditorState) => void) =>
         set((state) => {
@@ -77,6 +78,31 @@ export const useEditorStore = create<EditorState & Actions>()(
       initialize: (data: SiteObject) =>
         set((state) => {
           state.data = data;
+        }),
+      reorderBlocks: (activeId: string, overId: string) =>
+        set((state) => {
+          const activeIndex = state.data.blocks.findIndex(
+            (block) => block.uuid === activeId
+          );
+          let overIndex = state.data.blocks.findIndex(
+            (block) => block.uuid === overId
+          );
+
+          if (activeIndex <= overIndex) {
+            overIndex = overIndex - 1;
+          } else if (overId === "end-block") {
+            overIndex = state.data.blocks.length;
+          }
+
+          if (
+            activeIndex !== -1 &&
+            overIndex !== -1 &&
+            activeIndex !== overIndex
+          ) {
+            const [removed] = state.data.blocks.splice(activeIndex, 1);
+            state.data.blocks.splice(overIndex, 0, removed);
+            state.selectedIndex = overIndex;
+          }
         }),
     }))
   )

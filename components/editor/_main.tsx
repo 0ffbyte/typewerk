@@ -1,10 +1,19 @@
 "use client";
 import Header from "@/components/editor/header";
 import { BlockRegistry } from "@/lib/block-registry";
-import BlockControls from "@/components/editor/wrapper";
+import BlockHandle from "@/components/editor/block-wrapper";
 import { SiteObject, useEditorStore } from "@/store/editor-store";
 import { useEffect, useState } from "react";
 import useSync from "@/hooks/use-sync";
+import Spacer from "@/components/editor/spacer";
+import {
+  rectIntersection,
+  DndContext,
+  DragEndEvent,
+  pointerWithin,
+  closestCorners,
+  closestCenter,
+} from "@dnd-kit/core";
 
 export default function Editor({
   initialState,
@@ -16,26 +25,36 @@ export default function Editor({
   const state = useEditorStore((state) => state);
   const [isInitialized, setIsInitialized] = useState(false);
   const initialize = useEditorStore((state) => state.initialize);
-  const addBlock = useEditorStore((state) => state.addBlock);
-
-  // Syncs state with server
+  const reorderBlocks = useEditorStore((state) => state.reorderBlocks);
   useSync(siteId, state.data);
 
-  // Initializes store
   useEffect(() => {
     initialize(initialState);
     setIsInitialized(true);
   }, [initialState, initialize]);
 
-  // Adds a default text block if none exist
-  useEffect(() => {
-    if (state.data.blocks.length === 0) addBlock("text", 0);
-  }, [state.data.blocks, addBlock]);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      reorderBlocks(active.id as string, over.id as string);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.ctrlKey && e.key === "k") {
+      e.preventDefault();
+      alert("TODO: Keyboard shortcut for commands");
+    }
+  };
 
   if (!isInitialized) return <p>Initialzing editor...</p>;
   return (
-    <div className="flex flex-col items-start justify-start gap-[24px] h-full flex-1">
-      {true && (
+    <div
+      className="flex flex-col items-start justify-start h-full flex-1 w-full"
+      onKeyDown={handleKeyDown}
+    >
+      {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
           {JSON.stringify(state, null, 2)}
         </pre>
@@ -43,29 +62,34 @@ export default function Editor({
 
       <Header state={state} />
 
-      {state.data.blocks.map((block, index) => {
-        const definition = BlockRegistry[block.type];
-        if (!definition) return null;
+      <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+        {state.data.blocks.map((block, index) => {
+          const definition = BlockRegistry[block.type];
+          if (!definition) return null;
 
-        const Block = definition.component;
+          const Block = definition.component;
 
-        return (
-          <div key={block.uuid} className="w-full">
-            {index >= 1 && block.type === "section" && (
-              <div className="h-[68px] w-[24px] bg-rose-200" />
-            )}
+          return (
+            <div key={block.uuid} className="w-full">
+              <Spacer id={block.uuid} index={index} />
+              {block.type === "section" && index >= 1 && (
+                <div className="h-[64]" />
+              )}
 
-            <BlockControls index={index}>
-              <Block {...block.props} index={index} />
-            </BlockControls>
-          </div>
-        );
-      })}
+              <BlockHandle index={index} id={block.uuid}>
+                <Block {...block.props} index={index} />
+              </BlockHandle>
+            </div>
+          );
+        })}
+
+        <Spacer id={"end-block"} index={state.data.blocks.length} />
+      </DndContext>
 
       {state.data.blocks[state.data.blocks.length - 1]?.type !== "text" && (
         <div
           id="foreword"
-          className="w-full min-h-[92px] h-full flex flex-1 cursor-text bg-rose-200"
+          className="w-full min-h-[92px] h-full flex flex-1 cursor-text"
           onClick={() => {
             const insertAt = state.data.blocks.length;
             state.addBlock("text", insertAt);
@@ -76,12 +100,3 @@ export default function Editor({
     </div>
   );
 }
-
-// DEBUG
-/**
- *  {false && (
-        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state, null, 2)}
-        </pre>
-      )}
- */
