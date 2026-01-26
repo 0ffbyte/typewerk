@@ -17,7 +17,7 @@ export default function TextBlock({ content, index }: Props) {
 
   useFocused(ref, index);
 
-  const handleInput = () => {
+  const handleInput = (e: React.ChangeEvent<HTMLDivElement>) => {
     if (ref.current) {
       setState((s) => {
         const block = s.data.blocks[index];
@@ -28,6 +28,47 @@ export default function TextBlock({ content, index }: Props) {
           block.props.content = sanizitedContent;
         }
       });
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    // Only get plain text from clipboard, ignoring all HTML
+    const text = e.clipboardData?.getData("text/plain");
+    if (!text) return;
+
+    // Insert the plain text at the caret position
+    if (document.getSelection && ref.current) {
+      const selection = document.getSelection();
+      if (!selection) return;
+
+      // Remove whatever is currently selected
+      if (!selection.isCollapsed) {
+        selection.deleteFromDocument();
+      }
+
+      // Create a text node to insert
+      const textNode = document.createTextNode(text);
+
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.insertNode(textNode);
+
+        // Move caret to after inserted text
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Update the block's content with just the plain text (avoiding unwanted HTML)
+        setState((s) => {
+          const block = s.data.blocks[index];
+          if (block.type === "text") {
+            // Get the full plain text content after pasting
+            block.props.content = ref.current?.textContent ?? "";
+          }
+        });
+      }
     }
   };
 
@@ -70,12 +111,22 @@ export default function TextBlock({ content, index }: Props) {
     }
   };
 
+  const handleOnBlur = () => {
+    if (ref.current) {
+      const content = ref.current.textContent ?? "";
+      if (content.length === 0) removeBlock(index);
+    }
+  };
+
   return (
     <ContentEditable
       ref={ref}
       content={content}
+      placeholder="Type here or press / for commands"
       onInput={handleInput}
       onKeyDown={handleKeyDown}
+      onBlur={handleOnBlur}
+      onPaste={handlePaste}
     />
   );
 }

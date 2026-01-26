@@ -1,3 +1,4 @@
+import useFocused from "@/hooks/use-focused";
 import { EditorState } from "@/store/editor-store";
 import { useEditorStore } from "@/store/editor-store";
 import { useEffect, useRef } from "react";
@@ -9,15 +10,18 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
 
   const selectedIndex = useEditorStore((state) => state.selectedIndex);
   const ref = useRef<HTMLTextAreaElement>(null);
+  //useFocused(ref, -1);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       if (
         state.data.blocks.length === 0 ||
         state.data.blocks[0].type !== "text"
       ) {
-        e.preventDefault();
         addBlock("text", 0);
+      } else {
+        setSelectedIndex(0);
       }
     } else if (e.ctrlKey && e.key === "ArrowDown") {
       setSelectedIndex(0);
@@ -50,10 +54,11 @@ export default function HeaderBlock({ state }: { state: EditorState }) {
       <div className="flex flex-col gap-1">
         <textarea
           ref={ref}
-          className="text-[40px] leading-[48px] w-full font-bold outline-none placeholder:text-zinc-400 resize-none overflow-hidden "
+          className="text-[40px] leading-[48px] w-full font-semibold outline-none placeholder:text-zinc-400 resize-none overflow-hidden "
           placeholder="New page"
           spellCheck={false}
           value={state.data.header.heading}
+          onFocus={() => setSelectedIndex(-1)}
           onKeyDown={handleKeyDown}
           onChange={(e) => {
             setState((s) => {

@@ -9,7 +9,11 @@ export const getSites = async () => {
 };
 
 export const getSite = async (subdomain: string) => {
-  const data = await db.select().from(sites).where(eq(sites.subdomain, subdomain)).limit(1);
+  const data = await db
+    .select()
+    .from(sites)
+    .where(eq(sites.subdomain, subdomain))
+    .limit(1);
 
   return data[0];
 };
@@ -27,7 +31,7 @@ export const getSiteBySubdomain = async (subdomain: string) => {
     [subdomain],
     {
       tags: [`site-${subdomain}`],
-      revalidate: 60 * 60,
+      revalidate: 60 * 15,
     }
   );
 

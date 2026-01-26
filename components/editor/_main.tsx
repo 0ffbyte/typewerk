@@ -89,7 +89,7 @@ export default function Editor({
       {state.data.blocks[state.data.blocks.length - 1]?.type !== "text" && (
         <div
           id="foreword"
-          className="w-full min-h-[92px] h-full flex flex-1 cursor-text"
+          className="w-full min-h-[92px] h-full flex flex-1 cursor-text rounded-[8px] hover:bg-zinc-200 transition-colors duration-200"
           onClick={() => {
             const insertAt = state.data.blocks.length;
             state.addBlock("text", insertAt);
