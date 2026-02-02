@@ -1,0 +1,51 @@
+"use client";
+
+import { useRef } from "react";
+import ContentEditable from "../contenteditable";
+import { BlockProps } from "@/app/types";
+import { useEditorStore } from "@/store/editor-store";
+import useFocused from "@/hooks/use-focused";
+
+export type CheckmateProps = {
+  content: string;
+};
+
+const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
+  const setState = useEditorStore((s) => s.setState);
+  const removeBlock = useEditorStore((state) => state.removeBlock);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useFocused(ref, index);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Backspace") {
+      if (
+        ref.current?.textContent?.length === 0 &&
+        ref.current?.innerHTML?.length <= 4
+      ) {
+        e.preventDefault();
+        removeBlock(index);
+      }
+    }
+  };
+
+  return (
+    <ContentEditable
+      ref={ref}
+      className="font-serif text-3xl"
+      value={content}
+      onEdit={(v) =>
+        setState((s) => {
+          const block = s.data.pages[s.pageIndex].blocks[index];
+          if (block.type === "checkmate") {
+            block.props.content = v;
+          }
+        })
+      }
+      onKeyDown={handleKeyDown}
+      placeholder="Checkmate"
+    />
+  );
+};
+
+export default CheckmateBlock;

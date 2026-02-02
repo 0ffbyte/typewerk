@@ -1,27 +1,27 @@
-import type { SiteObject } from "@/store/editor-store";
-import sanitizeHtml from "sanitize-html";
+import type { SiteObject } from "@/app/types";
+import sanitize from "sanitize-html";
+import { produce } from "immer";
+import { BlockRegistry } from "./block-registry";
 
 /**
  * Sanitizes HTML content in text blocks to prevent XSS attacks
  * while allowing basic formatting tags (b, u, i)
  */
+
+export const SANITIZE_CONFIG: sanitize.IOptions = {
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+  },
+};
+
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
-  console.log("sanitizing site object...");
-  return {
-    ...siteObject,
-    blocks: siteObject.blocks.map((block) => {
-      if (block.type === "text" && block.props?.content) {
-        return {
-          ...block,
-          props: {
-            ...block.props,
-            content: sanitizeHtml(block.props.content, {
-              allowedTags: ["b", "u", "i", "strong", "em", "br", "a", "p"],
-            }),
-          },
-        };
-      }
-      return block;
-    }),
-  };
+  return produce(siteObject, (draft) => {
+    draft.pages.forEach((page) => {
+      page.blocks.forEach((block) => {
+        if (BlockRegistry[block.type].sanitize) {
+          block.props.content = sanitize(block.props.content, SANITIZE_CONFIG);
+        }
+      });
+    });
+  });
 }

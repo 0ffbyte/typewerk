@@ -11,12 +11,14 @@ export default async function Page({
   params: Promise<{ subdomain: string }>;
 }) {
   const { subdomain } = await params;
-  const { siteObject, id } = await getSite(subdomain);
-  if (!siteObject) return notFound();
+  const site = await getSite(subdomain);
+  if (!site) return notFound();
 
+  const { siteObject, id } = site;
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (
-    <div className="flex flex-col min-h-screen items-start justify-start md:w-[800px] pt-[44] md:pt-[128] pb-[92] px-[12] md:px-0 mx-auto font-sans">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] min-h-screen w-full items-start justify-start mx-auto font-sans px-4 scroll-smooth md:px-[64px]">
+      <div className="hidden lg:block w-full h-full border-green-500 mt-[64]"></div>
       <Editor initialState={sanitizedSite} siteId={id} />
     </div>
   );

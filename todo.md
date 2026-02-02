@@ -1,11 +1,20 @@
 # Bugs to fix
 
-- [ ] drag position mismatch when dragging beyond screen space
-
-- [x] HTML ui vs state inconsitencies
-      (anserting br manually on enter + propagating input event to update state when formatting)
-
 # Quests
+
+- [ ] editor toolbar w/ preview, publish (revalidate) button
+
+- [ ] list block
+
+## Done
+
+- [x] Add a new block type (checklist)
+
+- [x] Page index
+
+- [x] add button
+
+- [x] text selection floating toolbar
 
 - [x] block toolbar
 

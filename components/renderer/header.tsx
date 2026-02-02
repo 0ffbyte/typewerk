@@ -1,4 +1,4 @@
-import { SiteObject } from "@/store/editor-store";
+import { SiteObject } from "@/app/types";
 
 export default function Header({
   image,

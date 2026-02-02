@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "./index";
 import { sites } from "./schema";
 import { unstable_cache } from "next/cache";
@@ -18,7 +18,7 @@ export const getSite = async (subdomain: string) => {
   return data[0];
 };
 
-export const getSiteBySubdomain = async (subdomain: string) => {
+export const getSiteCached = async (subdomain: string) => {
   const cached_user = unstable_cache(
     async () => {
       const data = await db
@@ -31,7 +31,7 @@ export const getSiteBySubdomain = async (subdomain: string) => {
     [subdomain],
     {
       tags: [`site-${subdomain}`],
-      revalidate: 60 * 15,
+      revalidate: 60 * 3,
     }
   );
 

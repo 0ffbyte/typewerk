@@ -1,6 +1,6 @@
-import { TextBlock } from "@/app/types";
+import { TextProps } from "../editor/blocks/text";
 
-const Text = ({ content }: TextBlock["props"]) => {
+const Text = ({ content }: TextProps) => {
   return (
     <div
       dangerouslySetInnerHTML={{ __html: content }}

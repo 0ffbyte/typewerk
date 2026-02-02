@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1767977656646,
-      "tag": "0000_abnormal_overlord",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1768238120613,
-      "tag": "0001_lucky_talisman",
+      "when": 1769974381485,
+      "tag": "0000_mixed_microbe",
       "breakpoints": true
     }
   ]

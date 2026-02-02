@@ -7,20 +7,34 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-
-import type { EditorState } from "@/store/editor-store";
+import { Page, SiteObject } from "@/app/types";
 
 export const sites = pgTable("sites", {
   id: text("id")
     .primaryKey()
     .$default(() => sql`gen_random_uuid()`),
   subdomain: varchar("subdomain", { length: 256 }).unique().notNull(),
-  siteObject: jsonb("site_object").$type<EditorState["data"]>().notNull(),
-  published: boolean("published").default(false).notNull(),
-  thumbnail: text("thumbnail"),
+  siteObject: jsonb("site_object").$type<SiteObject>().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const articles = pgTable("articles", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => sql`gen_random_uuid()`),
+  siteId: text("site_id")
+    .notNull()
+    .references(() => sites.id),
+  slug: varchar("slug", { length: 256 }).notNull(),
+  content: jsonb("content").$type<Page>().notNull(),
+  published: boolean("published").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
     .notNull(),
 });

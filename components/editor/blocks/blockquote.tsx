@@ -1,38 +1,53 @@
+"use client";
+
 import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
-import sanitizeHtml from "sanitize-html";
 import ContentEditable from "../contenteditable";
 import { useRef } from "react";
 import useFocused from "@/hooks/use-focused";
 
 // define block props
-export type Props = BlockProps & {
+export type BlockquoteProps = {
   content: string;
 };
 
 // define block component
-const BlockquoteBlock = ({ content, index }: Props) => {
+const BlockquoteBlock = ({ content, index }: BlockquoteProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
+  const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
   useFocused(ref, index);
 
-  const handleInput = () => {
-    if (ref.current) {
-      setState((s) => {
-        const block = s.data.blocks[index];
-        if (block.type === "blockquote") {
-          const sanizitedContent = sanitizeHtml(ref.current?.innerHTML ?? "", {
-            allowedTags: ["b", "u", "i", "strong", "em", "br", "a", "p"],
-          });
-          block.props.content = sanizitedContent;
-        }
-      });
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Backspace") {
+      if (
+        ref.current?.textContent?.length === 0 &&
+        ref.current?.innerHTML?.length <= 4
+      ) {
+        e.preventDefault();
+        removeBlock(index);
+      }
     }
   };
 
+  const handleEdit = (v: string) => {
+    setState((s) => {
+      const block = s.data.pages[s.pageIndex].blocks[index];
+      if (block.type === "blockquote") {
+        block.props.content = v;
+      }
+    });
+  };
+
   return (
-    <blockquote className="border-l-4 border-zinc-400 pl-4 text-zinc-600 text-[20px] leading-[28px] w-full min-h-[20px]">
-      <ContentEditable ref={ref} content={content} onInput={handleInput} />
+    <blockquote className="pl-4 w-full">
+      <div className="absolute left-0 top-0 h-full w-[4px] bg-zinc-500 rounded-full" />
+      <ContentEditable
+        ref={ref}
+        value={content}
+        onEdit={handleEdit}
+        onKeyDown={handleKeyDown}
+      />
     </blockquote>
   );
 };

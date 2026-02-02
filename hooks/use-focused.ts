@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useEditorStore } from "@/store/editor-store";
 
-const useFocused = (
-  ref: React.RefObject<HTMLDivElement | HTMLTextAreaElement | null>,
-  index: number
-) => {
+const useFocused = (ref: any, index: number) => {
   const selectedIndex = useEditorStore((state) => state.selectedIndex);
 
   useEffect(() => {

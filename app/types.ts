@@ -1,37 +1,35 @@
+import { BlockRegistry } from "@/lib/block-registry";
+import { UUID } from "crypto";
+
 export type BlockProps = {
   index: number;
+  id: string;
 };
 
-export type Block = TextBlock | SectionBlock | ImageBlock | BlockquoteBlock;
-
-export type TextBlock = {
-  uuid: string;
-  type: "text";
-  props: {
-    content: string;
-  };
+export type BaseBlock = {
+  id: string;
+  type: keyof typeof BlockRegistry;
+  props: Record<string, any>;
 };
 
-export type SectionBlock = {
-  uuid: string;
-  type: "section";
-  props: {
-    title: string;
-  };
+export type Page = {
+  id: string;
+  name: string;
+  blocks: BaseBlock[];
 };
 
-export type ImageBlock = {
-  uuid: string;
-  type: "image";
-  props: {
-    url: string;
-  };
+export type Theme = {
+  accentColor: string;
+  typography: "sans-serif" | "serif";
 };
 
-export type BlockquoteBlock = {
-  uuid: string;
-  type: "blockquote";
-  props: {
-    content: string;
+export type SiteObject = {
+  header: {
+    image: string;
+    heading: string;
+    subheading: string;
   };
+  theme?: Theme;
+  pages: Page[];
+  hasArticles: boolean;
 };

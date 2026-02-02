@@ -13,12 +13,12 @@ export default async function UserSites() {
           <p>{site.subdomain}</p>
 
           <div className="flex items-center gap-2">
-            <Link href={`/${site.subdomain}`} prefetch>
+            <Link href={`/${site.subdomain}`}>
               <p className="underline">view</p>
             </Link>
 
-            <Link href={`/editor/${site.subdomain}`} prefetch>
-              <p className="underline text-blue-600">edit</p>
+            <Link href={`/editor/${site.subdomain}`}>
+              <p className="underline text-blue-500">edit</p>
             </Link>
 
             <form action={DeleteSiteAction}>

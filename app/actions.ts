@@ -3,54 +3,66 @@
 import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import type { SiteObject } from "@/store/editor-store";
-import { revalidateTag } from "next/cache";
+import { SiteObject } from "./types";
 
 export const CreateSiteAction = async (subdomain: string) => {
   try {
     console.log("creating site...");
 
+    // Sanitize subdomain
     const sanitizedSubdomain = subdomain
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "")
-      .slice(0, 63); // Enforce max length
+      .slice(0, 63);
 
     if (!sanitizedSubdomain || sanitizedSubdomain.length === 0) {
       throw new Error("Subdomain is required");
     }
 
-    const starerTemplate: SiteObject = {
-      title: subdomain,
+    const starterTemplate: SiteObject = {
       header: {
-        image:
-          "https://i.pinimg.com/736x/85/50/37/8550374002b693961ea0274cbd733e37.jpg",
-        heading: `Hello, ${subdomain}`,
+        image: "",
+        heading: "Hello, World",
         subheading: "Welcome to your new site",
       },
-      blocks: [
+      hasArticles: false,
+      pages: [
         {
-          uuid: crypto.randomUUID(),
-          type: "section",
-          props: {
-            title: "About",
-          },
+          id: crypto.randomUUID(),
+          name: "home",
+          blocks: [
+            {
+              id: crypto.randomUUID(),
+              type: "text",
+              props: {
+                content: "Hello, World",
+              },
+            },
+          ],
         },
         {
-          uuid: crypto.randomUUID(),
-          type: "text",
-          props: {
-            content:
-              "This is a sample site. Start by deleting this block and adding your own <b>content</b>.",
-          },
+          id: crypto.randomUUID(),
+          name: "work",
+          blocks: [
+            {
+              id: crypto.randomUUID(),
+              type: "text",
+              props: {
+                content: "work page",
+              },
+            },
+          ],
         },
       ],
     };
 
-    await db
-      .insert(sites)
-      .values({ subdomain: sanitizedSubdomain, siteObject: starerTemplate });
+    // Create site
+    await db.insert(sites).values({
+      siteObject: starterTemplate,
+      subdomain: sanitizedSubdomain,
+    });
   } catch (error) {
     console.error("Failed to create site:", error);
     throw new Error("Failed to create site");
@@ -64,7 +76,7 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
       .set({ siteObject })
       .where(eq(sites.id, id))
       .returning();
-    console.log("site updated");
+    console.log("page updated");
 
     //revalidateTag("site-" + data[0].subdomain, "max");
   } catch (error) {

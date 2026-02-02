@@ -1,16 +1,19 @@
-import type { BlockProps } from "@/app/types";
+"use client";
+
 import { useRef } from "react";
-import useFocused from "@/hooks/use-focused";
 import { useEditorStore } from "@/store/editor-store";
+import useFocused from "@/hooks/use-focused";
+import type { BlockProps } from "@/app/types";
 
 // define block props
-export type Props = BlockProps & {
+export type ImageProps = {
   url: string;
 };
 
 // define block component
-const ImageBlock = ({ url, index }: Props) => {
+const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
   const ref = useRef<HTMLDivElement>(null);
+
   useFocused(ref, index);
 
   return (
@@ -29,12 +32,13 @@ export default ImageBlock;
 
 const ImageToolbar = ({ index }: { index: number }) => {
   const setState = useEditorStore((state) => state.setState);
+  const removeBlock = useEditorStore((state) => state.removeBlock);
 
   const handleUpdateUrl = () => {
     const newUrl = window.prompt("Enter image URL:", "");
     if (newUrl !== null && newUrl.trim() !== "") {
-      setState((draft) => {
-        const block = draft.data.blocks[index];
+      setState((s) => {
+        const block = s.data.pages[s.pageIndex].blocks[index];
         if (block && block.type === "image") {
           block.props.url = newUrl.trim();
         }
@@ -43,8 +47,12 @@ const ImageToolbar = ({ index }: { index: number }) => {
   };
 
   return (
-    <div className="absolute top-2 right-2 bg-zinc-800 text-zinc-100 rounded-md p-1 text-xs hidden items-center justify-start gap-1 group-hover:flex">
+    <div className="absolute top-2 right-2 bg-zinc-800 text-zinc-100 rounded-md px-2 py-1 text-xs hidden items-center justify-start gap-2 group-hover:flex">
       <button onClick={handleUpdateUrl}>Update URL</button>
+      <div className="h-[12] w-[1] bg-zinc-500" />
+      <button onClick={() => removeBlock(index)} className="text-rose-400">
+        Del
+      </button>
     </div>
   );
 };
