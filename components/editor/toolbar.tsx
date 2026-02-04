@@ -27,11 +27,13 @@ const PageDropdown = () => {
       setEditIndex(null);
       return;
     }
+
+    const newPageName = draftName.replace(" ", "").trim() || "Page";
     setState((s) => {
-      s.data.pages[s.pageIndex].name =
-        draftName.replace(" ", "").trim() || "Page";
+      s.data.pages[s.pageIndex].name = newPageName;
     });
     setEditIndex(null);
+    navigateToPage(newPageName);
   };
 
   return (
