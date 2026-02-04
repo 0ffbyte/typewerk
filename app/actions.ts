@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { SiteObject } from "./types";
+import { revalidateTag } from "next/cache";
 
 export const CreateSiteAction = async (subdomain: string) => {
   try {
@@ -77,11 +78,26 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
       .where(eq(sites.id, id))
       .returning();
     console.log("page updated");
-
-    //revalidateTag("site-" + data[0].subdomain, "max");
   } catch (error) {
     console.error("Failed to update site:", error);
     throw new Error("Failed to update site");
+  }
+};
+
+export const RevalidateSiteAction = async (id: string) => {
+  try {
+    const data = await db
+      .select({ subdomain: sites.subdomain })
+      .from(sites)
+      .where(eq(sites.id, id))
+      .limit(1);
+
+    const subdomain = data[0]?.subdomain;
+    if (!subdomain) throw new Error("No subdomain found");
+    revalidateTag(`site-${subdomain}`, "max");
+  } catch (error) {
+    console.error("Failed to revalidate site:", error);
+    throw new Error("Failed to revalidate site");
   }
 };
 

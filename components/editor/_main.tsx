@@ -11,8 +11,6 @@ import Spacer from "@/components/editor/spacer";
 import { rectIntersection, DndContext, DragEndEvent } from "@dnd-kit/core";
 import { SiteObject } from "@/app/types";
 
-import Navbar from "@/components/editor/navbar";
-
 export default function Editor({
   initialState,
   siteId,
@@ -25,25 +23,21 @@ export default function Editor({
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const pageName = searchParams.get("p");
-    if (pageName === "home" || !pageName) {
-      state.setPageIndex(0);
-    } else {
-      const foundIndex = state.data.pages.findIndex((p) => p.name === pageName);
-      state.setPageIndex(foundIndex !== -1 ? foundIndex : 0);
-    }
+    const pageName = searchParams.get("p") || "home";
+    const foundIndex = state.data.pages.findIndex((p) => p.name === pageName);
+    state.setPageIndex(foundIndex !== -1 ? foundIndex : 0);
   }, [searchParams, state.data.pages]);
 
   const pageData = useMemo(() => {
     return state.data.pages[state.pageIndex];
-  }, [state.data.pages, state.pageIndex]);
-
-  useSync(siteId, state.data);
+  }, [state.pageIndex, state.data.pages]);
 
   useEffect(() => {
     state.initialize(initialState);
     setIsInitialized(true);
   }, [initialState, state.initialize]);
+
+  useSync(siteId, state.data, isInitialized);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -60,8 +54,14 @@ export default function Editor({
       </div>
     );
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[700px] relative pt-[44] md:pt-[64] pb-[92] mx-auto">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[700px] relative pt-[44] md:pt-[128] pb-[92] mx-auto">
       <Header />
+
+      {false && (
+        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
+          {JSON.stringify(state, null, 2)}
+        </pre>
+      )}
 
       {pageData && (
         <DndContext
@@ -103,8 +103,6 @@ export default function Editor({
           }}
         />
       }
-
-      <Navbar />
     </div>
   );
 }

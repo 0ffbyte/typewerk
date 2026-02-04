@@ -66,9 +66,9 @@ export default function Header() {
       <div className="flex flex-col gap-1">
         <textarea
           ref={headingRef}
-          className="font-medium text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 resize-none overflow-hidden"
+          className="font-medium text-[24px] leading-[28px] w-full outline-none placeholder:text-zinc-300 resize-none overflow-hidden"
           placeholder="Heading"
-          spellCheck={false}
+          spellCheck
           value={state.data.header.heading}
           onFocus={() => setSelectedIndex(-1)}
           onKeyDown={handleHeadingKeyDown}
@@ -89,9 +89,9 @@ export default function Header() {
         />
         <textarea
           ref={subRef}
-          className="font-medium text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 text-muted-foreground resize-none overflow-hidden"
+          className="font-medium text-[24px] leading-[28px] w-full outline-none placeholder:text-zinc-300 text-muted-foreground resize-none overflow-hidden"
           placeholder="Subheading"
-          spellCheck={false}
+          spellCheck
           value={state.data.header.subheading}
           onKeyDown={handleKeyDown}
           onChange={(e) => {

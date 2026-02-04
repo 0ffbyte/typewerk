@@ -54,7 +54,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 16px;
   --background: var(--color-zinc-50);
   --foreground: var(--color-zinc-900);
   --card: oklch(1 0 0);

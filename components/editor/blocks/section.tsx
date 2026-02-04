@@ -35,7 +35,7 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
       threshold: 1,
     }
   );
-  useFocused(inputRef, index);
+  useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -47,28 +47,26 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
   };
 
   return (
-    <div ref={ref}>
-      <input
-        id={`${title.toLowerCase().replace(/\s+/g, "-")}`}
-        ref={inputRef}
-        className={cn(
-          "font-medium text-[16px] leading-[24px] outline-none placeholder-border"
-        )}
-        type="text"
-        placeholder="Section"
-        maxLength={32}
-        value={title}
-        onKeyDown={handleKeyDown}
-        onChange={(e) => {
-          setState((s) => {
-            const block = s.data.pages[pageIndex].blocks[index];
-            if (block.type === "section") {
-              block.props.title = e.target.value;
-            }
-          });
-        }}
-      />
-    </div>
+    <input
+      id={`${title.toLowerCase().replace(/\s+/g, "-")}`}
+      ref={ref}
+      className={cn(
+        "font-medium text-[16px] leading-[24px] outline-none placeholder-border w-full"
+      )}
+      type="text"
+      placeholder="Section"
+      maxLength={24}
+      value={title}
+      onKeyDown={handleKeyDown}
+      onChange={(e) => {
+        setState((s) => {
+          const block = s.data.pages[pageIndex].blocks[index];
+          if (block.type === "section") {
+            block.props.title = e.target.value;
+          }
+        });
+      }}
+    />
   );
 };
 

@@ -7,6 +7,7 @@ export type EditorState = {
   data: SiteObject;
   pageIndex: number;
   selectedIndex: number;
+  isSyncing: boolean;
 };
 
 type Actions = {
@@ -17,6 +18,8 @@ type Actions = {
   addBlock: (type: BlockType, index: number) => void;
   removeBlock: (index: number) => void;
   reorderBlocks: (activeId: string, overId: string) => void;
+  addPage: (name?: string) => void;
+  removePage: (pageIndex: number) => void;
 };
 
 export const useEditorStore = create<EditorState & Actions>()(
@@ -32,6 +35,7 @@ export const useEditorStore = create<EditorState & Actions>()(
     },
     pageIndex: 0,
     selectedIndex: 0,
+    isSyncing: false,
     setSelectedIndex: (index: number) =>
       set((s) => {
         s.selectedIndex = index;
@@ -86,6 +90,38 @@ export const useEditorStore = create<EditorState & Actions>()(
           blocks.splice(overIndex, 0, removed);
           s.selectedIndex = overIndex;
         }
+      }),
+    addPage: (name: string = "Page") =>
+      set((s) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("p", name);
+        if (s.data.pages.length >= 4) return;
+        s.data.pages.push({
+          id: crypto.randomUUID(),
+          name,
+          blocks: [
+            {
+              id: crypto.randomUUID(),
+              type: "text",
+              props: {
+                content: "This is " + name,
+              },
+            },
+          ],
+        });
+        window.history.pushState(null, "", url.toString());
+        s.selectedIndex = 0;
+      }),
+    removePage: (pageIndex: number) =>
+      set((s) => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("p");
+        s.data.pages.splice(pageIndex, 1);
+        if (s.pageIndex >= s.data.pages.length) {
+          s.pageIndex = s.data.pages.length - 1;
+        }
+        window.history.pushState(null, "", url.toString());
+        s.selectedIndex = 0;
       }),
   }))
 );

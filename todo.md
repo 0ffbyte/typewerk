@@ -2,9 +2,9 @@
 
 # Quests
 
-- [ ] editor toolbar w/ preview, publish (revalidate) button
+- [x] publish (revalidate) button with sync indicator
 
-- [ ] list block
+- [x] editor toolbar w/ page & theme management plus ...
 
 ## Done
 

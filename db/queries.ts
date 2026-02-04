@@ -31,7 +31,6 @@ export const getSiteCached = async (subdomain: string) => {
     [subdomain],
     {
       tags: [`site-${subdomain}`],
-      revalidate: 60 * 3,
     }
   );
 

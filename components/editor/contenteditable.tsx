@@ -99,7 +99,7 @@ const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
 
         // Convert sanitized HTML → nodes
         const temp = document.createElement("div");
-        temp.innerHTML = sanitized;
+        temp.innerHTML = sanitized.trim();
 
         const fragment = document.createDocumentFragment();
         let lastNode: ChildNode | null = null;
@@ -194,7 +194,7 @@ const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
         {isEmpty && (
           <div
             className={cn(
-              "pointer-events-none absolute left-0 top-0 text-border text-[20px] leading-[28px] w-full min-h-[20px]",
+              "pointer-events-none absolute left-0 top-0 text-zinc-400 text-[16px] leading-[24px] w-full min-h-[20px]",
               className
             )}
             aria-hidden="true"
