@@ -43,7 +43,7 @@ export default function Editor({
   }, [initialState, state.initialize]);
 
   // syncs state with db
-  //useSync(siteId, state.data, isInitialized);
+  useSync(siteId, state.data, isInitialized);
 
   /** event handlers */
   const handleDragEnd = (event: DragEndEvent) => {
