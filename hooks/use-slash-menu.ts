@@ -77,26 +77,32 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   }, []);
 
   const handleInput = useCallback(() => {
-    if (!state) return;
+    if (!state || !ref.current) return;
 
-    const text = ref.current?.textContent;
-    if (text == null) return;
+    const text = ref.current.textContent ?? "";
 
-    const index = state.triggerIndex + state.command.length;
-    const afterText = text[index].trim();
+    // Always recompute slash position from live DOM
+    const slashIndex = text.lastIndexOf("/");
 
-    if (!afterText && state.command.length === 0) {
+    if (slashIndex === -1) {
+      closeMenu();
+      return;
+    }
+
+    const command = text.slice(slashIndex + 1);
+
+    // If space typed → close menu
+    if (command.includes(" ")) {
       closeMenu();
       return;
     }
 
     setState((s) => ({
       ...s!,
-      command: afterText ? s!.command + afterText : s!.command.slice(0, -1),
+      triggerIndex: slashIndex,
+      command,
       selectedCommandIndex: 0,
     }));
-
-    console.log(state);
   }, [state]);
 
   const handleKeyDown = useCallback(
