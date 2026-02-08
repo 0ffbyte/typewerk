@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 const usePage = () => {
   const searchParams = useSearchParams();
   const pageIndex = useEditorStore((s) => s.pageIndex);
-  const setPageIndex = useEditorStore((s) => s.setPageIndex);
 
   const navigateToPage = (pageName: string) => {
     const url = new URL(window.location.href);

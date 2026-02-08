@@ -2,6 +2,10 @@
 
 # Quests
 
+- [ ] slash commands
+
+- [ ] text formatting toolbar (due today mate) ...
+
 - [x] publish (revalidate) button with sync indicator
 
 - [x] editor toolbar w/ page & theme management plus ...

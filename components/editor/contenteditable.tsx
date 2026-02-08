@@ -8,8 +8,10 @@ import React, {
   forwardRef,
 } from "react";
 import sanitize from "sanitize-html";
-import { cn } from "@/lib/utils";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
+import { cn } from "@/lib/utils";
+
+import SlashMenu from "./slashMenu";
 
 type ToolbarPos = { x: number; y: number };
 
@@ -64,16 +66,17 @@ const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
     }, [onEdit]);
 
     /** handle input */
-    const handleInput = useCallback(() => {
-      if (!innerRef.current) return;
+    const handleInput = useCallback(
+      (e: React.InputEvent<HTMLDivElement>) => {
+        if (!innerRef.current) return;
 
-      const text = innerRef.current.textContent?.trim();
-      setIsEmpty(!text);
+        const text = innerRef.current.textContent;
+        setIsEmpty(!text);
 
-      if (!isComposingRef.current) {
-        onEdit?.(innerRef.current.innerHTML);
-      }
-    }, [onEdit]);
+        if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML);
+      },
+      [onEdit]
+    );
 
     const handlePaste = useCallback(
       (e: React.ClipboardEvent<HTMLDivElement>) => {
@@ -124,6 +127,33 @@ const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
       },
       [onEdit]
     );
+
+    const selectAll = useCallback(() => {
+      const el = innerRef.current;
+      if (!el) return;
+
+      // create a range object and select all
+      const range = document.createRange();
+      range.selectNodeContents(el);
+
+      // update selection
+      const selection = selectionRef.current;
+      if (!selection) return;
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }, [innerRef]);
+
+    const toggleFormat = useCallback((tagName: "b" | "i" | "u" | "mark") => {
+      const selection = document.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      if (range.collapsed) return;
+
+      const fragment = range.cloneContents();
+      console.log("frag:", fragment);
+    }, []);
 
     /** selection toolbar logic (scoped) */
     useEffect(() => {
@@ -227,11 +257,22 @@ const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
             <button
               className="hover:text-zinc-300 transition-colors"
               onMouseDown={(e) => e.preventDefault()}
+              onClick={() => selectAll()}
             >
-              Share
+              Select All
+            </button>
+            <div className="h-[16px] w-px bg-zinc-500" />
+            <button
+              className="hover:text-zinc-300 transition-colors"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => toggleFormat("b")}
+            >
+              Bold
             </button>
           </div>
         )}
+
+        <SlashMenu ref={innerRef} />
       </div>
     );
   }

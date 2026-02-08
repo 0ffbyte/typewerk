@@ -1,40 +1,48 @@
 "use client";
 import { useEditorStore } from "@/store/editor-store";
-import { usePageStore } from "@/store/page-store";
+import { useMemo, useRef } from "react";
 import { SectionProps } from "@/components/editor/blocks/section";
 import { useState } from "react";
+import { useActiveSection } from "@/hooks/use-active-section";
 
 const PageIndex = () => {
-  const state = useEditorStore((state) => state);
-  const pageIndex = useEditorStore((state) => state.pageIndex);
-  const sectionIndex = usePageStore((s) => s.sectionIndex);
-  const hasSections =
-    state.data.pages[pageIndex].blocks.filter((b) => b.type === "section")
-      .length >= 2;
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const pages = useEditorStore((s) => s.data.pages);
+  const pageIndex = useEditorStore((s) => s.pageIndex);
 
-  if (!hasSections) return <div></div>;
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const sectionIds = useMemo(() => {
+    return (
+      pages[pageIndex]?.blocks
+        .filter((b) => b.type === "section")
+        .map((s) => s.props.title.toLowerCase().replace(/\s+/g, "-")) ?? []
+    );
+  }, [pages, pageIndex]);
+
+  const activeSection = useActiveSection(sectionIds);
+  if (sectionIds.length <= 1) return <div></div>;
+
   return (
     <div
-      className="max-w-[200px] w-full pb-[92] sticky top-0 left-0 pt-[64]"
+      className="max-w-[200px] w-full pb-[92] fixed top-[128] left-[64]"
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setTimeout(() => setIsCollapsed(true), 1000)}
     >
       {isCollapsed ? (
         <div key="collapsed" className="flex flex-col gap-3 z-10">
-          {state.data.pages[pageIndex].blocks.map((block, idx) => {
+          {pages[pageIndex].blocks.map((block, idx) => {
             if (block.type !== "section") return null;
 
             const props = block.props as SectionProps;
+            const isActive =
+              activeSection === props.title.toLowerCase().replace(/\s+/g, "-");
             return (
               <div
                 key={block.id}
                 className="bg-border rounded-full transition-all duration-300"
                 style={{
-                  backgroundColor:
-                    idx === sectionIndex ? "var(--color-foreground)" : "",
+                  backgroundColor: isActive ? "var(--color-foreground)" : "",
                   height: "4px",
-                  width: idx === sectionIndex ? "36px" : "24px",
+                  width: isActive ? "36px" : "24px",
                 }}
                 title={props.title}
               />
@@ -44,7 +52,7 @@ const PageIndex = () => {
       ) : (
         <div key="expanded" className="flex flex-col gap-2">
           <p className="text-muted-foreground">Page index</p>
-          {state.data.pages[pageIndex].blocks.map((block) => {
+          {pages[pageIndex].blocks.map((block) => {
             if (block.type !== "section") return null;
             const props = block.props as SectionProps;
             const title = props.title;

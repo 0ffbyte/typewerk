@@ -53,8 +53,15 @@
   }
 }
 
+mark {
+  background-color: var(--color-teal-200);
+  color: var(--color-teal-800);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
 :root {
-  --radius: 16px;
+  --radius: 12px;
   --background: var(--color-zinc-50);
   --foreground: var(--color-zinc-900);
   --card: oklch(1 0 0);

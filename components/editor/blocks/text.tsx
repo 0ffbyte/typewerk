@@ -14,20 +14,12 @@ export default function TextBlock({ content, index }: TextProps & BlockProps) {
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
 
-  const { isFocused } = useFocused(ref, index);
-
-  useEffect(() => {
-    if (!isFocused && content.length === 0) {
-      removeBlock(index);
-    }
-  }, [isFocused]);
+  useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Backspace") {
-      if (
-        ref.current?.textContent?.length === 0 &&
-        ref.current?.innerHTML?.length <= 4
-      ) {
+      console.log("backspace");
+      if (ref.current?.textContent?.length === 0) {
         e.preventDefault();
         removeBlock(index);
       }
@@ -43,14 +35,20 @@ export default function TextBlock({ content, index }: TextProps & BlockProps) {
     });
   };
 
+  const handleBlur = () => {
+    const textContent = ref.current?.textContent;
+    if (textContent?.length === 0 || textContent === "/") removeBlock(index);
+  };
+
   return (
-    <ContentEditable
-      ref={ref}
-      value={content}
-      onEdit={handleEdit}
-      onKeyDown={handleKeyDown}
-      placeholder="Type here or press / for commands"
-    />
+    <div className="w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
+      <ContentEditable
+        ref={ref}
+        value={content}
+        onEdit={handleEdit}
+        placeholder="Type here or press / for commands"
+      />
+    </div>
   );
 }
 

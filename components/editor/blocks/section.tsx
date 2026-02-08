@@ -15,26 +15,14 @@ export type SectionProps = {
 
 // define block component
 const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLInputElement>(null);
 
   const setState = useEditorStore((s) => s.setState);
   const addBlock = useEditorStore((s) => s.addBlock);
   const removeBlock = useEditorStore((s) => s.removeBlock);
 
   const pageIndex = useEditorStore((s) => s.pageIndex);
-  const setSectionIndex = usePageStore((s) => s.setSectionIndex);
 
-  const ref = useOnInView(
-    (inView, entry) => {
-      if (inView) setSectionIndex(index);
-      else console.log("Element left view", entry.target);
-    },
-    {
-      root: null,
-      rootMargin: "-20% 0px -40% 0px",
-      threshold: 1,
-    }
-  );
   useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -55,7 +43,7 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
       )}
       type="text"
       placeholder="Section"
-      maxLength={24}
+      maxLength={32}
       value={title}
       onKeyDown={handleKeyDown}
       onChange={(e) => {

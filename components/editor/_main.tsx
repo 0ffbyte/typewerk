@@ -1,14 +1,17 @@
 "use client";
 
-import Header from "@/components/editor/header";
-import { BlockRegistry } from "@/lib/block-registry";
-import BlockHandle from "@/components/editor/block-wrapper";
-import { useEditorStore } from "@/store/editor-store";
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import useSync from "@/hooks/use-sync";
-import Spacer from "@/components/editor/spacer";
 import { rectIntersection, DndContext, DragEndEvent } from "@dnd-kit/core";
+
+import Header from "@/components/editor/header";
+import BlockHandle from "@/components/editor/block-wrapper";
+import Spacer from "@/components/editor/spacer";
+
+import usePage from "@/hooks/use-page";
+import useSync from "@/hooks/use-sync";
+
+import { useEditorStore } from "@/store/editor-store";
+import { BlockRegistry } from "@/lib/block-registry";
 import { SiteObject } from "@/app/types";
 
 export default function Editor({
@@ -20,25 +23,29 @@ export default function Editor({
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const state = useEditorStore();
-  const searchParams = useSearchParams();
+  const { pageName } = usePage();
 
+  // updates page index on page name change
   useEffect(() => {
-    const pageName = searchParams.get("p") || "home";
     const foundIndex = state.data.pages.findIndex((p) => p.name === pageName);
     state.setPageIndex(foundIndex !== -1 ? foundIndex : 0);
-  }, [searchParams, state.data.pages]);
+  }, [pageName, state.data.pages, state.setPageIndex]);
 
+  // gets page data using page index
   const pageData = useMemo(() => {
     return state.data.pages[state.pageIndex];
   }, [state.pageIndex, state.data.pages]);
 
+  // initializes state
   useEffect(() => {
     state.initialize(initialState);
     setIsInitialized(true);
   }, [initialState, state.initialize]);
 
-  useSync(siteId, state.data, isInitialized);
+  // syncs state with db
+  //useSync(siteId, state.data, isInitialized);
 
+  /** event handlers */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -54,12 +61,12 @@ export default function Editor({
       </div>
     );
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[700px] relative pt-[44] md:pt-[128] pb-[92] mx-auto">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[700px] relative">
       <Header />
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state, null, 2)}
+          {JSON.stringify(state.data.pages[state.pageIndex].blocks[0], null, 2)}
         </pre>
       )}
 
@@ -78,7 +85,7 @@ export default function Editor({
               <div key={block.id} className="w-full">
                 <Spacer id={block.id} index={index} />
                 {block.type === "section" && index >= 1 && (
-                  <div className="h-[64]" />
+                  <div className="h-[92]" />
                 )}
 
                 <BlockHandle index={index} id={block.id}>
@@ -106,39 +113,3 @@ export default function Editor({
     </div>
   );
 }
-
-/**
- *  {false && (
-        <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state, null, 2)}
-        </pre>
-      )}
- *  <DndContext
-        onDragEnd={handleDragEnd}
-        collisionDetection={rectIntersection}
-      >
-        {state.data.blocks.map((block, index) => {
-          const definition = BlockRegistry[block.type];
-          if (!definition) return null;
-
-          const Block = definition.component;
-
-          return (
-            <div key={block.id} className="w-full">
-              <Spacer id={block.id} index={index} />
-              {block.type === "section" && index >= 1 && (
-                <div className="h-[64]" />
-              )}
-
-              <BlockHandle index={index} id={block.id}>
-                <Block {...block.props} index={index} id={block.id} />
-              </BlockHandle>
-            </div>
-          );
-        })}
-
-        <Spacer id={"end-block"} index={state.data.blocks.length} />
-      </DndContext>
-
-      
- */

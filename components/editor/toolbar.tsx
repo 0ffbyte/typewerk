@@ -229,7 +229,7 @@ const Toolbar = ({
 }) => {
   return (
     <div
-      className="h-[44px] w-fit rounded-[16px] p-[4px] flex items-center gap-[12px] bg-zinc-900/90 backdrop-blur-xs shadow-sm fixed bottom-8 left-1/2 -translate-x-1/2"
+      className="h-[44px] w-fit rounded-[16px] p-[4px] flex items-center gap-[12px] bg-zinc-950/90 backdrop-blur-xs shadow-sm fixed bottom-8 left-1/2 -translate-x-1/2 z-10"
       style={{ zIndex: 100 }}
     >
       <PageDropdown />
