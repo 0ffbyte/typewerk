@@ -62,6 +62,11 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           icon: TextIcon,
           action: () => addBlock("section", selectedIndex + 1),
         },
+        {
+          name: "blockquote",
+          icon: TextIcon,
+          action: () => addBlock("blockquote", selectedIndex + 1),
+        },
       ].filter((cmd) => {
         if (!state) return true;
         // Show all options when no command or empty command, filter as typing occurs
@@ -159,7 +164,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           // prevent scrolling
           document.body.style.overflow = "hidden";
         });
-      } else if (e.key === " " || e.key === "Escape") {
+      } else if (e.key === " " || e.key === "Escape" || e.key === "ArrowLeft") {
         closeMenu();
       } else if (e.key === "Enter") {
         if (!state) return;
@@ -197,6 +202,10 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
     [state]
   );
 
+  const handleClick = useCallback(() => {
+    closeMenu();
+  }, []);
+
   const handleBlur = useCallback(() => {
     closeMenu();
     document.body.style.overflow = "auto";
@@ -208,11 +217,13 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
     element.addEventListener("input", handleInput);
     element.addEventListener("keydown", handleKeyDown);
+    element.addEventListener("click", handleClick);
     element.addEventListener("blur", handleBlur);
 
     return () => {
       element.removeEventListener("input", handleInput);
       element.removeEventListener("keydown", handleKeyDown);
+      element.removeEventListener("click", handleClick);
       element.removeEventListener("blur", handleBlur);
     };
   }, [handleInput, handleKeyDown]); // Event listeners & handlers

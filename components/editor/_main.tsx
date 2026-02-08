@@ -61,7 +61,7 @@ export default function Editor({
       </div>
     );
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[700px] relative">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[768px] lg:w-[768px] relative">
       <Header />
 
       {false && (
