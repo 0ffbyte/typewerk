@@ -134,7 +134,35 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
       >
         <div className="w-[92px] h-full absolute -left-[92px] top-0 flex items-start justify-end group pr-5">
           <div className="gap-1 opacity-0 group-hover:opacity-100 flex">
-            <Combobox items={blocks}>
+            <button
+              {...listeners}
+              {...attributes}
+              ref={setActivatorNodeRef}
+              className="hover:bg-zinc-200/50 rounded-[4px]"
+            >
+              <GripVerticalIcon className="h-6 w-6 text-zinc-400" />
+            </button>
+          </div>
+
+          <div
+            className={cn(
+              "h-full w-[4px] rounded-full absolute right-4 top-0 bg-border opacity-0 transition-opacity duration-200",
+              isSelected && "opacity-0"
+            )}
+          />
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default BlockWrapper;
+
+/**
+ * Plus
+ * 
+ *    <Combobox items={blocks}>
               <ComboboxTrigger
                 render={
                   <button className="hover:bg-zinc-200/50 rounded-[4px]">
@@ -164,28 +192,4 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
                 </ComboboxList>
               </ComboboxContent>
             </Combobox>
-
-            <button
-              {...listeners}
-              {...attributes}
-              ref={setActivatorNodeRef}
-              className="hover:bg-zinc-200/50 rounded-[4px]"
-            >
-              <GripVerticalIcon className="h-6 w-6 text-zinc-400" />
-            </button>
-          </div>
-
-          <div
-            className={cn(
-              "h-full w-[4px] rounded-full absolute right-4 top-0 bg-border opacity-0 transition-opacity duration-200",
-              isSelected && "opacity-0"
-            )}
-          />
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-};
-
-export default BlockWrapper;
+ */

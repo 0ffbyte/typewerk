@@ -130,6 +130,11 @@ mark {
 }
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: #8a8a8a transparent; /* thumb color, track color */
+  }
   * {
     @apply border-border outline-ring/50;
   }

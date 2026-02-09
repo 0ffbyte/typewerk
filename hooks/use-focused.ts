@@ -14,7 +14,8 @@ const useFocused = (ref: any, index: number) => {
         const range = document.createRange();
         range.selectNodeContents(el);
         range.collapse(false);
-        const sel = window.getSelection();
+
+        const sel = document.getSelection();
         sel?.removeAllRanges();
         sel?.addRange(range);
       }

@@ -8,6 +8,7 @@ export type EditorState = {
   pageIndex: number;
   selectedIndex: number;
   isSyncing: boolean;
+  preventNewLine: boolean;
 };
 
 type Actions = {
@@ -36,6 +37,7 @@ export const useEditorStore = create<EditorState & Actions>()(
     pageIndex: 0,
     selectedIndex: 0,
     isSyncing: false,
+    preventNewLine: false,
     setSelectedIndex: (index: number) =>
       set((s) => {
         s.selectedIndex = index;

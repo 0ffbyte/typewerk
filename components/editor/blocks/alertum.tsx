@@ -40,13 +40,15 @@ const AlertumBlock = ({ content, index }: AlertumProps & BlockProps) => {
   };
 
   return (
-    <div className="p-4 w-full bg-teal-200 rounded-[8px]">
+    <div
+      className="p-4 w-full bg-teal-200 rounded-[8px]"
+      onKeyDown={handleKeyDown}
+    >
       <ContentEditable
         className="text-teal-800 text-md"
         ref={ref}
         value={content}
         onEdit={handleEdit}
-        onKeyDown={handleKeyDown}
       />
     </div>
   );

@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import { LucideIcon, TextIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  ChessKnightIcon,
+  Heading1Icon,
+  ImageIcon,
+  LucideIcon,
+  QuoteIcon,
+  TextIcon,
+} from "lucide-react";
 
 type SlashMenuState = {
   x: number;
@@ -43,6 +51,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   const [state, setState] = useState<SlashMenuState | null>(null);
   const selectedIndex = useEditorStore((s) => s.selectedIndex);
   const addBlock = useEditorStore((s) => s.addBlock);
+  const setEditorState = useEditorStore((s) => s.setState);
 
   const commandList: CommandList = useMemo(
     () =>
@@ -54,18 +63,28 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         },
         {
           name: "image",
-          icon: TextIcon,
+          icon: ImageIcon,
           action: () => addBlock("image", selectedIndex + 1),
         },
         {
           name: "section",
-          icon: TextIcon,
+          icon: Heading1Icon,
           action: () => addBlock("section", selectedIndex + 1),
         },
         {
           name: "blockquote",
-          icon: TextIcon,
+          icon: QuoteIcon,
           action: () => addBlock("blockquote", selectedIndex + 1),
+        },
+        {
+          name: "alert",
+          icon: AlertCircleIcon,
+          action: () => addBlock("alertum", selectedIndex + 1),
+        },
+        {
+          name: "checkmate",
+          icon: ChessKnightIcon,
+          action: () => addBlock("checkmate", selectedIndex + 1),
         },
       ].filter((cmd) => {
         if (!state) return true;
@@ -78,6 +97,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
   const closeMenu = useCallback(() => {
     setState(null);
+    setEditorState((s) => (s.preventNewLine = false));
     document.body.style.overflow = "auto";
   }, []);
 
@@ -88,16 +108,9 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
     // Always recompute slash position from live DOM
     const slashIndex = text.lastIndexOf("/");
-
-    if (slashIndex === -1) {
-      closeMenu();
-      return;
-    }
-
     const command = text.slice(slashIndex + 1);
 
-    // If space typed → close menu
-    if (command.includes(" ")) {
+    if (slashIndex === -1 || command.includes(" ")) {
       closeMenu();
       return;
     }
@@ -113,6 +126,19 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "/") {
+        // close if already open and slash pressed
+        if (state) {
+          closeMenu();
+          return;
+        }
+
+        // don't open if a space isn't before the slash
+        const text = ref.current?.textContent ?? "";
+        if (text.length !== 0 && text.charAt(text.length - 1) !== " ") {
+          console.log("exit rule:", text.length, text.charAt(text.length - 1));
+          return;
+        }
+
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0) return;
 
@@ -141,8 +167,8 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           }
 
           // calculate position with collision detection
-          const menuWidth = 164;
-          const menuHeight = 200;
+          const menuWidth = 200;
+          const menuHeight = 212;
           let x = rect.right - containerRect.left; // defaults
           let y = rect.top - containerRect.top + 24; // defaults
 
@@ -160,6 +186,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
             triggerIndex: absoluteIndex, // Use absolute position
             selectedCommandIndex: 0,
           });
+          setEditorState((s) => (s.preventNewLine = true));
 
           // prevent scrolling
           document.body.style.overflow = "hidden";
@@ -168,23 +195,22 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         closeMenu();
       } else if (e.key === "Enter") {
         if (!state) return;
-        e.preventDefault();
+
         const action = commandList[state.selectedCommandIndex]?.action;
         if (!action) {
           closeMenu();
           return;
         }
 
+        e.preventDefault();
         action();
+        closeMenu();
         if (ref.current && typeof ref.current.innerText === "string") {
           ref.current.innerText = ref.current.innerText.slice(
             0,
             -state.command.length - 1 // remove slash and command from typed input
           );
         }
-
-        closeMenu();
-        document.body.style.overflow = "auto";
       } else if (
         (e.key === "ArrowUp" || e.key === "ArrowDown") &&
         state !== null

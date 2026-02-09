@@ -2,9 +2,9 @@
 
 # Quests
 
-- [ ] slash commands
-
 - [ ] text formatting toolbar (due today mate) ...
+
+- [x] slash commands
 
 - [x] publish (revalidate) button with sync indicator
 

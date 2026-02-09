@@ -40,15 +40,10 @@ const BlockquoteBlock = ({ content, index }: BlockquoteProps & BlockProps) => {
   };
 
   return (
-    <blockquote className="pl-4 w-full">
+    <div className="pl-4 w-full" onKeyDown={handleKeyDown}>
       <div className="absolute left-0 top-0 h-full w-[4px] bg-zinc-500 rounded-full" />
-      <ContentEditable
-        ref={ref}
-        value={content}
-        onEdit={handleEdit}
-        onKeyDown={handleKeyDown}
-      />
-    </blockquote>
+      <ContentEditable ref={ref} value={content} onEdit={handleEdit} />
+    </div>
   );
 };
 

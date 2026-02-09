@@ -19,10 +19,8 @@ const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Backspace") {
-      if (
-        ref.current?.textContent?.length === 0 &&
-        ref.current?.innerHTML?.length <= 4
-      ) {
+      console.log("backspace");
+      if (ref.current?.textContent?.length === 0) {
         e.preventDefault();
         removeBlock(index);
       }
@@ -30,21 +28,22 @@ const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
   };
 
   return (
-    <ContentEditable
-      ref={ref}
-      className="font-serif text-3xl"
-      value={content}
-      onEdit={(v) =>
-        setState((s) => {
-          const block = s.data.pages[s.pageIndex].blocks[index];
-          if (block.type === "checkmate") {
-            block.props.content = v;
-          }
-        })
-      }
-      onKeyDown={handleKeyDown}
-      placeholder="Checkmate"
-    />
+    <div onKeyDown={handleKeyDown} className="w-full">
+      <ContentEditable
+        ref={ref}
+        className="font-serif text-3xl"
+        value={content}
+        onEdit={(v) =>
+          setState((s) => {
+            const block = s.data.pages[s.pageIndex].blocks[index];
+            if (block.type === "checkmate") {
+              block.props.content = v;
+            }
+          })
+        }
+        placeholder="Checkmate"
+      />
+    </div>
   );
 };
 

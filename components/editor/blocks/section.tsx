@@ -1,12 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import { usePageStore } from "@/store/page-store";
 import type { BlockProps } from "@/app/types";
 import useFocused from "@/hooks/use-focused";
 import { cn } from "@/lib/utils";
-import { useOnInView } from "react-intersection-observer";
-import { useRef } from "react";
 
 // define block props
 export type SectionProps = {
@@ -30,6 +28,7 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
       e.preventDefault();
       addBlock("text", index + 1);
     } else if (e.key === "Backspace" && (title ?? "").length === 0) {
+      e.preventDefault();
       removeBlock(index);
     }
   };

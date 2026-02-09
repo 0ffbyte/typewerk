@@ -3,6 +3,7 @@ import useSlashMenu from "@/hooks/use-slash-menu";
 
 import { cn } from "@/lib/utils";
 import { useEffect, useRef } from "react";
+import { motion } from "motion/react";
 
 const SlashMenu = ({
   ref,
@@ -20,6 +21,7 @@ const SlashMenu = ({
       el.scrollIntoView({
         block: "nearest", // prevents jump to top/bottom
         behavior: "smooth", // optional
+        inline: "nearest",
       });
     }
   }, [slashMenu?.selectedCommandIndex]);
@@ -27,8 +29,11 @@ const SlashMenu = ({
   if (!slashMenu) return null;
 
   return (
-    <div
-      className="absolute overflow-y-scroll flex flex-col justify-start gap-[4px] items-center p-[4px] w-[164px] h-[200px] rounded-[16px] shadow-2x bg-zinc-950/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.1, ease: "easeInOut" }}
+      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[200px] h-[212px] rounded-[16px] shadow-2x bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,
@@ -36,33 +41,44 @@ const SlashMenu = ({
         scrollbarWidth: "none",
       }}
     >
-      {commandList.map((cmd, idx) => (
-        <button
-          ref={(el) => {
-            itemRefs.current[idx] = el!;
-          }}
-          key={cmd.name}
-          className={cn(
-            "hover:bg-white/10 w-full flex items-center justify-start rounded-[12px] h-[40px] px-[8px] shrink-0",
-            slashMenu.selectedCommandIndex === idx && "bg-blue-400"
-          )}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            commandList[idx]?.action();
-            closeMenu();
-            if (ref.current && typeof ref.current.innerText === "string") {
-              ref.current.innerText = ref.current.innerText.slice(
-                0,
-                -slashMenu.command.length - 1 // remove slash and command from typed input
-              );
-            }
-          }}
-        >
-          <cmd.icon />
-          {cmd.name}
-        </button>
-      ))}
-    </div>
+      {commandList.length >= 1 ? (
+        commandList.map((cmd, idx) => (
+          <button
+            ref={(el) => {
+              itemRefs.current[idx] = el!;
+            }}
+            key={cmd.name}
+            className="w-full p-[4px]"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              commandList[idx]?.action();
+              closeMenu();
+              if (ref.current && typeof ref.current.innerText === "string") {
+                ref.current.innerText = ref.current.innerText.slice(
+                  0,
+                  -slashMenu.command.length - 1 // remove slash and command from typed input
+                );
+              }
+            }}
+          >
+            <div
+              className={cn(
+                "hover:bg-white/10 w-full flex items-center justify-start rounded-[12px] h-[34px] gap-[8px] px-[8px]",
+                slashMenu.selectedCommandIndex === idx && "bg-white/10"
+              )}
+            >
+              <cmd.icon size={20} />
+              {cmd.name.slice(0, 1).toUpperCase() +
+                cmd.name.slice(1).toLowerCase()}
+            </div>
+          </button>
+        ))
+      ) : (
+        <div className="w-full h-full flex items-center justify-center p-[12px]">
+          ESC to close
+        </div>
+      )}
+    </motion.div>
   );
 };
 
