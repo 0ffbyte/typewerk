@@ -11,7 +11,6 @@ import { BlockRegistry } from "./block-registry";
 export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedAttributes: {
     a: ["href", "target", "rel"],
-    p: ["class"],
   },
 };
 

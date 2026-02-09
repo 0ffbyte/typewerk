@@ -98,26 +98,31 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   const closeMenu = useCallback(() => {
     setState(null);
     setEditorState((s) => (s.preventNewLine = false));
+
+    // enable scrolling
     document.body.style.overflow = "auto";
-  }, []);
+
+    // delete slash commander (chip/span)
+    document.getElementById("slash-commander")?.remove();
+  }, [setState, setEditorState]);
 
   const handleInput = useCallback(() => {
     if (!state || !ref.current) return;
 
-    const text = ref.current.textContent ?? "";
-
     // Always recompute slash position from live DOM
-    const slashIndex = text.lastIndexOf("/");
-    const command = text.slice(slashIndex + 1);
+    const textContent =
+      document.getElementById("slash-commander")?.textContent ?? "";
+    const command = textContent.slice(1) ?? "";
 
-    if (slashIndex === -1 || command.includes(" ")) {
+    console.log("cmd:", command, "t_idx", state.triggerIndex);
+
+    if (command.length === 0) {
       closeMenu();
       return;
     }
 
     setState((s) => ({
       ...s!,
-      triggerIndex: slashIndex,
       command,
       selectedCommandIndex: 0,
     }));
@@ -132,41 +137,43 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           return;
         }
 
-        // don't open if a space isn't before the slash
-        const text = ref.current?.textContent ?? "";
-        if (text.length !== 0 && text.charAt(text.length - 1) !== " ") {
-          console.log("exit rule:", text.length, text.charAt(text.length - 1));
-          return;
-        }
-
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0) return;
 
+        const range = selection.getRangeAt(0);
+        const container = ref.current;
+        if (!container) return;
+
+        const text = container.textContent ?? "";
+        const absoluteIndex = getAbsoluteIndex(container, range);
+
+        if (text.length !== 0 && text.charAt(absoluteIndex - 1) !== " ") return;
+        e.preventDefault();
+
         // wrapped inside requestAnimationFrame to account for reflow
         requestAnimationFrame(() => {
-          const range = selection.getRangeAt(0);
-          const container = ref.current;
-          if (!container) return;
+          // create a psudo element
+          const tempSpan = document.createElement("span");
+          tempSpan.textContent = "/";
+          //tempSpan.style.color = "blue";
+          tempSpan.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+          tempSpan.style.borderRadius = "4px";
+          tempSpan.id = "slash-commander";
+          range.insertNode(tempSpan);
 
-          let rect = range.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
+          range.setStartAfter(tempSpan.firstChild!);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
 
-          if (
-            ref.current?.textContent.length === 0 ||
-            rect.width === 0 ||
-            rect.height === 0
-          ) {
-            const tempSpan = document.createElement("span");
-            tempSpan.textContent = "\u200B";
-            range.insertNode(tempSpan);
-            rect = tempSpan.getBoundingClientRect();
-            tempSpan.remove();
-
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
+          // Emit an empty event (trigger an input event with empty value for handlers)
+          const inputEvent = new Event("input", { bubbles: true });
+          container.dispatchEvent(inputEvent);
 
           // calculate position with collision detection
+          let rect = tempSpan.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+
           const menuWidth = 200;
           const menuHeight = 212;
           let x = rect.right - containerRect.left; // defaults
@@ -175,9 +182,6 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           if (x + menuWidth + 24 > window.innerWidth) x = x - menuWidth;
           if (rect.top + menuHeight + 100 > window.innerHeight)
             y = rect.top - containerRect.top - menuHeight - 12;
-
-          // find absolute caret position within a node
-          const absoluteIndex = getAbsoluteIndex(container, range);
 
           setState({
             command: "",
@@ -191,7 +195,28 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           // prevent scrolling
           document.body.style.overflow = "hidden";
         });
-      } else if (e.key === " " || e.key === "Escape" || e.key === "ArrowLeft") {
+      } else if (e.key === "Escape" || e.key === "ArrowLeft") {
+        if (!state) return;
+        closeMenu();
+      } else if (e.key === " ") {
+        if (!state) return;
+        e.preventDefault();
+        const slashCommand = document.getElementById("slash-commander");
+        if (!slashCommand) return;
+
+        const text = slashCommand.textContent;
+        const replacementNode = document.createTextNode(text);
+        slashCommand.replaceWith(replacementNode);
+
+        const selection = ref.current?.ownerDocument.getSelection();
+        const range = selection?.getRangeAt(0);
+        if (!selection || !range) return;
+
+        range.setStartAfter(replacementNode);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+
         closeMenu();
       } else if (e.key === "Enter") {
         if (!state) return;
@@ -205,12 +230,6 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         e.preventDefault();
         action();
         closeMenu();
-        if (ref.current && typeof ref.current.innerText === "string") {
-          ref.current.innerText = ref.current.innerText.slice(
-            0,
-            -state.command.length - 1 // remove slash and command from typed input
-          );
-        }
       } else if (
         (e.key === "ArrowUp" || e.key === "ArrowDown") &&
         state !== null
@@ -229,7 +248,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   );
 
   const handleClick = useCallback(() => {
-    closeMenu();
+    state && closeMenu();
   }, []);
 
   const handleBlur = useCallback(() => {

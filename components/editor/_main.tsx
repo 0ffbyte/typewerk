@@ -64,9 +64,9 @@ export default function Editor({
     <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[768px] lg:w-[768px] relative">
       <Header />
 
-      {true && (
+      {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.selectedIndex, null, 2)}
+          {JSON.stringify(state.data.pages[state.pageIndex], null, 2)}
         </pre>
       )}
 

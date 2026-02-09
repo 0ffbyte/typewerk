@@ -62,7 +62,7 @@ const ContentEditable = ({
       if (!innerRef.current) return;
 
       const text = innerRef.current.textContent;
-      setIsEmpty(!text);
+      setIsEmpty(!text || !innerRef.current.innerHTML);
 
       if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML);
     },
@@ -123,7 +123,7 @@ const ContentEditable = ({
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        if (preventNewLine) return;
+        //if (preventNewLine) return;
 
         const selection = window.getSelection();
         if (!selection || !selection.rangeCount) return;
@@ -140,9 +140,6 @@ const ContentEditable = ({
 
         selection.removeAllRanges();
         selection.addRange(range);
-
-        // Force the contenteditable to recognize the change
-        innerRef.current?.normalize();
       }
     },
     []

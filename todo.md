@@ -1,8 +1,10 @@
 # Bugs to fix
 
+- [ ] slash commander not properly killing itself after deleting command
+
 # Quests
 
-- [ ] text formatting toolbar (due today mate) ...
+- [ ] text formatting toolbar ...
 
 - [x] slash commands
 

@@ -50,7 +50,7 @@ const ImageToolbar = ({ index }: { index: number }) => {
     <div className="absolute top-2 right-2 bg-zinc-800 text-zinc-100 rounded-md px-2 py-1 text-xs hidden items-center justify-start gap-2 group-hover:flex">
       <button onClick={handleUpdateUrl}>Update URL</button>
       <div className="h-[12] w-[1] bg-zinc-500" />
-      <button onClick={() => removeBlock(index)} className="text-rose-400">
+      <button onClick={() => removeBlock(index)} className="text-rose-500">
         Del
       </button>
     </div>
