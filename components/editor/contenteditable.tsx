@@ -222,7 +222,7 @@ const ContentEditable = ({
         spellCheck={false}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text overflow-hidden font-medium text-[16px] leading-[24px] w-full min-h-[20px] text-muted-foreground whitespace-pre-wrap border-b border-transparent",
+          "outline-none select-text overflow-hidden text-[20px] leading-[28px] w-full min-h-[20px] text-muted-foreground whitespace-pre-wrap border-b border-transparent",
           className
         )}
         onFocus={() => (isFocusedRef.current = true)}

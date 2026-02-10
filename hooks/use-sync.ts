@@ -7,7 +7,7 @@ const useSync = (
   siteId: string,
   data: SiteObject,
   isInitialized: boolean,
-  debounce = 1000
+  debounce = 2000
 ) => {
   const setState = useEditorStore((s) => s.setState);
   const prevState = useRef<SiteObject>(data);

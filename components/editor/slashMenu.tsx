@@ -33,7 +33,7 @@ const SlashMenu = ({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.1, ease: "easeInOut" }}
-      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[200px] h-[212px] rounded-[16px] shadow-2x bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
+      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[164px] h-[178px] rounded-[16px] shadow-2x bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,
@@ -63,7 +63,7 @@ const SlashMenu = ({
           >
             <div
               className={cn(
-                "hover:bg-white/10 w-full flex items-center justify-start rounded-[12px] h-[34px] gap-[8px] px-[8px]",
+                "hover:bg-white/10 w-full flex items-center justify-start rounded-[12px] h-[28px] gap-[8px] px-[8px] text-[16px]",
                 slashMenu.selectedCommandIndex === idx && "bg-white/10"
               )}
             >

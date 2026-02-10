@@ -203,8 +203,8 @@ const PublishButton = ({
   return (
     <button
       className={cn(
-        "w-[100px] h-full bg-blue-500 text-blue-100 rounded-[12px] flex items-center justify-center px-[12px]",
-        isSyncing && "cursor-wait text-blue-300"
+        "w-[100px] h-full bg-blue-600 text-blue-200 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-200",
+        (isSyncing || isPublishing) && "cursor-wait bg-blue-400"
       )}
       onClick={handleClick}
       disabled={isSyncing || isPublishing}
@@ -229,7 +229,7 @@ const Toolbar = ({
 }) => {
   return (
     <div
-      className="h-[44px] w-fit rounded-[16px] p-[4px] flex items-center gap-[12px] bg-zinc-950/90 backdrop-blur-xs shadow-sm fixed bottom-8 left-1/2 -translate-x-1/2 z-10"
+      className="h-[44px] w-fit rounded-[16px] p-[4px] flex items-center gap-[12px] bg-zinc-900/90 backdrop-blur-xs shadow-sm fixed bottom-8 left-1/2 -translate-x-1/2 z-10"
       style={{ zIndex: 100 }}
     >
       <PageDropdown />
