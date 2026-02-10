@@ -33,7 +33,7 @@ const SlashMenu = ({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.1, ease: "easeInOut" }}
-      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[164px] h-[178px] rounded-[16px] shadow-2x bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
+      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[164px] h-[178px] rounded-[16px] shadow-2xl bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,

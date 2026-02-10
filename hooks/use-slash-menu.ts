@@ -99,11 +99,18 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
     setState(null);
     setEditorState((s) => (s.preventNewLine = false));
 
-    // enable scrolling
-    document.body.style.overflow = "auto";
-
     // delete slash commander (chip/span)
-    document.getElementById("slash-commander")?.remove();
+    const selection = document.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const targetNode = document.getElementById("slash-commander");
+
+    targetNode?.remove();
+    range.collapse(true);
+
+    // reactivate scrolling
+    document.body.style.overflow = "auto";
   }, [setState, setEditorState]);
 
   const handleInput = useCallback(() => {
@@ -155,7 +162,6 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           // create a psudo element
           const tempSpan = document.createElement("span");
           tempSpan.textContent = "/";
-          //tempSpan.style.color = "blue";
           tempSpan.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
           tempSpan.style.borderRadius = "4px";
           tempSpan.id = "slash-commander";
@@ -174,12 +180,13 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           let rect = tempSpan.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
 
-          const menuWidth = 200;
-          const menuHeight = 212;
+          const menuWidth = 164;
+          const menuHeight = 178;
+          const MARGIN = 8;
           let x = rect.right - containerRect.left; // defaults
-          let y = rect.top - containerRect.top + 24; // defaults
+          let y = rect.bottom - containerRect.top + MARGIN; // defaults
 
-          if (x + menuWidth + 24 > window.innerWidth) x = x - menuWidth;
+          if (x + menuWidth + MARGIN * 6 > window.innerWidth) x = x - menuWidth;
           if (rect.top + menuHeight + 100 > window.innerHeight)
             y = rect.top - containerRect.top - menuHeight - 12;
 

@@ -1,10 +1,12 @@
 # Bugs to fix
 
-- [ ] slash commander not properly killing itself after deleting command
+- [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
 
 # Quests
 
-- [ ] text formatting toolbar ...
+- [ ] Primatives: List
+
+- [ ] Text formatting ...
 
 - [x] slash commands
 
