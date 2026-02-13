@@ -1,12 +1,16 @@
 # Bugs to fix
 
+- [ ] selected indexes not updating correctly
+
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
 
 # Quests
 
-- [ ] Primatives: List
+- [ ] Showcase a mini demo
 
-- [ ] Text formatting ...
+- [ ] Slash commander redesign ...
+
+- [ ] Text formatting (selection swaps)
 
 - [x] slash commands
 

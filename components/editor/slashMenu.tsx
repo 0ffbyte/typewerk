@@ -30,10 +30,10 @@ const SlashMenu = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.1, ease: "easeInOut" }}
-      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[164px] h-[178px] rounded-[16px] shadow-2xl bg-zinc-900/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
+      initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0)" }}
+      transition={{ duration: 0.1, ease: "easeIn" }}
+      className="absolute overflow-y-scroll flex flex-col justify-start items-center w-[164px] h-[178px] rounded-[16px] shadow-2xl bg-zinc-950/90 text-zinc-200 backdrop-blur-xs z-10 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,

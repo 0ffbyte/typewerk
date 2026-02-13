@@ -211,8 +211,11 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         const slashCommand = document.getElementById("slash-commander");
         if (!slashCommand) return;
 
+        // extract the text from the command span
         const text = slashCommand.textContent;
         const replacementNode = document.createTextNode(text);
+
+        // replace command span with a text node
         slashCommand.replaceWith(replacementNode);
 
         const selection = ref.current?.ownerDocument.getSelection();

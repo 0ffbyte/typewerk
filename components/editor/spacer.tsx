@@ -16,11 +16,16 @@ const Spacer = ({ id, index }: Props) => {
   const addBlock = useEditorStore((state) => state.addBlock);
 
   return (
-    <div className="w-full h-[8] relative flex items-center" ref={setNodeRef}>
+    <div
+      title="Write"
+      ref={setNodeRef}
+      className="w-full h-[20] relative flex items-center group cursor-text hover:bg-zinc-200/50 transition-colors duration-200 delay-75 rounded"
+      onClick={() => addBlock("text", index)}
+    >
       <div
         className={cn(
-          "w-full h-[4] transition-colors duration-200 rounded-full",
-          isOver && "bg-blue-500/50"
+          "w-full h-[4] transition-colors duration-100 rounded-full",
+          isOver && "bg-blue-200"
         )}
       />
     </div>

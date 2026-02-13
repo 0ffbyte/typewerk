@@ -12,6 +12,9 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedAttributes: {
     a: ["href", "target", "rel"],
   },
+  allowedClasses: {
+    span: [""],
+  },
   allowedTags: ["br", "p", "span"],
 };
 

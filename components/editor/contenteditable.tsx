@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
 
-import { useEditorStore } from "@/store/editor-store";
 import SlashMenu from "./slashMenu";
 
 type ToolbarPos = { x: number; y: number };
@@ -15,6 +14,8 @@ type ToolbarPos = { x: number; y: number };
 type ContentEditableProps = {
   value: string;
   placeholder?: string;
+  maxLength?: number;
+  multiLine?: boolean;
   className?: string;
   ref: React.RefObject<HTMLDivElement | null>;
   onEdit?: (value: string) => void;
@@ -23,6 +24,8 @@ type ContentEditableProps = {
 const ContentEditable = ({
   value,
   placeholder = "Start typing",
+  maxLength = 256,
+  multiLine = true,
   className,
   ref,
   onEdit,
@@ -36,8 +39,6 @@ const ContentEditable = ({
 
   const [isEmpty, setIsEmpty] = useState(true);
   const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
-
-  const preventNewLine = useEditorStore((s) => s.preventNewLine);
 
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
@@ -59,15 +60,23 @@ const ContentEditable = ({
   /** handle input */
   const handleInput = useCallback(
     (e: React.InputEvent<HTMLDivElement>) => {
+      e.preventDefault();
       if (!innerRef.current) return;
 
       const text = innerRef.current.textContent;
       setIsEmpty(!text || !innerRef.current.innerHTML);
 
-      if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML);
+      if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML || "");
     },
     [onEdit]
   );
+
+  const handleBeforeInput = (e: React.InputEvent<HTMLDivElement>) => {
+    const currentText = innerRef.current?.textContent || "";
+    if (currentText.length >= maxLength) e.preventDefault();
+
+    return;
+  };
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<HTMLDivElement>) => {
@@ -123,7 +132,10 @@ const ContentEditable = ({
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        //if (preventNewLine) return;
+        if (!multiLine) {
+          //alert("Multiline is disabled");
+          return;
+        }
 
         const selection = window.getSelection();
         if (!selection || !selection.rangeCount) return;
@@ -222,7 +234,7 @@ const ContentEditable = ({
         spellCheck={false}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text overflow-hidden text-[20px] leading-[28px] w-full min-h-[20px] text-muted-foreground whitespace-pre-wrap border-b border-transparent",
+          "outline-none font-medium select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent",
           className
         )}
         onFocus={() => (isFocusedRef.current = true)}
@@ -234,6 +246,7 @@ const ContentEditable = ({
         onCompositionStart={() => (isComposingRef.current = true)}
         onCompositionEnd={() => (isComposingRef.current = false)}
         onInput={handleInput}
+        onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
       />
@@ -241,8 +254,9 @@ const ContentEditable = ({
       {isEmpty && (
         <div
           className={cn(
-            "pointer-events-none absolute left-0 top-0 text-zinc-400 text-[16px] leading-[24px] w-full min-h-[20px]",
-            className
+            "pointer-events-none absolute left-0 top-0 text-[16px] leading-[24px] w-full min-h-[20px]",
+            className,
+            "text-zinc-400"
           )}
           aria-hidden="true"
         >

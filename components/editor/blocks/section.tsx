@@ -4,7 +4,8 @@ import { useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import type { BlockProps } from "@/app/types";
 import useFocused from "@/hooks/use-focused";
-import { cn } from "@/lib/utils";
+
+import ContentEditable from "../contenteditable";
 
 // define block props
 export type SectionProps = {
@@ -13,47 +14,46 @@ export type SectionProps = {
 
 // define block component
 const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
-  const ref = useRef<HTMLInputElement>(null);
+  const setState = useEditorStore((state) => state.setState);
+  const removeBlock = useEditorStore((state) => state.removeBlock);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const setState = useEditorStore((s) => s.setState);
-  const addBlock = useEditorStore((s) => s.addBlock);
-  const removeBlock = useEditorStore((s) => s.removeBlock);
-
-  const pageIndex = useEditorStore((s) => s.pageIndex);
+  const addBlock = useEditorStore((state) => state.addBlock);
 
   useFocused(ref, index);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addBlock("text", index + 1);
-    } else if (e.key === "Backspace" && (title ?? "").length === 0) {
-      e.preventDefault();
-      removeBlock(index);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter") addBlock("text", index + 1);
+    else if (e.key === "Backspace") {
+      console.log("backspace");
+      if (ref.current?.textContent?.length === 0) {
+        e.preventDefault();
+        removeBlock(index);
+      }
     }
   };
 
+  const handleEdit = (v: string) => {
+    setState((s) => {
+      const block = s.data.pages[s.pageIndex].blocks[index];
+      if (block.type === "section") {
+        block.props.title = v;
+      }
+    });
+  };
+
   return (
-    <input
-      id={`${title.toLowerCase().replace(/\s+/g, "-")}`}
-      ref={ref}
-      className={cn(
-        "font-medium text-[16px] leading-[24px] outline-none placeholder-border w-full"
-      )}
-      type="text"
-      placeholder="Section"
-      maxLength={32}
-      value={title}
-      onKeyDown={handleKeyDown}
-      onChange={(e) => {
-        setState((s) => {
-          const block = s.data.pages[pageIndex].blocks[index];
-          if (block.type === "section") {
-            block.props.title = e.target.value;
-          }
-        });
-      }}
-    />
+    <div className="w-full" onKeyDown={handleKeyDown}>
+      <ContentEditable
+        ref={ref}
+        value={title}
+        onEdit={handleEdit}
+        placeholder="Section"
+        maxLength={32}
+        multiLine={false}
+        className="text-foreground"
+      />
+    </div>
   );
 };
 

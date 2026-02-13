@@ -31,7 +31,7 @@ const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
     <div onKeyDown={handleKeyDown} className="w-full">
       <ContentEditable
         ref={ref}
-        className="font-serif text-3xl"
+        className="font-sans text-foreground text-[42px] leading-[48px] font-bold"
         value={content}
         onEdit={(v) =>
           setState((s) => {

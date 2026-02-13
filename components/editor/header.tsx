@@ -89,7 +89,7 @@ export default function Header() {
         />
         <textarea
           ref={subRef}
-          className="font-sans font-semibold text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 text-zinc-400 resize-none overflow-hidden"
+          className="font-sans font-semibold text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 text-muted-foreground resize-none overflow-hidden"
           placeholder="Subheading"
           spellCheck
           value={state.data.header.subheading}

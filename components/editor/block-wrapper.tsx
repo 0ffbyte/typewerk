@@ -1,24 +1,14 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import { GripVerticalIcon, PlusIcon } from "lucide-react";
+import { GripVerticalIcon } from "lucide-react";
 
 // dnd-kit
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 
-// shadcn
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxTrigger,
-} from "@/components/ui/combobox";
-import { BlockRegistry } from "@/lib/block-registry";
 import type { BlockProps } from "@/app/types";
 
 type Props = {
@@ -31,7 +21,19 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const addBlock = useEditorStore((state) => state.addBlock);
   const pageIndex = useEditorStore((state) => state.pageIndex);
   const selectedIndex = useEditorStore((state) => state.selectedIndex);
+  const preventNewLine = useEditorStore((state) => state.preventNewLine);
   const isSelected = selectedIndex === index;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isSelected && containerRef.current) {
+      containerRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [preventNewLine, isSelected]);
 
   const {
     attributes,
@@ -100,21 +102,15 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
     }
   };
 
-  const blocks = Object.values(BlockRegistry).map((block) => ({
-    label: block.displayName,
-    icon: block.icon,
-    code: Object.keys(BlockRegistry)[
-      Object.values(BlockRegistry).indexOf(block)
-    ],
-  }));
-
   return (
     <div
+      ref={containerRef}
       aria-activedescendant={isSelected ? "" : undefined}
       onKeyDown={handleKeyDown}
       onFocus={() => setSelectedIndex(index)}
       className={cn(
-        "flex items-start justify-start relative w-full outline-none group p-2 transition-colors duration-500 border-b border-transparent",
+        "flex items-start justify-start relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent",
+        preventNewLine && !isSelected && "blur-xs opacity-80",
         "hover:border-border"
       )}
     >
@@ -132,7 +128,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
         style={draggableStyle}
         ref={setNodeRef}
       >
-        <div className="w-[92px] h-full absolute -left-[92px] top-0 flex items-start justify-end group pr-5">
+        <div className="w-[92px] h-full absolute -left-[92px] top-0 flex items-start justify-end group pr-[8px]">
           <div className="gap-1 opacity-0 group-hover:opacity-100 flex">
             <button
               {...listeners}
@@ -143,13 +139,6 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
               <GripVerticalIcon className="h-6 w-6 text-zinc-400" />
             </button>
           </div>
-
-          <div
-            className={cn(
-              "h-full w-[4px] rounded-full absolute right-4 top-0 bg-border opacity-0 transition-opacity duration-200",
-              isSelected && "opacity-0"
-            )}
-          />
         </div>
         {children}
       </div>

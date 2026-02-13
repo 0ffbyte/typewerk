@@ -61,12 +61,12 @@ export default function Editor({
       </div>
     );
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[768px] lg:w-[768px] relative">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[720px] relative">
       <Header />
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.data.pages[state.pageIndex], null, 2)}
+          {JSON.stringify(state.selectedIndex, null, 2)}
         </pre>
       )}
 
@@ -85,7 +85,7 @@ export default function Editor({
               <div key={block.id} className="w-full">
                 <Spacer id={block.id} index={index} />
                 {block.type === "section" && index >= 1 && (
-                  <div className="h-[92]" />
+                  <div className="h-[92] hover:bg-rose-100 w-full rounded transition-colors duration-200 cursor-not-allowed" />
                 )}
 
                 <BlockHandle index={index} id={block.id}>
