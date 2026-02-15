@@ -14,38 +14,60 @@ export default function Header() {
   const headingRef = useRef<HTMLTextAreaElement>(null);
   const subRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleHeadingKeyDown = (
+  const handleKeyDownHeading = (
     e: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === "ArrowDown") {
       e.preventDefault();
       subRef.current?.focus();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (
-        state.data.pages[pageIndex].blocks.length === 0 ||
-        state.data.pages[pageIndex].blocks[0].type !== "text"
-      ) {
-        addBlock("text", 0);
-      } else {
-        setSelectedIndex(0);
-      }
-    } else if (
-      e.key === "Backspace" &&
-      state.data.header.subheading.length === 0
-    ) {
-      e.preventDefault();
+  const handleKeyDownSubheading = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    switch (e.key) {
+      case "Enter":
+        e.preventDefault();
+        if (
+          state.data.pages[pageIndex].blocks.length === 0 ||
+          state.data.pages[pageIndex].blocks[0].type !== "text"
+        )
+          addBlock("text", 0);
+        else setSelectedIndex(0);
+        break;
 
-      if (!headingRef.current) return;
-      headingRef.current.focus();
-      const value = headingRef.current.value;
-      headingRef.current.setSelectionRange(value.length, value.length);
-    } else if (e.ctrlKey && e.key === "ArrowDown") {
-      setSelectedIndex(0);
+      case "ArrowUp":
+        e.preventDefault();
+        headingRef.current?.focus();
+        break;
+
+      case "ArrowDown":
+        if (
+          state.data.pages[pageIndex].blocks.length === 0 ||
+          state.data.pages[pageIndex].blocks[0].type !== "text"
+        )
+          addBlock("text", 0);
+        else setSelectedIndex(0);
+        break;
+
+      case "Backspace":
+        if (state.data.header.subheading.length === 0) {
+          e.preventDefault();
+
+          if (!headingRef.current) return;
+          headingRef.current.focus();
+          const value = headingRef.current.value;
+          headingRef.current.setSelectionRange(value.length, value.length);
+        }
+        break;
+      case "ArrowDown":
+        if (e.ctrlKey) {
+          setSelectedIndex(0);
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -71,7 +93,7 @@ export default function Header() {
           spellCheck={false}
           value={state.data.header.heading}
           onFocus={() => setSelectedIndex(-1)}
-          onKeyDown={handleHeadingKeyDown}
+          onKeyDown={handleKeyDownHeading}
           onChange={(e) => {
             setState((s) => {
               s.data.header.heading = e.target.value;
@@ -93,7 +115,7 @@ export default function Header() {
           placeholder="Subheading"
           spellCheck
           value={state.data.header.subheading}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDownSubheading}
           onChange={(e) => {
             setState((s) => {
               s.data.header.subheading = e.target.value;

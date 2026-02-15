@@ -43,7 +43,11 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
   };
 
   return (
-    <div className="w-full" onKeyDown={handleKeyDown}>
+    <div
+      className="w-full"
+      onKeyDown={handleKeyDown}
+      id={`${title.toLowerCase().replace(/\s+/g, "-")}`}
+    >
       <ContentEditable
         ref={ref}
         value={title}

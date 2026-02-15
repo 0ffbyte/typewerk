@@ -164,6 +164,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           tempSpan.textContent = "/";
           tempSpan.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
           tempSpan.style.borderRadius = "4px";
+          tempSpan.style.color = "var(--foreground)";
           tempSpan.id = "slash-commander";
           range.insertNode(tempSpan);
 
@@ -180,8 +181,8 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           let rect = tempSpan.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
 
-          const menuWidth = 164;
-          const menuHeight = 178;
+          const menuWidth = 212;
+          const menuHeight = 248;
           const MARGIN = 8;
           let x = rect.right - containerRect.left; // defaults
           let y = rect.bottom - containerRect.top + MARGIN; // defaults
@@ -285,7 +286,6 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
   return {
     slashMenu: state,
-    setSlashMenu: setState,
     commandList,
     closeMenu,
   };

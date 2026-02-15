@@ -132,10 +132,7 @@ const ContentEditable = ({
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        if (!multiLine) {
-          //alert("Multiline is disabled");
-          return;
-        }
+        if (!multiLine || isEmpty) return;
 
         const selection = window.getSelection();
         if (!selection || !selection.rangeCount) return;
@@ -154,7 +151,7 @@ const ContentEditable = ({
         selection.addRange(range);
       }
     },
-    []
+    [isEmpty]
   );
 
   const selectAll = useCallback(() => {

@@ -41,7 +41,7 @@ const PageDropdown = () => {
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "w-[164px] h-full hover:bg-white/10 text-zinc-200 rounded-[12px] flex items-center justify-between px-[12px]",
+            "w-[148px] h-full hover:bg-white/10 text-zinc-200 rounded-[12px] flex items-center justify-between px-[12px]",
             isOpen && "bg-white/10"
           )}
         >
@@ -359,6 +359,9 @@ const PublishButton = ({
         "w-[100px] h-full bg-blue-500 text-blue-100 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-200",
         (isSyncing || isPublishing) && "cursor-wait bg-blue-400"
       )}
+      style={{
+        boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset",
+      }}
       onClick={handleClick}
       disabled={isSyncing || isPublishing}
     >
@@ -381,13 +384,7 @@ const Toolbar = ({
   subdomain: string;
 }) => {
   return (
-    <div
-      className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-950/90 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10"
-      style={{
-        zIndex: 100,
-        //boxShadow: "0px 0px 0px 1px rgba(255, 255, 255, 0.25) inset",
-      }}
-    >
+    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-900/90 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
       <PageDropdown />
       <StyleDropdown />
       <div className="w-px h-full bg-white/10" />

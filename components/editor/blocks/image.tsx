@@ -49,52 +49,56 @@ const ImageToolbar = ({ index }: { index: number }) => {
 
   return (
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start group-hover:opacity-100 opacity-0 transition-opacity duration-200">
-      <div className="h-[36px] aspect-square rounded-[12px] bg-zinc-50/80 flex items-center justify-center gap-2 backdrop-blur-xs px-1">
+      <div
+        className="h-[36px] aspect-square rounded-[12px] bg-zinc-100/70 flex items-center justify-center gap-2 backdrop-blur-xs p-[2px]"
+        style={{ boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset" }}
+      >
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}
-          className="h-[32px] aspect-square flex items-center justify-center"
+          className="h-full aspect-square flex items-center justify-center"
         >
           <UploadIcon
             size={24}
-            className="text-zinc-400 hover:text-zinc-500 transition-colors duration-200"
+            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
           />
         </button>
-
-        <div className="w-px h-[24px] bg-zinc-950/10" />
 
         <button
           title="Crop"
           onClick={() => removeBlock(index)}
-          className="h-[32px] aspect-square flex items-center justify-center"
+          className="h-full aspect-square flex items-center justify-center"
         >
           <CropIcon
             size={24}
-            className="text-zinc-400 hover:text-zinc-500 transition-colors duration-200"
+            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
           />
         </button>
 
         <button
           title="Image settings"
           onClick={() => removeBlock(index)}
-          className="h-[32px] aspect-square flex items-center justify-center"
+          className="h-full aspect-square flex items-center justify-center"
         >
           <Settings2Icon
             size={24}
-            className="text-zinc-400 hover:text-zinc-500 transition-colors duration-200"
+            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
           />
         </button>
       </div>
 
-      <div className="h-[36px] aspect-square rounded-[12px] bg-zinc-50/80 flex items-center justify-center gap-2 backdrop-blur-xs">
+      <div
+        className="h-[36px] aspect-square rounded-[12px] bg-zinc-100/70 flex items-center justify-center gap-2 backdrop-blur-xs"
+        style={{ boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset" }}
+      >
         <button
           title="Delete"
           onClick={() => removeBlock(index)}
-          className="h-[32px] aspect-square flex items-center justify-center"
+          className="h-full aspect-square flex items-center justify-center"
         >
           <XIcon
             size={24}
-            className="text-rose-400 hover:text-rose-500 transition-colors duration-200"
+            className="text-rose-500 hover:text-rose-600 transition-colors duration-200"
           />
         </button>
       </div>

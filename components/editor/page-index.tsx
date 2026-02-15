@@ -23,9 +23,9 @@ const PageIndex = () => {
 
   return (
     <div
-      className="max-w-[200px] w-full pb-[92] fixed top-[128] left-[64]"
+      className="max-w-[256px] w-full h-full fixed pt-[128] pl-[64] top-0 left-0"
       onMouseEnter={() => setIsCollapsed(false)}
-      onMouseLeave={() => setTimeout(() => setIsCollapsed(true), 1000)}
+      onMouseLeave={() => setIsCollapsed(true)}
     >
       {isCollapsed ? (
         <div key="collapsed" className="flex flex-col gap-3 z-10">
