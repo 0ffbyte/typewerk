@@ -15,7 +15,7 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedClasses: {
     span: [""],
   },
-  allowedTags: ["br", "p", "span"],
+  allowedTags: ["br", "p", "span", "i", "em", "u", "mark", "a"],
 };
 
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
