@@ -23,7 +23,7 @@ type ContentEditableProps = {
 
 const ContentEditable = ({
   value,
-  placeholder = "Start typing",
+  placeholder = "Start typing or press `/` for commands",
   maxLength = 256,
   multiLine = true,
   className,
@@ -170,16 +170,48 @@ const ContentEditable = ({
     selection.addRange(range);
   }, [innerRef]);
 
-  const toggleFormat = useCallback((tagName: "b" | "i" | "u" | "mark") => {
-    const selection = document.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
+  const toggleFormat = useCallback(
+    (tagName: "b" | "i" | "u" | "mark") => {
+      const el = innerRef.current;
+      if (!el) return;
 
-    const range = selection.getRangeAt(0);
-    if (range.collapsed) return;
+      // Ensure the editor is focused so execCommand works reliably
+      if (document.activeElement !== el) el.focus();
 
-    const fragment = range.cloneContents();
-    console.log("frag:", fragment);
-  }, []);
+      // Map tagName to command name in execCommand
+      let command: string | null = null;
+      switch (tagName) {
+        case "b":
+          command = "bold";
+          break;
+        case "i":
+          command = "italic";
+          break;
+        case "u":
+          command = "underline";
+          break;
+        case "mark":
+          // mark is not directly supported by execCommand, so use 'hiliteColor'
+          // with a color for highlighting; browsers might require 'backColor'
+          command = "hiliteColor";
+          break;
+        default:
+          return;
+      }
+
+      if (command === "hiliteColor") {
+        // You can customize the highlight color here if you want
+        document.execCommand(command, false, "#fff59d");
+      } else {
+        document.execCommand(command, false);
+      }
+
+      setIsEmpty(!el.textContent?.trim());
+      onEdit?.(el.innerHTML || "");
+      // No easy way to update selectionRef, but side-effects are handled
+    },
+    [onEdit]
+  );
 
   /** selection toolbar logic (scoped) */
   useEffect(() => {
@@ -263,7 +295,7 @@ const ContentEditable = ({
 
       {toolbarPos && (
         <div
-          className="absolute flex gap-3 items-center text-xs px-3 h-[38px] rounded-lg shadow-2xl bg-zinc-800/90 text-zinc-100 backdrop-blur-xs z-10 select-none"
+          className="absolute flex gap-3 items-center text-xs px-3 h-[38px] rounded-lg shadow-2xl bg-zinc-950/90 text-zinc-100 backdrop-blur-xs z-10 select-none"
           style={{
             left: toolbarPos.x,
             top: toolbarPos.y,
@@ -281,6 +313,7 @@ const ContentEditable = ({
           >
             Copy
           </button>
+
           <div className="h-[16px] w-px bg-zinc-500" />
           <button
             className="hover:text-zinc-300 transition-colors"
@@ -289,13 +322,20 @@ const ContentEditable = ({
           >
             Select All
           </button>
-          <div className="h-[16px] w-px bg-zinc-500" />
+
           <button
             className="hover:text-zinc-300 transition-colors"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => toggleFormat("b")}
           >
             Bold
+          </button>
+          <button
+            className="hover:text-zinc-300 transition-colors"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => toggleFormat("i")}
+          >
+            Italic
           </button>
         </div>
       )}

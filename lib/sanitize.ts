@@ -10,12 +10,9 @@ import { BlockRegistry } from "./block-registry";
 
 export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedAttributes: {
-    a: ["href", "target", "rel"],
+    a: ["href", "target", "rel", "style"],
   },
-  allowedClasses: {
-    span: [""],
-  },
-  allowedTags: ["br", "p", "span"],
+  allowedTags: ["br", "p", "span", "b", "strong", "i", "em", "u", "mark", "a"],
 };
 
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
@@ -23,7 +20,11 @@ export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
     draft.pages.forEach((page) => {
       page.blocks.forEach((block) => {
         if (BlockRegistry[block.type].sanitize) {
-          block.props.content = sanitize(block.props.content, SANITIZE_CONFIG);
+          for (const key in block.props) {
+            if (typeof block.props[key] === "string") {
+              block.props[key] = sanitize(block.props[key], SANITIZE_CONFIG);
+            }
+          }
         }
       });
     });

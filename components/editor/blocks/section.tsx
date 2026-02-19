@@ -2,8 +2,10 @@
 
 import { useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import type { BlockProps } from "@/app/types";
 import useFocused from "@/hooks/use-focused";
+
+import type { BlockProps } from "@/app/types";
+import { slugify } from "@/lib/utils";
 
 import ContentEditable from "../contenteditable";
 
@@ -13,14 +15,14 @@ export type SectionProps = {
 };
 
 // define block component
-const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
+const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
-  const removeBlock = useEditorStore((state) => state.removeBlock);
+
   const ref = useRef<HTMLDivElement>(null);
+  useFocused(ref, index);
 
   const addBlock = useEditorStore((state) => state.addBlock);
-
-  useFocused(ref, index);
+  const removeBlock = useEditorStore((state) => state.removeBlock);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") addBlock("text", index + 1);
@@ -43,11 +45,7 @@ const SectionBlock = ({ title = "", index }: SectionProps & BlockProps) => {
   };
 
   return (
-    <div
-      className="w-full"
-      onKeyDown={handleKeyDown}
-      id={`${title.toLowerCase().replace(/\s+/g, "-")}`}
-    >
+    <div className="w-full" onKeyDown={handleKeyDown} id={slugify(title)}>
       <ContentEditable
         ref={ref}
         value={title}

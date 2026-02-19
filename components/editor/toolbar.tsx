@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { RevalidateSiteAction } from "@/app/actions";
 
 import { ChevronDown, PlusIcon, XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 
 const PageDropdown = () => {
   const setState = useEditorStore((s) => s.setState);
@@ -28,7 +28,7 @@ const PageDropdown = () => {
       return;
     }
 
-    const newPageName = draftName.replace(" ", "").trim() || "Page";
+    const newPageName = slugify(draftName) || "Page";
     setState((s) => {
       s.data.pages[s.pageIndex].name = newPageName;
     });
@@ -202,7 +202,7 @@ const StyleDropdown = () => {
           )}
         >
           <p className="text-ellipsis overflow-hidden whitespace-nowrap">
-            Theme
+            Style
           </p>
 
           <ChevronDown
@@ -384,7 +384,7 @@ const Toolbar = ({
   subdomain: string;
 }) => {
   return (
-    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-900/90 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
+    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-950/90 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
       <PageDropdown />
       <StyleDropdown />
       <div className="w-px h-full bg-white/10" />

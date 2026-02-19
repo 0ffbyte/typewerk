@@ -1,22 +1,22 @@
 # Bugs to fix
 
-- [ ] selected indexes not updating correctly
+- [] selected indexes not updating correctly
 
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
 
 # Quests
 
-- [ ] Showcase a mini demo
+- [ ] Showcase a mini demo of the editor
 
-- [ ] Slash commander redesign ...
+- [ ] Text formatting
 
-- [ ] Text formatting (selection swaps)
+- [ ] slash commands ...
 
-- [x] slash commands
+- [x] use-inline-command hook (trigger_sequence, ref)
 
 - [x] publish (revalidate) button with sync indicator
 
-- [x] editor toolbar w/ page & theme management plus ...
+- [x] editor toolbar w/ page & theme management plus
 
 ## Done
 

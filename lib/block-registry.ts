@@ -51,6 +51,7 @@ export const BlockRegistry = {
     defaultProps: {
       title: "",
     },
+    sanitize: true,
     displayName: "Section",
     icon: Heading1Icon,
   } as BlockDefinition<SectionProps>,

@@ -1,30 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import {
-  AlertCircleIcon,
-  ChessKnightIcon,
-  Heading1Icon,
-  ImageIcon,
-  LucideIcon,
-  QuoteIcon,
-  TextIcon,
-} from "lucide-react";
 
-type SlashMenuState = {
+type MenuState = {
   x: number;
   y: number;
-  triggerIndex: number;
   command: string;
-  selectedCommandIndex: number;
+  triggerIndex: number;
 };
-
-type CommandItem = {
-  name: string;
-  icon: LucideIcon;
-  action: () => void;
-};
-
-type CommandList = CommandItem[];
 
 const getAbsoluteIndex = (container: HTMLElement, range: Range) => {
   let absoluteIndex = 0;
@@ -47,53 +29,13 @@ const getAbsoluteIndex = (container: HTMLElement, range: Range) => {
   return absoluteIndex;
 };
 
-const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
-  const [state, setState] = useState<SlashMenuState | null>(null);
-  const selectedIndex = useEditorStore((s) => s.selectedIndex);
-  const addBlock = useEditorStore((s) => s.addBlock);
+const useInlineMenu = (
+  ref: React.RefObject<HTMLDivElement | null>,
+  triggerToken: string,
+  menuDimensions: { width: number; height: number }
+) => {
+  const [state, setState] = useState<MenuState | null>(null);
   const setEditorState = useEditorStore((s) => s.setState);
-
-  const commandList: CommandList = useMemo(
-    () =>
-      [
-        {
-          name: "text",
-          icon: TextIcon,
-          action: () => addBlock("text", selectedIndex + 1),
-        },
-        {
-          name: "image",
-          icon: ImageIcon,
-          action: () => addBlock("image", selectedIndex + 1),
-        },
-        {
-          name: "section",
-          icon: Heading1Icon,
-          action: () => addBlock("section", selectedIndex + 1),
-        },
-        {
-          name: "blockquote",
-          icon: QuoteIcon,
-          action: () => addBlock("blockquote", selectedIndex + 1),
-        },
-        {
-          name: "alert",
-          icon: AlertCircleIcon,
-          action: () => addBlock("alertum", selectedIndex + 1),
-        },
-        {
-          name: "checkmate",
-          icon: ChessKnightIcon,
-          action: () => addBlock("checkmate", selectedIndex + 1),
-        },
-      ].filter((cmd) => {
-        if (!state) return true;
-        // Show all options when no command or empty command, filter as typing occurs
-        if (!state.command || state.command.trim() === "") return true;
-        return cmd.name.toLowerCase().includes(state.command.toLowerCase());
-      }),
-    [selectedIndex, state]
-  );
 
   const closeMenu = useCallback(() => {
     setState(null);
@@ -123,7 +65,7 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
     console.log("cmd:", command, "t_idx", state.triggerIndex);
 
-    if (command.length === 0) {
+    if (textContent.length === 0) {
       closeMenu();
       return;
     }
@@ -131,13 +73,12 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
     setState((s) => ({
       ...s!,
       command,
-      selectedCommandIndex: 0,
     }));
   }, [state]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "/") {
+      if (e.key === triggerToken) {
         // close if already open and slash pressed
         if (state) {
           closeMenu();
@@ -161,10 +102,10 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         requestAnimationFrame(() => {
           // create a psudo element
           const tempSpan = document.createElement("span");
-          tempSpan.textContent = "/";
-          tempSpan.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+          tempSpan.textContent = triggerToken;
+          tempSpan.style.backgroundColor = "var(--color-blue-100)";
           tempSpan.style.borderRadius = "4px";
-          tempSpan.style.color = "var(--foreground)";
+          tempSpan.style.color = "var(--color-blue-500)";
           tempSpan.id = "slash-commander";
           range.insertNode(tempSpan);
 
@@ -181,22 +122,21 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
           let rect = tempSpan.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
 
-          const menuWidth = 212;
-          const menuHeight = 248;
+          const menuWidth = menuDimensions.width;
+          const menuHeight = menuDimensions.height;
           const MARGIN = 8;
           let x = rect.right - containerRect.left; // defaults
           let y = rect.bottom - containerRect.top + MARGIN; // defaults
 
-          if (x + menuWidth + MARGIN * 6 > window.innerWidth) x = x - menuWidth;
-          if (rect.top + menuHeight + 100 > window.innerHeight)
-            y = rect.top - containerRect.top - menuHeight - 12;
+          if (x + menuWidth > window.innerWidth) x = x - menuWidth;
+          /*if (rect.top + menuHeight + 100 > window.innerHeight)
+            y = rect.top - containerRect.top - menuHeight - 12;*/
 
           setState({
             command: "",
             x,
             y,
             triggerIndex: absoluteIndex, // Use absolute position
-            selectedCommandIndex: 0,
           });
           setEditorState((s) => (s.preventNewLine = true));
 
@@ -229,31 +169,11 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
         selection.addRange(range);
 
         closeMenu();
-      } else if (e.key === "Enter") {
-        if (!state) return;
-
-        const action = commandList[state.selectedCommandIndex]?.action;
-        if (!action) {
-          closeMenu();
-          return;
-        }
-
-        e.preventDefault();
-        action();
-        closeMenu();
       } else if (
         (e.key === "ArrowUp" || e.key === "ArrowDown") &&
         state !== null
-      ) {
+      )
         e.preventDefault();
-
-        setState((s) => ({
-          ...s!,
-          selectedCommandIndex:
-            Math.abs(s!.selectedCommandIndex + (e.key === "ArrowUp" ? -1 : 1)) %
-            commandList.length,
-        }));
-      }
     },
     [state]
   );
@@ -264,7 +184,6 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
 
   const handleBlur = useCallback(() => {
     closeMenu();
-    document.body.style.overflow = "auto";
   }, []);
 
   useEffect(() => {
@@ -285,10 +204,9 @@ const useSlashMenu = (ref: React.RefObject<HTMLDivElement | null>) => {
   }, [handleInput, handleKeyDown]); // Event listeners & handlers
 
   return {
-    slashMenu: state,
-    commandList,
+    menu: state,
     closeMenu,
   };
 };
 
-export default useSlashMenu;
+export default useInlineMenu;

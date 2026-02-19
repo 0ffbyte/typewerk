@@ -1,24 +1,50 @@
 "use client";
 import { useEditorStore } from "@/store/editor-store";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { SectionProps } from "@/components/editor/blocks/section";
 import { useState } from "react";
-import { useActiveSection } from "@/hooks/use-active-section";
+import { slugify } from "@/lib/utils";
 
-const PageIndex = () => {
+const TOC = () => {
   const pages = useEditorStore((s) => s.data.pages);
   const pageIndex = useEditorStore((s) => s.pageIndex);
 
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // get all section ids
   const sectionIds = useMemo(() => {
     return (
       pages[pageIndex]?.blocks
         .filter((b) => b.type === "section")
-        .map((s) => s.props.title.toLowerCase().replace(/\s+/g, "-")) ?? []
+        .map((s) => slugify(s.props.title)) ?? []
     );
   }, [pages, pageIndex]);
 
-  const activeSection = useActiveSection(sectionIds);
+  // observe section intersections
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: "-40% 0px -40% 0px",
+        threshold: 0,
+      }
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [sectionIds]);
+
   if (sectionIds.length <= 1) return <div></div>;
 
   return (
@@ -33,8 +59,7 @@ const PageIndex = () => {
             if (block.type !== "section") return null;
 
             const props = block.props as SectionProps;
-            const isActive =
-              activeSection === props.title.toLowerCase().replace(/\s+/g, "-");
+            const isActive = activeId === slugify(props.title);
             return (
               <div
                 key={block.id}
@@ -60,17 +85,22 @@ const PageIndex = () => {
             return (
               <a
                 key={block.id}
-                href={`#${title.toLowerCase().replace(/\s+/g, "-")}`}
                 onClick={(e) => {
                   e.preventDefault();
-                  const id = `${title.toLowerCase().replace(/\s+/g, "-")}`;
+                  const id = slugify(title);
                   const el = document.getElementById(id);
                   if (el) {
                     el.scrollIntoView({
                       behavior: "smooth",
                       block: "center",
-                      inline: "nearest",
+                      inline: "center",
                     });
+                    // Update the URL hash without reloading
+                    if (history.pushState) {
+                      history.pushState(null, "", `#${id}`);
+                    } else {
+                      window.location.hash = `#${id}`;
+                    }
                   }
                 }}
                 style={{ cursor: "pointer" }}
@@ -85,4 +115,4 @@ const PageIndex = () => {
   );
 };
 
-export default PageIndex;
+export default TOC;

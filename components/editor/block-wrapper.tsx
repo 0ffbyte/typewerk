@@ -53,6 +53,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     // shortcut for adding blocks
     if (e.altKey) {
+      e.preventDefault();
       const key = e.key.toLowerCase();
       const insertAt = selectedIndex + 1;
       switch (key) {
@@ -60,7 +61,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
           addBlock("section", insertAt);
           setSelectedIndex(insertAt);
           break;
-        case "w":
+        case "t":
           addBlock("text", insertAt);
           setSelectedIndex(insertAt);
           break;

@@ -18,8 +18,25 @@ export type Page = {
   blocks: BaseBlock[];
 };
 
+export const ACCENT_COLORS = [
+  "blue",
+  "teal",
+  "amber",
+  "lime",
+  "emerald",
+  "cyan",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose",
+] as const;
+
+export type Accent = (typeof ACCENT_COLORS)[number];
+
 export type Theme = {
-  accentColor: string;
+  accent: Accent;
   typography: "sans-serif" | "serif";
 };
 
