@@ -170,16 +170,63 @@ const ContentEditable = ({
     selection.addRange(range);
   }, [innerRef]);
 
-  const toggleFormat = useCallback((tagName: "b" | "i" | "u" | "mark") => {
-    const selection = document.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
+  const toggleFormat = useCallback(
+    (tagName: "b" | "i" | "u" | "mark") => {
+      const el = innerRef.current;
+      const selection = document.getSelection();
+      if (!el || !selection || selection.rangeCount === 0) return;
 
-    const range = selection.getRangeAt(0);
-    if (range.collapsed) return;
+      const range = selection.getRangeAt(0);
+      if (!el.contains(range.commonAncestorContainer)) return;
 
-    const fragment = range.cloneContents();
-    console.log("frag:", fragment);
-  }, []);
+      if (tagName === "mark") {
+        if (range.collapsed) return;
+
+        const startParent =
+          range.startContainer.nodeType === Node.ELEMENT_NODE
+            ? (range.startContainer as Element)
+            : range.startContainer.parentElement;
+        const endParent =
+          range.endContainer.nodeType === Node.ELEMENT_NODE
+            ? (range.endContainer as Element)
+            : range.endContainer.parentElement;
+
+        const startMark = startParent?.closest("mark");
+        const endMark = endParent?.closest("mark");
+
+        if (startMark && endMark && startMark === endMark) {
+          const parent = startMark.parentNode;
+          if (!parent) return;
+
+          while (startMark.firstChild) {
+            parent.insertBefore(startMark.firstChild, startMark);
+          }
+          parent.removeChild(startMark);
+        } else {
+          const contents = range.extractContents();
+          const newNode = document.createElement("mark");
+          newNode.appendChild(contents);
+          range.insertNode(newNode);
+          range.selectNodeContents(newNode);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      } else {
+        const commandMap = {
+          b: "bold",
+          i: "italic",
+          u: "underline",
+        } as const;
+
+        document.execCommand(commandMap[tagName]);
+      }
+
+      setIsEmpty(!el.textContent?.trim());
+      onEdit?.(el.innerHTML || "");
+      selectionRef.current = document.getSelection();
+    },
+    [onEdit]
+  );
 
   /** selection toolbar logic (scoped) */
   useEffect(() => {
