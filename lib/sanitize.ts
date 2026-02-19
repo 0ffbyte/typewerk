@@ -5,7 +5,7 @@ import { BlockRegistry } from "./block-registry";
 
 /**
  * Sanitizes HTML content in text blocks to prevent XSS attacks
- * while allowing basic formatting tags (b, u, i)
+ * while allowing basic formatting tags (b, u, i, mark)
  */
 
 export const SANITIZE_CONFIG: sanitize.IOptions = {
@@ -15,7 +15,7 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedClasses: {
     span: [""],
   },
-  allowedTags: ["br", "p", "span"],
+  allowedTags: ["b", "i", "u", "mark", "br", "p", "span"],
 };
 
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
