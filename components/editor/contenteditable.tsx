@@ -175,40 +175,60 @@ const ContentEditable = ({
       const el = innerRef.current;
       if (!el) return;
 
-      // Ensure the editor is focused so execCommand works reliably
-      if (document.activeElement !== el) el.focus();
+      const selection = document.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
 
-      // Map tagName to command name in execCommand
-      let command: string | null = null;
-      switch (tagName) {
-        case "b":
-          command = "bold";
-          break;
-        case "i":
-          command = "italic";
-          break;
-        case "u":
-          command = "underline";
-          break;
-        case "mark":
-          // mark is not directly supported by execCommand, so use 'hiliteColor'
-          // with a color for highlighting; browsers might require 'backColor'
-          command = "hiliteColor";
-          break;
-        default:
-          return;
-      }
+      const range = selection.getRangeAt(0);
+      if (!el.contains(range.commonAncestorContainer)) return;
 
-      if (command === "hiliteColor") {
-        // You can customize the highlight color here if you want
-        document.execCommand(command, false, "#fff59d");
+      if (tagName === "mark") {
+        if (range.collapsed) return;
+
+        const startParent =
+          range.startContainer.nodeType === Node.ELEMENT_NODE
+            ? (range.startContainer as Element)
+            : range.startContainer.parentElement;
+        const endParent =
+          range.endContainer.nodeType === Node.ELEMENT_NODE
+            ? (range.endContainer as Element)
+            : range.endContainer.parentElement;
+
+        const startMark = startParent?.closest("mark");
+        const endMark = endParent?.closest("mark");
+
+        if (startMark && endMark && startMark === endMark) {
+          const parent = startMark.parentNode;
+          if (!parent) return;
+
+          while (startMark.firstChild) {
+            parent.insertBefore(startMark.firstChild, startMark);
+          }
+          parent.removeChild(startMark);
+        } else {
+          const contents = range.extractContents();
+          const newNode = document.createElement("mark");
+          newNode.appendChild(contents);
+          range.insertNode(newNode);
+          range.selectNodeContents(newNode);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       } else {
-        document.execCommand(command, false);
+        // Ensure the editor is focused so execCommand works reliably
+        if (document.activeElement !== el) el.focus();
+
+        const commandMap = {
+          b: "bold",
+          i: "italic",
+          u: "underline",
+        } as const;
+
+        document.execCommand(commandMap[tagName], false);
       }
 
       setIsEmpty(!el.textContent?.trim());
       onEdit?.(el.innerHTML || "");
-      // No easy way to update selectionRef, but side-effects are handled
+      selectionRef.current = document.getSelection();
     },
     [onEdit]
   );

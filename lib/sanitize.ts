@@ -5,14 +5,17 @@ import { BlockRegistry } from "./block-registry";
 
 /**
  * Sanitizes HTML content in text blocks to prevent XSS attacks
- * while allowing basic formatting tags (b, u, i)
+ * while allowing basic formatting tags (b, u, i, mark)
  */
 
 export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedAttributes: {
     a: ["href", "target", "rel", "style"],
   },
-  allowedTags: ["br", "p", "span", "b", "strong", "i", "em", "u", "mark", "a"],
+  allowedClasses: {
+    span: [""],
+  },
+  allowedTags: ["br", "p", "span"],
 };
 
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
