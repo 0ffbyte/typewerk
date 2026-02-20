@@ -1,7 +1,12 @@
 import { SectionProps } from "../editor/blocks/section";
 
 const Section = ({ title }: SectionProps) => {
-  return <h3 className="font-semibold text-[16px]">{title}</h3>;
+  return (
+    <h1
+      className="font-semibold text-[16px]"
+      dangerouslySetInnerHTML={{ __html: title }}
+    />
+  );
 };
 
 export default Section;

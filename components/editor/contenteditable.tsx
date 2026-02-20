@@ -6,9 +6,16 @@ import mergeRefs from "merge-refs";
 import { cn } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
+import { unwrapSafe } from "@/lib/utils";
 
 import SlashMenu from "./slashMenu";
-import { BoldIcon, CopyIcon, ItalicIcon } from "lucide-react";
+import {
+  BoldIcon,
+  CopyIcon,
+  ItalicIcon,
+  LinkIcon,
+  UnderlineIcon,
+} from "lucide-react";
 
 type ToolbarPos = { x: number; y: number };
 
@@ -173,10 +180,70 @@ const ContentEditable = ({
   }, [innerRef]);
 
   const toggleFormat = useCallback(
-    (command: "bold" | "italic" | "underline" | "highlight") => {
+    (command: "bold" | "italic" | "underline" | "createLink") => {
+      if (command === "createLink") {
+        const selection = document.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const range = selection.getRangeAt(0);
+        const root =
+          range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+            ? range.commonAncestorContainer.parentNode!
+            : range.commonAncestorContainer;
+
+        const walker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_ELEMENT,
+          {
+            acceptNode(node) {
+              return range.intersectsNode(node)
+                ? NodeFilter.FILTER_ACCEPT
+                : NodeFilter.FILTER_SKIP;
+            },
+          }
+        );
+        let node = walker.currentNode as Element;
+        const toUnwrap: Element[] = [];
+
+        while (node) {
+          if (node.tagName?.toLowerCase() === "a") {
+            console.log("removing b tag");
+            toUnwrap.push(node);
+          }
+
+          node = walker.nextNode() as Element;
+        }
+
+        toUnwrap.forEach((node) => unwrapSafe(node));
+
+        if (foundTags.includes("a")) {
+          console.log("unwrapped link");
+        } else {
+          console.log("creating link");
+          // create new link wrapping the cleaned content
+          const linkElement = document.createElement("a");
+          const url = window.prompt("Enter URL", "https://");
+          linkElement.href = url || "https://artntek.co";
+          linkElement.target = "_blank";
+          linkElement.rel = "noopener noreferrer";
+          linkElement.textContent = range.cloneContents().textContent;
+
+          // replace the selection with the new link
+          range.deleteContents();
+          range.insertNode(linkElement);
+
+          // move cursor to end of link
+          range.setStartAfter(linkElement);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+
+        return;
+      }
       document.execCommand(command, false);
     },
-    [onEdit]
+    [onEdit, foundTags]
   );
 
   /** selection toolbar logic (scoped) */
@@ -195,17 +262,25 @@ const ContentEditable = ({
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
-      const ansestor = range.commonAncestorContainer;
+      const root =
+        range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+          ? range.commonAncestorContainer.parentNode!
+          : range.commonAncestorContainer;
 
-      let current =
-        ansestor instanceof Element ? ansestor : ansestor.parentElement;
-      let foundTags = [];
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+        acceptNode(node) {
+          return range.intersectsNode(node)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        },
+      });
 
-      // walk up the DOM tree to find desired tags and stop at the root div parent
-      while (current?.tagName !== "DIV" && current) {
-        const foundTag = current.tagName.toLowerCase();
-        foundTags.push(foundTag);
-        current = current.parentElement;
+      let node = walker.currentNode as Element;
+      while (node) {
+        const foundTag = node.tagName.toLowerCase();
+        setFoundTags((prev) => [...prev, foundTag]);
+
+        node = walker.nextNode() as Element;
       }
 
       setFoundTags(foundTags);
@@ -286,7 +361,7 @@ const ContentEditable = ({
             <CopyIcon size={20} />
           </button>
 
-          <div className="h-[16px] w-px bg-zinc-500" />
+          <div className="h-[32px] w-px bg-zinc-500" />
 
           <button
             className={cn(
@@ -307,6 +382,27 @@ const ContentEditable = ({
             onClick={() => toggleFormat("italic")}
           >
             <ItalicIcon size={20} />
+          </button>
+          <button
+            className={cn(
+              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+              foundTags.includes("u") && "text-blue-500"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => toggleFormat("underline")}
+          >
+            <UnderlineIcon size={20} />
+          </button>
+
+          <button
+            className={cn(
+              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+              foundTags.includes("a") && "text-blue-500"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => toggleFormat("createLink")}
+          >
+            <LinkIcon size={20} />
           </button>
         </div>
       )}

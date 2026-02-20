@@ -19,3 +19,24 @@ export const slugify = (text: string): string => {
     .replace(/--+/g, "-") // Replace multiple dashes with single dash
     .replace(/^-+|-+$/g, ""); // Trim starting and ending dashes
 };
+
+export function unwrapSafe(element: Element): Node[] {
+  const parent = element.parentNode;
+  if (!parent) return [];
+
+  const moved: Node[] = [];
+  const reference = element;
+
+  let child = element.firstChild;
+
+  while (child) {
+    const next = child.nextSibling;
+    moved.push(child);
+    parent.insertBefore(child, reference);
+    child = next;
+  }
+
+  parent.removeChild(element);
+
+  return moved;
+}

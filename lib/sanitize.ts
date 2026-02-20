@@ -14,6 +14,14 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
     span: ["style"],
   },
   allowedTags: ["br", "p", "span", "i", "em", "u", "mark", "a", "b", "strong"],
+  exclusiveFilter: (frame) => {
+    // Remove empty tags (no text content and no meaningful children)
+    const isSelfClosing = frame.tag === "br";
+    if (isSelfClosing) return false;
+
+    const isEmpty = !frame.text.trim() && frame.tag !== "br";
+    return isEmpty;
+  },
 };
 
 export function sanitizeSiteObject(siteObject: SiteObject): SiteObject {
