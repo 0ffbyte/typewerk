@@ -8,6 +8,7 @@ import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
 
 import SlashMenu from "./slashMenu";
+import { BoldIcon, CopyIcon, ItalicIcon } from "lucide-react";
 
 type ToolbarPos = { x: number; y: number };
 
@@ -39,6 +40,7 @@ const ContentEditable = ({
 
   const [isEmpty, setIsEmpty] = useState(true);
   const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
+  const [foundTags, setFoundTags] = useState<string[]>([]);
 
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
@@ -171,44 +173,8 @@ const ContentEditable = ({
   }, [innerRef]);
 
   const toggleFormat = useCallback(
-    (tagName: "b" | "i" | "u" | "mark") => {
-      const el = innerRef.current;
-      if (!el) return;
-
-      // Ensure the editor is focused so execCommand works reliably
-      if (document.activeElement !== el) el.focus();
-
-      // Map tagName to command name in execCommand
-      let command: string | null = null;
-      switch (tagName) {
-        case "b":
-          command = "bold";
-          break;
-        case "i":
-          command = "italic";
-          break;
-        case "u":
-          command = "underline";
-          break;
-        case "mark":
-          // mark is not directly supported by execCommand, so use 'hiliteColor'
-          // with a color for highlighting; browsers might require 'backColor'
-          command = "hiliteColor";
-          break;
-        default:
-          return;
-      }
-
-      if (command === "hiliteColor") {
-        // You can customize the highlight color here if you want
-        document.execCommand(command, false, "#fff59d");
-      } else {
-        document.execCommand(command, false);
-      }
-
-      setIsEmpty(!el.textContent?.trim());
-      onEdit?.(el.innerHTML || "");
-      // No easy way to update selectionRef, but side-effects are handled
+    (command: "bold" | "italic" | "underline" | "highlight") => {
+      document.execCommand(command, false);
     },
     [onEdit]
   );
@@ -221,23 +187,28 @@ const ContentEditable = ({
 
     const updateSelection = () => {
       const selection = document.getSelection();
-      if (
-        !selection ||
-        selection.rangeCount === 0 ||
-        selection.toString().length === 0
-      ) {
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
         setToolbarPos(null);
         return;
       }
 
       const range = selection.getRangeAt(0);
-      if (!el.contains(range.commonAncestorContainer)) {
-        setToolbarPos(null);
-        return;
-      }
-
       const rect = range.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
+      const ansestor = range.commonAncestorContainer;
+
+      let current =
+        ansestor instanceof Element ? ansestor : ansestor.parentElement;
+      let foundTags = [];
+
+      // walk up the DOM tree to find desired tags and stop at the root div parent
+      while (current?.tagName !== "DIV" && current) {
+        const foundTag = current.tagName.toLowerCase();
+        foundTags.push(foundTag);
+        current = current.parentElement;
+      }
+
+      setFoundTags(foundTags);
 
       setToolbarPos({
         x: rect.left - containerRect.left + rect.width / 2,
@@ -271,6 +242,7 @@ const ContentEditable = ({
           isFocusedRef.current = false;
           emitSanitizedEdit();
           setToolbarPos(null);
+          setFoundTags([]);
         }}
         onCompositionStart={() => (isComposingRef.current = true)}
         onCompositionEnd={() => (isComposingRef.current = false)}
@@ -295,7 +267,7 @@ const ContentEditable = ({
 
       {toolbarPos && (
         <div
-          className="absolute flex gap-3 items-center text-xs px-3 h-[38px] rounded-lg shadow-2xl bg-zinc-950/90 text-zinc-100 backdrop-blur-xs z-10 select-none"
+          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-[16px] shadow-2xl bg-zinc-950/90 text-zinc-100 backdrop-blur-xs z-10 select-none"
           style={{
             left: toolbarPos.x,
             top: toolbarPos.y,
@@ -303,7 +275,7 @@ const ContentEditable = ({
           }}
         >
           <button
-            className="hover:text-zinc-300 transition-colors"
+            className="hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               navigator.clipboard.writeText(
@@ -311,31 +283,30 @@ const ContentEditable = ({
               );
             }}
           >
-            Copy
+            <CopyIcon size={20} />
           </button>
 
           <div className="h-[16px] w-px bg-zinc-500" />
-          <button
-            className="hover:text-zinc-300 transition-colors"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => selectAll()}
-          >
-            Select All
-          </button>
 
           <button
-            className="hover:text-zinc-300 transition-colors"
+            className={cn(
+              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+              foundTags.includes("b") && "text-blue-500"
+            )}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("b")}
+            onClick={() => toggleFormat("bold")}
           >
-            Bold
+            <BoldIcon size={20} />
           </button>
           <button
-            className="hover:text-zinc-300 transition-colors"
+            className={cn(
+              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+              foundTags.includes("i") && "text-blue-500"
+            )}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("mark")}
+            onClick={() => toggleFormat("italic")}
           >
-            Italic
+            <ItalicIcon size={20} />
           </button>
         </div>
       )}
