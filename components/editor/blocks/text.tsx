@@ -42,12 +42,7 @@ export default function TextBlock({ content, index }: TextProps & BlockProps) {
 
   return (
     <div className="w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
-      <ContentEditable
-        ref={ref}
-        value={content}
-        onEdit={handleEdit}
-        placeholder="Type here or press / for commands"
-      />
+      <ContentEditable ref={ref} value={content} onEdit={handleEdit} />
     </div>
   );
 }

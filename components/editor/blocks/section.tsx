@@ -53,6 +53,7 @@ const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
         placeholder="Section"
         maxLength={32}
         multiLine={false}
+        allowFormatting={false}
         className="text-foreground"
       />
     </div>

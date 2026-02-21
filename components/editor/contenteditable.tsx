@@ -12,7 +12,6 @@ import SlashMenu from "./slashMenu";
 import {
   BoldIcon,
   CopyIcon,
-  HighlighterIcon,
   ItalicIcon,
   LinkIcon,
   UnderlineIcon,
@@ -25,8 +24,9 @@ type ContentEditableProps = {
   placeholder?: string;
   maxLength?: number;
   multiLine?: boolean;
-  className?: string;
+  allowFormatting?: boolean;
   ref: React.RefObject<HTMLDivElement | null>;
+  className?: string;
   onEdit?: (value: string) => void;
 };
 
@@ -35,6 +35,7 @@ const ContentEditable = ({
   placeholder = "Start typing or press `/` for commands",
   maxLength = 256,
   multiLine = true,
+  allowFormatting = true,
   className,
   ref,
   onEdit,
@@ -59,6 +60,8 @@ const ContentEditable = ({
       el.innerHTML = value || "";
       setIsEmpty(!el.textContent?.trim());
     }
+
+    console.log("allowFormatting", allowFormatting);
   }, [value]);
 
   /** emit sanitized value */
@@ -96,13 +99,8 @@ const ContentEditable = ({
       if (!el) return;
 
       const clipboard = e.clipboardData;
-      const html = clipboard.getData("text/html");
       const text = clipboard.getData("text/plain");
-
-      const raw = html || text;
-      if (!raw) return;
-
-      const sanitized = sanitize(raw, SANITIZE_CONFIG);
+      if (!text) return;
 
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
@@ -110,7 +108,23 @@ const ContentEditable = ({
       const range = selection.getRangeAt(0);
       range.deleteContents();
 
-      // Convert sanitized HTML → nodes
+      if (!allowFormatting) {
+        // Plain text only: insert a text node so no HTML/formatting is applied
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        setIsEmpty(!el.textContent?.trim());
+        onEdit?.(el.innerHTML);
+        return;
+      }
+
+      const html = clipboard.getData("text/html");
+      const raw = html || text;
+      const sanitized = sanitize(raw, SANITIZE_CONFIG);
+
       const temp = document.createElement("div");
       temp.innerHTML = sanitized.trim();
 
@@ -123,7 +137,6 @@ const ContentEditable = ({
 
       range.insertNode(fragment);
 
-      // Move caret to end of pasted content
       if (lastNode) {
         range.setStartAfter(lastNode);
         range.collapse(true);
@@ -131,15 +144,22 @@ const ContentEditable = ({
         selection.addRange(range);
       }
 
-      // Update state
       setIsEmpty(!el.textContent?.trim());
       onEdit?.(el.innerHTML);
     },
-    [onEdit]
+    [onEdit, allowFormatting]
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
+      // Block formatting shortcuts when formatting is disabled (Ctrl/Cmd + B/I/U/K)
+      if (!allowFormatting && (e.ctrlKey || e.metaKey)) {
+        const key = e.key.toLowerCase();
+        if (key === "b" || key === "i" || key === "u" || key === "k") {
+          e.preventDefault();
+          return;
+        }
+      }
       if (e.key === "Enter") {
         e.preventDefault();
         if (!multiLine || isEmpty) return;
@@ -161,7 +181,7 @@ const ContentEditable = ({
         selection.addRange(range);
       }
     },
-    [isEmpty]
+    [isEmpty, allowFormatting]
   );
 
   const selectAll = useCallback(() => {
@@ -181,9 +201,7 @@ const ContentEditable = ({
   }, [innerRef]);
 
   const toggleFormat = useCallback(
-    (
-      command: "bold" | "italic" | "underline" | "createLink" | "hiliteColor"
-    ) => {
+    (command: "bold" | "italic" | "underline" | "createLink") => {
       if (command === "createLink") {
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0) return;
@@ -258,7 +276,12 @@ const ContentEditable = ({
 
     const updateSelection = () => {
       const selection = document.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      if (
+        !selection ||
+        selection.rangeCount === 0 ||
+        selection.isCollapsed ||
+        !allowFormatting
+      ) {
         setToolbarPos(null);
         return;
       }
@@ -359,49 +382,51 @@ const ContentEditable = ({
             <CopyIcon size={20} />
           </button>
 
-          <div className="h-[32px] w-px bg-zinc-500" />
-
-          <button
-            className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-              foundTags.includes("b") && "text-blue-500"
-            )}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("bold")}
-          >
-            <BoldIcon size={20} />
-          </button>
-          <button
-            className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-              foundTags.includes("i") && "text-blue-500"
-            )}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("italic")}
-          >
-            <ItalicIcon size={20} />
-          </button>
-          <button
-            className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-              foundTags.includes("u") && "text-blue-500"
-            )}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("underline")}
-          >
-            <UnderlineIcon size={20} />
-          </button>
-
-          <button
-            className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-              foundTags.includes("a") && "text-blue-500"
-            )}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => toggleFormat("createLink")}
-          >
-            <LinkIcon size={20} />
-          </button>
+          {allowFormatting && (
+            <>
+              <div className="h-[32px] w-px bg-zinc-500" />
+              <button
+                className={cn(
+                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+                  foundTags.includes("b") && "text-blue-500"
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => toggleFormat("bold")}
+              >
+                <BoldIcon size={20} />
+              </button>
+              <button
+                className={cn(
+                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+                  foundTags.includes("i") && "text-blue-500"
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => toggleFormat("italic")}
+              >
+                <ItalicIcon size={20} />
+              </button>
+              <button
+                className={cn(
+                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+                  foundTags.includes("u") && "text-blue-500"
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => toggleFormat("underline")}
+              >
+                <UnderlineIcon size={20} />
+              </button>
+              <button
+                className={cn(
+                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+                  foundTags.includes("a") && "text-blue-500"
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => toggleFormat("createLink")}
+              >
+                <LinkIcon size={20} />
+              </button>
+            </>
+          )}
         </div>
       )}
 

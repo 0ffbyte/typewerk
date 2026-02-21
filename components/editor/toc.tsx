@@ -32,7 +32,7 @@ const TOC = () => {
         });
       },
       {
-        rootMargin: "-40% 0px -40% 0px",
+        rootMargin: "-20% 0px -40% 0px",
         threshold: 0,
       }
     );

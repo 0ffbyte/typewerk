@@ -26,15 +26,6 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isSelected && containerRef.current) {
-      containerRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [preventNewLine, isSelected]);
-
   const {
     attributes,
     listeners,

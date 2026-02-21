@@ -5,6 +5,7 @@ import { useEditorStore } from "@/store/editor-store";
 import useFocused from "@/hooks/use-focused";
 import type { BlockProps } from "@/app/types";
 import { CropIcon, UploadIcon, TrashIcon } from "@radix-ui/react-icons";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // define block props
 export type ImageProps = {
@@ -17,8 +18,9 @@ const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
   const [isMouseOver, setIsMouseOver] = useState(false);
 
   const { isFocused } = useFocused(ref, index);
+  const isMobile = useIsMobile();
 
-  const isToolbarVisible = isFocused || isMouseOver;
+  const isToolbarVisible = isMobile ? isFocused : isMouseOver;
 
   return (
     <div
@@ -54,30 +56,30 @@ const ImageToolbar = ({ index }: { index: number }) => {
 
   return (
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] border border-white/20 aspect-square rounded-sm bg-zinc-950/80 flex items-center justify-center backdrop-blur-xs gap-1">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-950/90 flex items-center justify-center backdrop-blur-xs gap-1">
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}
           className="h-full aspect-square flex items-center justify-center"
         >
-          <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
+          <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
         </button>
 
         <button
           title="Crop"
           className="h-full aspect-square flex items-center justify-center"
         >
-          <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
+          <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
         </button>
       </div>
 
-      <div className="h-[32px] border border-white/20 aspect-square rounded-sm bg-zinc-950/80 flex items-center justify-center gap-2 backdrop-blur-xs">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-950/90 flex items-center justify-center gap-2 backdrop-blur-xs">
         <button
           title="Delete"
           onClick={() => removeBlock(index)}
           className="h-full aspect-square flex items-center justify-center"
         >
-          <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
+          <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
         </button>
       </div>
     </div>

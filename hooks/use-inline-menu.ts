@@ -140,7 +140,14 @@ const useInlineMenu = (
           });
           setEditorState((s) => (s.preventNewLine = true));
 
-          // prevent scrolling
+          // scroll to element smoothly then disable scrolling
+          if (tempSpan) {
+            tempSpan.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center",
+            });
+          }
           document.body.style.overflow = "hidden";
         });
       } else if (e.key === "Escape" || e.key === "ArrowLeft") {
