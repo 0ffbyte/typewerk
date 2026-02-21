@@ -51,6 +51,13 @@ a {
   text-decoration: underline;
 }
 
+mark {
+  background-color: var(--color-teal-200);
+  color: var(--color-teal-500);
+  padding: 4px;
+  border-radius: 8px;
+}
+
 :root {
   --radius: 12px;
   --background: var(--color-zinc-50);

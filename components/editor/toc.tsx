@@ -83,7 +83,7 @@ const TOC = () => {
             const title = props.title;
             if (!title) return null;
             return (
-              <a
+              <p
                 key={block.id}
                 onClick={(e) => {
                   e.preventDefault();
@@ -106,7 +106,7 @@ const TOC = () => {
                 style={{ cursor: "pointer" }}
               >
                 {title}
-              </a>
+              </p>
             );
           })}
         </div>

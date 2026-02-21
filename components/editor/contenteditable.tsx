@@ -12,6 +12,7 @@ import SlashMenu from "./slashMenu";
 import {
   BoldIcon,
   CopyIcon,
+  HighlighterIcon,
   ItalicIcon,
   LinkIcon,
   UnderlineIcon,
@@ -180,7 +181,9 @@ const ContentEditable = ({
   }, [innerRef]);
 
   const toggleFormat = useCallback(
-    (command: "bold" | "italic" | "underline" | "createLink") => {
+    (
+      command: "bold" | "italic" | "underline" | "createLink" | "hiliteColor"
+    ) => {
       if (command === "createLink") {
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0) return;
@@ -241,6 +244,7 @@ const ContentEditable = ({
 
         return;
       }
+
       document.execCommand(command, false);
     },
     [onEdit, foundTags]

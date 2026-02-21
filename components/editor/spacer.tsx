@@ -14,12 +14,11 @@ const Spacer = ({ id, index }: Props) => {
     id,
   });
   const addBlock = useEditorStore((state) => state.addBlock);
-
   return (
     <div
       title="Write"
       ref={setNodeRef}
-      className="w-full h-[20] relative flex items-center group cursor-text hover:bg-zinc-200/50 transition-colors duration-200 delay-75 rounded"
+      className="w-full h-[20] relative flex items-center group cursor-text hover:bg-zinc-200/0 transition-colors duration-200 delay-75 rounded"
       onClick={() => addBlock("text", index)}
     >
       <div

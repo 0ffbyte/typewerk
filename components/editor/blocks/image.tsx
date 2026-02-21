@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import useFocused from "@/hooks/use-focused";
 import type { BlockProps } from "@/app/types";
-import { CropIcon, Settings2Icon, UploadIcon, XIcon } from "lucide-react";
+import { CropIcon, UploadIcon, TrashIcon } from "@radix-ui/react-icons";
 
 // define block props
 export type ImageProps = {
@@ -14,17 +14,22 @@ export type ImageProps = {
 // define block component
 const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMouseOver, setIsMouseOver] = useState(false);
 
-  useFocused(ref, index);
+  const { isFocused } = useFocused(ref, index);
+
+  const isToolbarVisible = isFocused || isMouseOver;
 
   return (
     <div
       ref={ref}
       tabIndex={index}
-      className="w-full aspect-video border relative overflow-hidden outline-none bg-zinc-100 rounded-[16] group"
+      onMouseOver={() => setIsMouseOver(true)}
+      onMouseLeave={() => setIsMouseOver(false)}
+      className="w-full aspect-video border relative overflow-hidden outline-none bg-zinc-100 rounded-lg group"
     >
       <img className="w-full h-full object-cover" src={url ?? ""} />
-      <ImageToolbar index={index} />
+      {isToolbarVisible && <ImageToolbar index={index} />}
     </div>
   );
 };
@@ -48,58 +53,31 @@ const ImageToolbar = ({ index }: { index: number }) => {
   };
 
   return (
-    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start group-hover:opacity-100 opacity-0 transition-opacity duration-200">
-      <div
-        className="h-[36px] aspect-square rounded-[12px] bg-zinc-100/70 flex items-center justify-center gap-2 backdrop-blur-xs p-[2px]"
-        style={{ boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset" }}
-      >
+    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
+      <div className="h-[32px] border border-white/20 aspect-square rounded-sm bg-zinc-950/80 flex items-center justify-center backdrop-blur-xs gap-1">
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}
           className="h-full aspect-square flex items-center justify-center"
         >
-          <UploadIcon
-            size={24}
-            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
-          />
+          <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
         </button>
 
         <button
           title="Crop"
-          onClick={() => removeBlock(index)}
           className="h-full aspect-square flex items-center justify-center"
         >
-          <CropIcon
-            size={24}
-            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
-          />
-        </button>
-
-        <button
-          title="Image settings"
-          onClick={() => removeBlock(index)}
-          className="h-full aspect-square flex items-center justify-center"
-        >
-          <Settings2Icon
-            size={24}
-            className="text-zinc-500 hover:text-zinc-600 transition-colors duration-200"
-          />
+          <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
         </button>
       </div>
 
-      <div
-        className="h-[36px] aspect-square rounded-[12px] bg-zinc-100/70 flex items-center justify-center gap-2 backdrop-blur-xs"
-        style={{ boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset" }}
-      >
+      <div className="h-[32px] border border-white/20 aspect-square rounded-sm bg-zinc-950/80 flex items-center justify-center gap-2 backdrop-blur-xs">
         <button
           title="Delete"
           onClick={() => removeBlock(index)}
           className="h-full aspect-square flex items-center justify-center"
         >
-          <XIcon
-            size={24}
-            className="text-rose-500 hover:text-rose-600 transition-colors duration-200"
-          />
+          <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75 w-4 h-4" />
         </button>
       </div>
     </div>
