@@ -8,9 +8,9 @@
 
 - [ ] Showcase a mini demo of the editor
 
-- [ ] Text formatting
+- [x] Text formatting
 
-- [ ] slash commands ...
+- [x] slash commands
 
 - [x] use-inline-command hook (trigger_sequence, ref)
 

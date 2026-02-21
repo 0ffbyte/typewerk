@@ -267,20 +267,14 @@ const ContentEditable = ({
           ? range.commonAncestorContainer.parentNode!
           : range.commonAncestorContainer;
 
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
-        acceptNode(node) {
-          return range.intersectsNode(node)
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-        },
-      });
+      let current = root instanceof Element ? root : root.parentElement;
+      let foundTags = [];
 
-      let node = walker.currentNode as Element;
-      while (node) {
-        const foundTag = node.tagName.toLowerCase();
-        setFoundTags((prev) => [...prev, foundTag]);
-
-        node = walker.nextNode() as Element;
+      // walk up the DOM tree to find desired tags and stop at the root div parent
+      while (current?.tagName !== "DIV" && current) {
+        const foundTag = current.tagName.toLowerCase();
+        foundTags.push(foundTag);
+        current = current.parentElement;
       }
 
       setFoundTags(foundTags);
