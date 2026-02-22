@@ -66,7 +66,7 @@ const PageDropdown = () => {
       <PopoverContent
         align="start"
         sideOffset={8}
-        className="max-w-[164px] bg-zinc-900/90 backdrop-blur-xs shadow-sm text-zinc-200 rounded-[16px] p-[4px] space-y-[4px]"
+        className="max-w-[164px] bg-zinc-900/80 backdrop-blur-xs shadow-sm text-zinc-200 rounded-[16px] p-[4px] space-y-[4px]"
         onFocusOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -384,7 +384,7 @@ const Toolbar = ({
   subdomain: string;
 }) => {
   return (
-    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-950/90 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
+    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-900/80 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
       <PageDropdown />
       <StyleDropdown />
       <div className="w-px h-full bg-white/10" />

@@ -64,6 +64,10 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
           addBlock("blockquote", insertAt);
           setSelectedIndex(insertAt);
           break;
+        case "c":
+          addBlock("code", insertAt);
+          setSelectedIndex(insertAt);
+          break;
         default:
           break;
       }

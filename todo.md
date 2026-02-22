@@ -8,6 +8,8 @@
 
 - [ ] Showcase a mini demo of the editor
 
+- [x] Code block w/ syntax highlighting
+
 - [x] Text formatting
 
 - [x] slash commands

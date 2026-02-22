@@ -56,7 +56,7 @@ const ImageToolbar = ({ index }: { index: number }) => {
 
   return (
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-950/90 flex items-center justify-center backdrop-blur-xs gap-1">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center backdrop-blur-xs gap-1">
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}
@@ -73,7 +73,7 @@ const ImageToolbar = ({ index }: { index: number }) => {
         </button>
       </div>
 
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-950/90 flex items-center justify-center gap-2 backdrop-blur-xs">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center gap-2 backdrop-blur-xs ">
         <button
           title="Delete"
           onClick={() => removeBlock(index)}

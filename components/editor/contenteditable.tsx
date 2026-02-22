@@ -3,6 +3,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
 
+import Prism from "prismjs";
+import "prismjs/themes/prism-solarizedlight.css"; // or your preferred theme
+
 import { cn } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
@@ -25,6 +28,7 @@ type ContentEditableProps = {
   maxLength?: number;
   multiLine?: boolean;
   allowFormatting?: boolean;
+  syntaxHighlighting?: boolean;
   ref: React.RefObject<HTMLDivElement | null>;
   className?: string;
   onEdit?: (value: string) => void;
@@ -36,8 +40,9 @@ const ContentEditable = ({
   maxLength = 256,
   multiLine = true,
   allowFormatting = true,
-  className,
+  syntaxHighlighting = false,
   ref,
+  className,
   onEdit,
 }: ContentEditableProps) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -60,8 +65,6 @@ const ContentEditable = ({
       el.innerHTML = value || "";
       setIsEmpty(!el.textContent?.trim());
     }
-
-    console.log("allowFormatting", allowFormatting);
   }, [value]);
 
   /** emit sanitized value */
@@ -79,7 +82,7 @@ const ContentEditable = ({
       const text = innerRef.current.textContent;
       setIsEmpty(!text || !innerRef.current.innerHTML);
 
-      if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML || "");
+      if (!isComposingRef.current) onEdit?.(innerRef.current.innerHTML);
     },
     [onEdit]
   );
@@ -179,26 +182,12 @@ const ContentEditable = ({
 
         selection.removeAllRanges();
         selection.addRange(range);
+
+        emitSanitizedEdit();
       }
     },
     [isEmpty, allowFormatting]
   );
-
-  const selectAll = useCallback(() => {
-    const el = innerRef.current;
-    if (!el) return;
-
-    // create a range object and select all
-    const range = document.createRange();
-    range.selectNodeContents(el);
-
-    // update selection
-    const selection = selectionRef.current;
-    if (!selection) return;
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }, [innerRef]);
 
   const toggleFormat = useCallback(
     (command: "bold" | "italic" | "underline" | "createLink") => {
@@ -330,7 +319,9 @@ const ContentEditable = ({
         spellCheck={false}
         aria-label="rich text editor"
         className={cn(
-          "outline-none font-medium select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent",
+          "outline-none font-medium select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
+          syntaxHighlighting &&
+            "caret-blue-500 text-transparent selection:bg-blue-100",
           className
         )}
         onFocus={() => (isFocusedRef.current = true)}
@@ -348,6 +339,10 @@ const ContentEditable = ({
         onKeyDown={handleKeyDown}
       />
 
+      {syntaxHighlighting && (
+        <SyntaxHighlighterOverlay content={innerRef.current?.innerText ?? ""} />
+      )}
+
       {isEmpty && (
         <div
           className={cn(
@@ -363,7 +358,7 @@ const ContentEditable = ({
 
       {toolbarPos && (
         <div
-          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-[16px] shadow-2xl bg-zinc-950/90 text-zinc-100 backdrop-blur-xs z-10 select-none"
+          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-lg shadow-md bg-zinc-900/80 backdrop-blur-xs text-zinc-200 z-10 select-none"
           style={{
             left: toolbarPos.x,
             top: toolbarPos.y,
@@ -432,6 +427,22 @@ const ContentEditable = ({
 
       <SlashMenu ref={innerRef} />
     </div>
+  );
+};
+
+const SyntaxHighlighterOverlay = ({ content }: { content: string }) => {
+  return (
+    <pre
+      aria-hidden="true"
+      className="pointer-events-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-medium font-sans select-text text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent"
+      dangerouslySetInnerHTML={{
+        __html: Prism.highlight(
+          content,
+          Prism.languages.javascript,
+          "javascript"
+        ),
+      }}
+    />
   );
 };
 

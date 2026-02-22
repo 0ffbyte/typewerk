@@ -18,12 +18,14 @@ import R_Image from "@/components/renderer/image";
 import {
   AlertTriangleIcon,
   ChessKnightIcon,
+  CodeIcon,
   Heading1Icon,
   ImageIcon,
   QuoteIcon,
   TextIcon,
   type LucideIcon,
 } from "lucide-react";
+import CodeBlock, { CodeProps } from "@/components/editor/blocks/code";
 
 export type BlockDefinition<P = Record<string, any>> = {
   component: React.FC<any>;
@@ -94,6 +96,17 @@ export const BlockRegistry = {
     displayName: "Alertum",
     icon: AlertTriangleIcon,
   } as BlockDefinition<AlertumProps>,
+
+  code: {
+    component: CodeBlock,
+    renderedComponent: Text,
+    defaultProps: {
+      content: "",
+    },
+    sanitize: true,
+    displayName: "Code",
+    icon: CodeIcon,
+  } as BlockDefinition<CodeProps>,
 };
 
 export type BlockType = keyof typeof BlockRegistry;

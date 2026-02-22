@@ -8,6 +8,7 @@ import {
   SectionIcon,
   SparklesIcon,
   LayoutIcon,
+  CodeIcon,
 } from "lucide-react";
 
 import { useEditorStore } from "@/store/editor-store";
@@ -81,6 +82,12 @@ const SlashMenu = ({
           shortcuts: ["alt+i"],
           action: () => addBlock("image", selectedIndex + 1),
         },
+        {
+          name: "code",
+          icon: CodeIcon,
+          shortcuts: ["alt+c"],
+          action: () => addBlock("code", selectedIndex + 1),
+        },
       ],
     },
   ];
@@ -143,7 +150,7 @@ const SlashMenu = ({
 
   return (
     <motion.div
-      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto rounded-[16px] shadow-2xl bg-zinc-950/90 text-zinc-200 backdrop-blur-xs z-40 select-none"
+      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,
@@ -229,7 +236,7 @@ const SlashMenu = ({
 
                   {/* Divider between groups */}
                   {!isLast && (
-                    <div className="w-full my-1 border-t border-zinc-800" />
+                    <div className="w-full my-1 border-t border-zinc-500" />
                   )}
                 </div>
               );
