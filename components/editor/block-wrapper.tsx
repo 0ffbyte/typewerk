@@ -6,7 +6,7 @@ import { GripVerticalIcon } from "lucide-react";
 
 // dnd-kit
 import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
+import { add, CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 
 import type { BlockProps } from "@/app/types";

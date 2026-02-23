@@ -12,7 +12,7 @@ export type AlertumProps = {
 };
 
 // define block component
-const AlertumBlock = ({ content, index }: AlertumProps & BlockProps) => {
+const AlertumBlock = ({ content, index, id }: AlertumProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -45,6 +45,7 @@ const AlertumBlock = ({ content, index }: AlertumProps & BlockProps) => {
       onKeyDown={handleKeyDown}
     >
       <ContentEditable
+        id={id}
         className="text-teal-800 text-md"
         ref={ref}
         value={content}

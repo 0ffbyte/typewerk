@@ -47,6 +47,7 @@ const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
   return (
     <div className="w-full" onKeyDown={handleKeyDown} id={slugify(title)}>
       <ContentEditable
+        id={id}
         ref={ref}
         value={title}
         onEdit={handleEdit}

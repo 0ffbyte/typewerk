@@ -11,6 +11,7 @@ import usePage from "@/hooks/use-page";
 import useSync from "@/hooks/use-sync";
 
 import { useEditorStore } from "@/store/editor-store";
+import { useSelectionStore } from "@/store/selection-store";
 import { BlockRegistry } from "@/lib/block-registry";
 import { SiteObject } from "@/app/types";
 
@@ -24,6 +25,35 @@ export default function Editor({
   const [isInitialized, setIsInitialized] = useState(false);
   const state = useEditorStore();
   const { pageName } = usePage();
+
+  const setSelection = useSelectionStore((s) => s.setSelection);
+
+  // setup selection listener
+  useEffect(() => {
+    const handler = () => {
+      const selection = document.getSelection();
+
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        setSelection(null, null);
+        return;
+      }
+
+      const anchor = selection.anchorNode;
+      const editorEl = (
+        anchor instanceof Element ? anchor : anchor?.parentElement
+      )?.closest("[data-editor-id]");
+
+      const editorId = editorEl?.getAttribute("data-editor-id") ?? null;
+
+      setSelection(selection, editorId);
+    };
+
+    document.addEventListener("selectionchange", handler);
+
+    return () => {
+      document.removeEventListener("selectionchange", handler);
+    };
+  }, []);
 
   // updates page index on page name change
   useEffect(() => {

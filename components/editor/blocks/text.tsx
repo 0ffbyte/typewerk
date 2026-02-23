@@ -9,7 +9,11 @@ export type TextProps = {
   content: string;
 };
 
-export default function TextBlock({ content, index }: TextProps & BlockProps) {
+export default function TextBlock({
+  content,
+  index,
+  id,
+}: TextProps & BlockProps) {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -42,7 +46,7 @@ export default function TextBlock({ content, index }: TextProps & BlockProps) {
 
   return (
     <div className="w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
-      <ContentEditable ref={ref} value={content} onEdit={handleEdit} />
+      <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
     </div>
   );
 }

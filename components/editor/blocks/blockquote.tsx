@@ -12,7 +12,11 @@ export type BlockquoteProps = {
 };
 
 // define block component
-const BlockquoteBlock = ({ content, index }: BlockquoteProps & BlockProps) => {
+const BlockquoteBlock = ({
+  content,
+  index,
+  id,
+}: BlockquoteProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -42,7 +46,7 @@ const BlockquoteBlock = ({ content, index }: BlockquoteProps & BlockProps) => {
   return (
     <div className="pl-4 w-full" onKeyDown={handleKeyDown}>
       <div className="absolute left-0 top-0 h-full w-[4px] bg-zinc-500 rounded-full" />
-      <ContentEditable ref={ref} value={content} onEdit={handleEdit} />
+      <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
     </div>
   );
 };

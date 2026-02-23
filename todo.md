@@ -1,6 +1,8 @@
 # Bugs to fix
 
-- [] selected indexes not updating correctly
+- [ ] selected indexes not updating correctly
+
+- [x] allowFormatting option not working on contenteditable
 
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
 

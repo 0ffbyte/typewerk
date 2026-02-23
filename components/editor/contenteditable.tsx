@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
 
+import { useSelectionStore } from "@/store/selection-store";
+
 import Prism from "prismjs";
 import "prismjs/themes/prism-solarizedlight.css"; // or your preferred theme
 
@@ -23,6 +25,7 @@ import {
 type ToolbarPos = { x: number; y: number };
 
 type ContentEditableProps = {
+  id: string;
   value: string;
   placeholder?: string;
   maxLength?: number;
@@ -35,6 +38,7 @@ type ContentEditableProps = {
 };
 
 const ContentEditable = ({
+  id,
   value,
   placeholder = "Start typing or press `/` for commands",
   maxLength = 256,
@@ -47,7 +51,6 @@ const ContentEditable = ({
 }: ContentEditableProps) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const selectionRef = useRef<Selection | null>(null);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
@@ -55,6 +58,9 @@ const ContentEditable = ({
   const [isEmpty, setIsEmpty] = useState(true);
   const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
   const [foundTags, setFoundTags] = useState<string[]>([]);
+
+  const { selection, tick, activeEditorId } = useSelectionStore();
+  const isActive = activeEditorId === id;
 
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
@@ -257,62 +263,44 @@ const ContentEditable = ({
     [onEdit, foundTags]
   );
 
-  /** selection toolbar logic (scoped) */
   useEffect(() => {
-    const el = innerRef.current;
     const container = containerRef.current;
-    if (!el || !container) return;
 
-    const updateSelection = () => {
-      const selection = document.getSelection();
-      if (
-        !selection ||
-        selection.rangeCount === 0 ||
-        selection.isCollapsed ||
-        !allowFormatting
-      ) {
-        setToolbarPos(null);
-        return;
-      }
+    if (!isActive || !selection || !container) {
+      setToolbarPos(null);
+      return;
+    }
 
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      const root =
-        range.commonAncestorContainer.nodeType === Node.TEXT_NODE
-          ? range.commonAncestorContainer.parentNode!
-          : range.commonAncestorContainer;
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const root =
+      range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+        ? range.commonAncestorContainer.parentNode!
+        : range.commonAncestorContainer;
 
-      let current = root instanceof Element ? root : root.parentElement;
-      let foundTags = [];
+    let current = root instanceof Element ? root : root.parentElement;
+    let foundTags = [];
 
-      // walk up the DOM tree to find desired tags and stop at the root div parent
-      while (current?.tagName !== "DIV" && current) {
-        const foundTag = current.tagName.toLowerCase();
-        foundTags.push(foundTag);
-        current = current.parentElement;
-      }
+    // walk up the DOM tree to find desired tags and stop at the root div parent
+    while (current?.tagName !== "DIV" && current) {
+      const foundTag = current.tagName.toLowerCase();
+      foundTags.push(foundTag);
+      current = current.parentElement;
+    }
 
-      setFoundTags(foundTags);
+    setFoundTags(foundTags);
 
-      setToolbarPos({
-        x: rect.left - containerRect.left + rect.width / 2,
-        y: rect.top - containerRect.top - 48,
-      });
-
-      selectionRef.current = selection;
-    };
-
-    document.addEventListener("selectionchange", updateSelection);
-
-    return () => {
-      document.removeEventListener("selectionchange", updateSelection);
-    };
-  }, []);
+    setToolbarPos({
+      x: rect.left - containerRect.left + rect.width / 2,
+      y: rect.top - containerRect.top - 48,
+    });
+  }, [tick, selection, isActive]);
 
   return (
     <div ref={containerRef} className="relative w-full">
       <div
+        data-editor-id={id}
         ref={mergeRefs(innerRef, ref)}
         contentEditable
         suppressContentEditableWarning
@@ -320,8 +308,7 @@ const ContentEditable = ({
         aria-label="rich text editor"
         className={cn(
           "outline-none font-medium select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
-          syntaxHighlighting &&
-            "caret-blue-500 text-transparent selection:bg-blue-100",
+          syntaxHighlighting && "caret-blue-500 text-transparent",
           className
         )}
         onFocus={() => (isFocusedRef.current = true)}
@@ -369,9 +356,7 @@ const ContentEditable = ({
             className="hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
-              navigator.clipboard.writeText(
-                selectionRef.current?.toString() ?? ""
-              );
+              navigator.clipboard.writeText(selection?.toString() ?? "");
             }}
           >
             <CopyIcon size={20} />
@@ -434,7 +419,7 @@ const SyntaxHighlighterOverlay = ({ content }: { content: string }) => {
   return (
     <pre
       aria-hidden="true"
-      className="pointer-events-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-medium font-sans select-text text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent"
+      className="pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-medium font-sans text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent"
       dangerouslySetInnerHTML={{
         __html: Prism.highlight(
           content,

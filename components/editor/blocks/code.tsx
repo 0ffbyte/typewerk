@@ -15,7 +15,7 @@ export type CodeProps = {
 };
 
 // define block component
-const CodeBlock = ({ content, index }: CodeProps & BlockProps) => {
+const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -56,6 +56,7 @@ const CodeBlock = ({ content, index }: CodeProps & BlockProps) => {
       onMouseLeave={() => setIsMouseOver(false)}
     >
       <ContentEditable
+        id={id}
         allowFormatting={false}
         syntaxHighlighting={true}
         placeholder="Type code here..."

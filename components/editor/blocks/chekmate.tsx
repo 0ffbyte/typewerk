@@ -10,7 +10,11 @@ export type CheckmateProps = {
   content: string;
 };
 
-const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
+const CheckmateBlock = ({
+  content,
+  index,
+  id,
+}: CheckmateProps & BlockProps) => {
   const setState = useEditorStore((s) => s.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -30,6 +34,7 @@ const CheckmateBlock = ({ content, index }: CheckmateProps & BlockProps) => {
   return (
     <div onKeyDown={handleKeyDown} className="w-full">
       <ContentEditable
+        id={id}
         ref={ref}
         className="font-sans text-foreground text-[42px] leading-[48px] font-bold"
         value={content}
