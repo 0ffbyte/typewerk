@@ -9,6 +9,7 @@ import useFocused from "@/hooks/use-focused";
 // define block props
 export type AlertumProps = {
   content: string;
+  type: "warning" | "error";
 };
 
 // define block component

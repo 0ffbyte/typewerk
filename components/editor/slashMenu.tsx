@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 import {
@@ -9,6 +9,8 @@ import {
   SparklesIcon,
   LayoutIcon,
   CodeIcon,
+  QuoteIcon,
+  AlertCircleIcon,
 } from "lucide-react";
 
 import { useEditorStore } from "@/store/editor-store";
@@ -53,6 +55,12 @@ const SlashMenu = ({
           action: () => addBlock("text", selectedIndex + 1),
         },
         {
+          name: "section",
+          icon: SectionIcon,
+          shortcuts: ["alt+s"],
+          action: () => addBlock("section", selectedIndex + 1),
+        },
+        {
           name: "image",
           icon: ImageIcon,
           shortcuts: ["alt+i"],
@@ -61,7 +69,7 @@ const SlashMenu = ({
       ],
     },
     {
-      label: "Basic Blocks",
+      label: "Writing",
       icon: LayoutIcon,
       items: [
         {
@@ -77,11 +85,18 @@ const SlashMenu = ({
           action: () => addBlock("section", selectedIndex + 1),
         },
         {
-          name: "image",
-          icon: ImageIcon,
-          shortcuts: ["alt+i"],
-          action: () => addBlock("image", selectedIndex + 1),
+          name: "blockquote",
+          icon: QuoteIcon,
+          shortcuts: [],
+          action: () => addBlock("blockquote", selectedIndex + 1),
         },
+        {
+          name: "alert",
+          icon: AlertCircleIcon,
+          shortcuts: [],
+          action: () => addBlock("alertum", selectedIndex + 1),
+        },
+
         {
           name: "code",
           icon: CodeIcon,
@@ -90,7 +105,34 @@ const SlashMenu = ({
         },
       ],
     },
+    {
+      label: "Media",
+      icon: ImageIcon,
+      items: [
+        {
+          name: "image",
+          icon: ImageIcon,
+          shortcuts: ["alt+i"],
+          action: () => addBlock("image", selectedIndex + 1),
+        },
+      ],
+    },
   ];
+
+  const menuRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    if (!slashMenu) return;
+    const el = itemRefs.current[activeIndex];
+    const container = menuRef.current;
+    if (el && container) {
+      container.scrollTo({
+        top: el.offsetTop - container.offsetTop - container.clientHeight / 2,
+        behavior: "smooth",
+      });
+    }
+  }, [activeIndex]);
 
   const isSearching = !!slashMenu?.command;
 
@@ -139,8 +181,8 @@ const SlashMenu = ({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    ref.current?.addEventListener("keydown", handleKeyDown);
+    return () => ref.current?.removeEventListener("keydown", handleKeyDown);
   }, [slashMenu, flatItems, activeIndex, closeMenu]);
 
   if (!slashMenu) return null;
@@ -150,7 +192,8 @@ const SlashMenu = ({
 
   return (
     <motion.div
-      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
+      ref={menuRef}
+      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,
@@ -163,7 +206,7 @@ const SlashMenu = ({
       transition={{
         type: "spring",
         damping: 24,
-        stiffness: 360,
+        stiffness: 200,
         opacity: { duration: 0.1 },
       }}
     >
@@ -178,9 +221,18 @@ const SlashMenu = ({
             exit={{ opacity: 0, filter: "blur(4px)" }}
             transition={{ duration: 0.12 }}
           >
+            {/* Group header */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 space-y-1">
+              <span className="text-[11px] font-medium tracking-wide uppercase text-zinc-400">
+                {"Filtered results"}
+              </span>
+            </div>
+
             {flatItems.length > 0 ? (
               flatItems.map((item, idx) => (
                 <MenuItem
+                  index={idx}
+                  ref={itemRefs}
                   key={item.name + idx}
                   item={item}
                   isActive={activeIndex === idx}
@@ -212,10 +264,10 @@ const SlashMenu = ({
               const isLast = groupOffset === flatItems.length;
 
               return (
-                <div key={group.label} className="mb-1 last:mb-0">
+                <div key={group.label} className="mb-1 last:mb-0 space-y-1">
                   {/* Group header */}
                   <div className="flex items-center gap-1.5 px-3 py-1.5">
-                    <span className="text-[11px] font-medium tracking-wide uppercase text-zinc-500">
+                    <span className="text-[11px] font-medium tracking-wide uppercase text-zinc-400">
                       {group.label}
                     </span>
                   </div>
@@ -223,10 +275,12 @@ const SlashMenu = ({
                   {/* Group items */}
                   {group.items.map((item, idx) => (
                     <MenuItem
+                      index={groupStart + idx}
+                      ref={itemRefs}
                       key={item.name + idx}
                       item={item}
                       isActive={activeIndex === groupStart + idx}
-                      onMouseEnter={() => setActiveIndex(groupStart + idx)}
+                      onMouseEnter={() => {}}
                       onClick={() => {
                         item.action();
                         closeMenu();
@@ -236,7 +290,7 @@ const SlashMenu = ({
 
                   {/* Divider between groups */}
                   {!isLast && (
-                    <div className="w-full my-1 border-t border-zinc-500" />
+                    <div className="w-full my-1 border-t border-zinc-200/10" />
                   )}
                 </div>
               );
@@ -251,18 +305,32 @@ const SlashMenu = ({
 // ── Shared menu item ─────────────────────────────────────────────────────────
 
 type MenuItemProps = {
+  index: number;
   item: Command;
   isActive: boolean;
   onMouseEnter: () => void;
   onClick: () => void;
+  ref: React.RefObject<HTMLDivElement[]>;
 };
 
-const MenuItem = ({ item, isActive, onMouseEnter, onClick }: MenuItemProps) => (
+const MenuItem = ({
+  index,
+  item,
+  isActive,
+  onMouseEnter,
+  onClick,
+  ref,
+}: MenuItemProps) => (
   <div
+    ref={(el) => {
+      if (ref.current && el) {
+        ref.current[index] = el;
+      }
+    }}
     onClick={onClick}
     onMouseEnter={onMouseEnter}
     className={`flex items-center gap-1 w-full p-[8px] rounded-[12px] cursor-pointer transition-colors duration-100 ${
-      isActive ? "bg-zinc-700/80" : "hover:bg-zinc-800/60"
+      isActive ? "bg-zinc-200/10" : "hover:bg-zinc-200/10"
     }`}
   >
     <div className="h-full aspect-square">
@@ -270,7 +338,7 @@ const MenuItem = ({ item, isActive, onMouseEnter, onClick }: MenuItemProps) => (
     </div>
     <span className="capitalize text-xs text-zinc-200">{item.name}</span>
     {item.shortcuts[0] && (
-      <span className="ml-auto text-xs text-zinc-500">{item.shortcuts[0]}</span>
+      <span className="ml-auto text-xs text-zinc-400">{item.shortcuts[0]}</span>
     )}
   </div>
 );

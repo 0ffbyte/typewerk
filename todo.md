@@ -10,7 +10,9 @@
 
 - [ ] Showcase a mini demo of the editor
 
-- [ ] Undo / redo
+- [ ] Undo / redo (main boss)
+
+- [ ] fix & update slash command menu (secondary boss) ...
 
 - [x] Code block w/ syntax highlighting
 
