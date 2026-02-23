@@ -72,11 +72,6 @@ export default function Editor({
     setIsInitialized(true);
   }, [initialState, state.initialize]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && isInitialized)
-      document.title = state.data.header.heading.slice(0, 8) + " | Typewerk";
-  }, [isInitialized, state.data.header.heading]);
-
   // syncs state with db
   useSync(siteId, state.data, isInitialized);
 
@@ -101,7 +96,9 @@ export default function Editor({
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.selectedIndex, null, 2)}
+          {JSON.stringify(state.data, null, 2)}
+
+          <br />
         </pre>
       )}
 

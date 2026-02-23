@@ -10,6 +10,8 @@
 
 - [ ] Showcase a mini demo of the editor
 
+- [ ] Undo / redo
+
 - [x] Code block w/ syntax highlighting
 
 - [x] Text formatting

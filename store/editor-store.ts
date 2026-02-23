@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
+import { temporal } from "zundo";
 
 export type EditorState = {
   data: SiteObject;

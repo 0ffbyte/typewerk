@@ -6,7 +6,7 @@ import mergeRefs from "merge-refs";
 import { useSelectionStore } from "@/store/selection-store";
 
 import Prism from "prismjs";
-import "prismjs/themes/prism-solarizedlight.css"; // or your preferred theme
+import "@/lib/prism-themes/dracula.css"; // or your preferred theme
 
 import { cn } from "@/lib/utils";
 import sanitize from "sanitize-html";
@@ -307,7 +307,7 @@ const ContentEditable = ({
         spellCheck={false}
         aria-label="rich text editor"
         className={cn(
-          "outline-none font-medium select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
+          "outline-none select-text font-normal overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
           syntaxHighlighting && "caret-blue-500 text-transparent",
           className
         )}
@@ -419,7 +419,7 @@ const SyntaxHighlighterOverlay = ({ content }: { content: string }) => {
   return (
     <pre
       aria-hidden="true"
-      className="pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-medium font-sans text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent"
+      className="text-zinc-200 selection:bg-red-500 pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-normal font-sans text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre-wrap border-b border-transparent"
       dangerouslySetInnerHTML={{
         __html: Prism.highlight(
           content,

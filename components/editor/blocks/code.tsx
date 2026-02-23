@@ -50,7 +50,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="p-4 w-full bg-zinc-50 rounded-lg border relative"
+      className="p-4 w-full bg-zinc-900 rounded-lg border relative"
       onKeyDown={handleKeyDown}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
