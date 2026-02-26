@@ -7,7 +7,7 @@ const useSync = (
   siteId: string,
   data: SiteObject,
   isInitialized: boolean,
-  debounce = 2000
+  debounce = 600
 ) => {
   const setState = useEditorStore((s) => s.setState);
   const prevState = useRef<SiteObject>(data);
@@ -67,7 +67,7 @@ const useSync = (
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [data, siteId, debounce]);
+  }, [data, siteId, debounce, isInitialized]);
 };
 
 export default useSync;

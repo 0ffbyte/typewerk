@@ -186,11 +186,11 @@ const useInlineMenu = (
   );
 
   const handleClick = useCallback(() => {
-    state && closeMenu();
+    //state && closeMenu();
   }, []);
 
   const handleBlur = useCallback(() => {
-    closeMenu();
+    //setTimeout(() => closeMenu(), 100);
   }, []);
 
   useEffect(() => {

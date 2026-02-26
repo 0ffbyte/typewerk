@@ -19,7 +19,7 @@ export default async function Page({
   const { siteObject, id } = site;
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] min-h-screen w-full items-start justify-start mx-auto font-sans px-2 scroll-smooth md:px-[64px] py-[64] md:py-[128]">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] min-h-screen w-full items-start justify-start font-sans px-2 scroll-smooth md:px-[64px] py-[64] md:py-[128]">
       <div className="hidden lg:block w-full h-full border-green-500">
         <TOC />
       </div>

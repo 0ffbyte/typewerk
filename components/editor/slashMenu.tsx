@@ -91,10 +91,10 @@ const SlashMenu = ({
           action: () => addBlock("blockquote", selectedIndex + 1),
         },
         {
-          name: "alert",
+          name: "callout",
           icon: AlertCircleIcon,
           shortcuts: [],
-          action: () => addBlock("alertum", selectedIndex + 1),
+          action: () => addBlock("callout", selectedIndex + 1),
         },
 
         {
@@ -327,7 +327,10 @@ const MenuItem = ({
         ref.current[index] = el;
       }
     }}
-    onClick={onClick}
+    onClick={(e: React.MouseEvent) => {
+      e.preventDefault();
+      onClick();
+    }}
     onMouseEnter={onMouseEnter}
     className={`flex items-center gap-1 w-full p-[8px] rounded-[12px] cursor-pointer transition-colors duration-100 ${
       isActive ? "bg-zinc-200/10" : "hover:bg-zinc-200/10"

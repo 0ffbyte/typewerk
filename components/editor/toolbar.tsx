@@ -356,11 +356,12 @@ const PublishButton = ({
   return (
     <button
       className={cn(
-        "w-[100px] h-full bg-blue-500 text-blue-100 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-200",
+        "w-[100px] h-full bg-blue-500 text-blue-200 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-200",
         (isSyncing || isPublishing) && "cursor-wait bg-blue-400"
       )}
       style={{
-        boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset",
+        boxShadow:
+          "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset, 0px -1px 2px 0px var(--color-blue-600) inset",
       }}
       onClick={handleClick}
       disabled={isSyncing || isPublishing}
@@ -384,11 +385,13 @@ const Toolbar = ({
   subdomain: string;
 }) => {
   return (
-    <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-900/80 backdrop-blur-xs shadow-sm fixed bottom-[24px] left-1/2 -translate-x-1/2 z-10">
-      <PageDropdown />
-      <StyleDropdown />
-      <div className="w-px h-full bg-white/10" />
-      <PublishButton siteId={siteId} subdomain={subdomain} />
+    <div className="w-full fixed bottom-0 left-0 z-50 pb-[24px] pointer-events-none">
+      <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-white/20 flex items-center gap-[12px] bg-zinc-900/80 backdrop-blur-xs shadow-sm pointer-events-auto mx-auto">
+        <PageDropdown />
+        <StyleDropdown />
+        <div className="w-px h-full bg-white/10" />
+        <PublishButton siteId={siteId} subdomain={subdomain} />
+      </div>
     </div>
   );
 };

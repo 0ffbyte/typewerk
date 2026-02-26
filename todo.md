@@ -12,7 +12,9 @@
 
 - [ ] Undo / redo (main boss)
 
-- [ ] fix & update slash command menu (secondary boss) ...
+- [ ] Block toolbar redesign ...
+
+- [x] fix & update slash command menu
 
 - [x] Code block w/ syntax highlighting
 

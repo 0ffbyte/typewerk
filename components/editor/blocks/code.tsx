@@ -8,6 +8,7 @@ import useFocused from "@/hooks/use-focused";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { CopyIcon } from "@radix-ui/react-icons";
+import { CodeIcon } from "lucide-react";
 
 // define block props
 export type CodeProps = {
@@ -20,12 +21,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
 
-  const [isMouseOver, setIsMouseOver] = useState(false);
-
-  const { isFocused } = useFocused(ref, index);
-  const isMobile = useIsMobile();
-
-  const isToolbarVisible = isMobile ? isFocused : isMouseOver;
+  useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Backspace") {
@@ -50,11 +46,13 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="p-4 w-full bg-zinc-900 rounded-lg border relative"
+      className="p-4 w-full bg-zinc-900 border rounded-lg relative flex flex-col items-center gap-2"
       onKeyDown={handleKeyDown}
-      onMouseOver={() => setIsMouseOver(true)}
-      onMouseLeave={() => setIsMouseOver(false)}
     >
+      <div className="w-full flex items-center justify-start gap-2">
+        <CodeIcon className=" text-zinc-400" size={16} />
+        <p className="text-zinc-400 text-xs">Code</p>
+      </div>
       <ContentEditable
         id={id}
         allowFormatting={false}
@@ -64,8 +62,6 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         value={content}
         onEdit={handleEdit}
       />
-
-      {isToolbarVisible && <Toolbar />}
     </div>
   );
 };

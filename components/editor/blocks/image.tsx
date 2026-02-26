@@ -31,14 +31,14 @@ const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
       className="w-full aspect-video border relative overflow-hidden outline-none bg-zinc-100 rounded-lg group"
     >
       <img className="w-full h-full object-cover" src={url ?? ""} />
-      {isToolbarVisible && <ImageToolbar index={index} />}
+      {isToolbarVisible && <Toolbar index={index} />}
     </div>
   );
 };
 
 export default ImageBlock;
 
-const ImageToolbar = ({ index }: { index: number }) => {
+const Toolbar = ({ index }: { index: number }) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
 
@@ -56,7 +56,7 @@ const ImageToolbar = ({ index }: { index: number }) => {
 
   return (
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center backdrop-blur-xs gap-1">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center backdrop-blur-xs">
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}
@@ -71,9 +71,7 @@ const ImageToolbar = ({ index }: { index: number }) => {
         >
           <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
         </button>
-      </div>
 
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center gap-2 backdrop-blur-xs ">
         <button
           title="Delete"
           onClick={() => removeBlock(index)}

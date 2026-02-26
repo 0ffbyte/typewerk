@@ -7,9 +7,7 @@ import Blockquote, {
 import Checkmate, {
   type CheckmateProps,
 } from "@/components/editor/blocks/chekmate";
-import AlertumBlock, {
-  type AlertumProps,
-} from "@/components/editor/blocks/alertum";
+import Callout, { type CalloutProps } from "@/components/editor/blocks/callout";
 
 import R_Text from "@/components/renderer/text";
 import R_Section from "@/components/renderer/section";
@@ -86,16 +84,17 @@ export const BlockRegistry = {
     displayName: "Checkmate",
     icon: ChessKnightIcon,
   } as BlockDefinition<CheckmateProps>,
-  alertum: {
-    component: AlertumBlock,
+  callout: {
+    component: Callout,
     renderedComponent: Text,
     defaultProps: {
       content: "",
+      type: "tip",
     },
     sanitize: true,
     displayName: "Alertum",
     icon: AlertTriangleIcon,
-  } as BlockDefinition<AlertumProps>,
+  } as BlockDefinition<CalloutProps>,
 
   code: {
     component: CodeBlock,

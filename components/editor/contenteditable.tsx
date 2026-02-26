@@ -34,6 +34,7 @@ type ContentEditableProps = {
   syntaxHighlighting?: boolean;
   ref: React.RefObject<HTMLDivElement | null>;
   className?: string;
+  placeholderClassName?: string;
   onEdit?: (value: string) => void;
 };
 
@@ -47,6 +48,7 @@ const ContentEditable = ({
   syntaxHighlighting = false,
   ref,
   className,
+  placeholderClassName,
   onEdit,
 }: ContentEditableProps) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -223,7 +225,6 @@ const ContentEditable = ({
 
         while (node) {
           if (node.tagName?.toLowerCase() === "a") {
-            console.log("removing b tag");
             toUnwrap.push(node);
           }
 
@@ -233,9 +234,9 @@ const ContentEditable = ({
         toUnwrap.forEach((node) => unwrapSafe(node));
 
         if (foundTags.includes("a")) {
-          console.log("unwrapped link");
+          //console.log("unwrapped link");
         } else {
-          console.log("creating link");
+          //console.log("creating link");
           // create new link wrapping the cleaned content
           const linkElement = document.createElement("a");
           const url = window.prompt("Enter URL", "https://");
@@ -304,11 +305,11 @@ const ContentEditable = ({
         ref={mergeRefs(innerRef, ref)}
         contentEditable
         suppressContentEditableWarning
-        spellCheck={false}
+        spellCheck={true}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text font-normal overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
-          syntaxHighlighting && "caret-blue-500 text-transparent",
+          "outline-none select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
+          syntaxHighlighting && "caret-blue-500 text-transparent font-mono",
           className
         )}
         onFocus={() => (isFocusedRef.current = true)}
@@ -335,7 +336,8 @@ const ContentEditable = ({
           className={cn(
             "pointer-events-none absolute left-0 top-0 text-[16px] leading-[24px] w-full min-h-[20px]",
             className,
-            "text-zinc-400"
+            "text-zinc-400",
+            placeholderClassName
           )}
           aria-hidden="true"
         >
@@ -419,7 +421,7 @@ const SyntaxHighlighterOverlay = ({ content }: { content: string }) => {
   return (
     <pre
       aria-hidden="true"
-      className="text-zinc-200 selection:bg-red-500 pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none font-normal font-sans text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre-wrap border-b border-transparent"
+      className="text-zinc-200 font-mono selection:bg-red-500 pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre-wrap border-b border-transparent"
       dangerouslySetInnerHTML={{
         __html: Prism.highlight(
           content,

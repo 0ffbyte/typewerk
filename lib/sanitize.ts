@@ -11,6 +11,7 @@ import { BlockRegistry } from "./block-registry";
 export const SANITIZE_CONFIG: sanitize.IOptions = {
   allowedAttributes: {
     a: ["href", "target", "rel"],
+    span: ["id"],
   },
   allowedTags: ["br", "p", "span", "i", "em", "u", "mark", "a", "b", "strong"],
   exclusiveFilter: (frame) => {
