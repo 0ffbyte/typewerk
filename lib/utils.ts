@@ -40,3 +40,17 @@ export function unwrapSafe(element: Element): Node[] {
 
   return moved;
 }
+
+export const THEME_MAPPING = {
+  accent: {
+    blue: "var(--color-blue-500)",
+    pink: "var(--color-pink-500)",
+    teal: "var(--color-teal-500)",
+    yellow: "var(--color-yellow-500)",
+    rose: "var(--color-rose-500)",
+  },
+  typography: {
+    sans: "font-sans",
+    mono: "font-mono",
+  },
+};

@@ -1,5 +1,4 @@
 import { BlockRegistry } from "@/lib/block-registry";
-import { UUID } from "crypto";
 
 export type BlockProps = {
   index: number;
@@ -18,26 +17,13 @@ export type Page = {
   blocks: BaseBlock[];
 };
 
-export const ACCENT_COLORS = [
-  "blue",
-  "teal",
-  "amber",
-  "lime",
-  "emerald",
-  "cyan",
-  "indigo",
-  "violet",
-  "purple",
-  "fuchsia",
-  "pink",
-  "rose",
-] as const;
+export const ACCENT_COLORS = ["blue", "pink"] as const;
 
 export type Accent = (typeof ACCENT_COLORS)[number];
 
 export type Theme = {
   accent: Accent;
-  typography: "sans-serif" | "serif";
+  typography: "sans" | "mono";
 };
 
 export type SiteObject = {
@@ -46,7 +32,6 @@ export type SiteObject = {
     heading: string;
     subheading: string;
   };
-  theme?: Theme;
+  theme: Theme;
   pages: Page[];
-  hasArticles: boolean;
 };

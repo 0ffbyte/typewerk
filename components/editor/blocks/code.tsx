@@ -3,9 +3,8 @@
 import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 import ContentEditable from "../contenteditable";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import useFocused from "@/hooks/use-focused";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 import { CopyIcon } from "@radix-ui/react-icons";
 import { CodeIcon } from "lucide-react";
@@ -44,24 +43,37 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
     });
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content);
+  };
+
   return (
     <div
-      className="p-4 w-full bg-zinc-900 border rounded-lg relative flex flex-col items-center gap-2"
+      className="w-full bg-zinc-900 border rounded-lg relative flex flex-col items-center overflow-hidden group"
       onKeyDown={handleKeyDown}
     >
-      <div className="w-full flex items-center justify-start gap-2">
-        <CodeIcon className=" text-zinc-400" size={16} />
-        <p className="text-zinc-400 text-xs">Code</p>
+      <div className="w-full flex items-center justify-between gap-2 p-4">
+        <div className="flex items-center gap-2">
+          <CodeIcon className=" text-zinc-400" size={16} />
+          <p className="text-zinc-400 text-sm">Code</p>
+        </div>
+
+        <CopyIcon
+          className="text-zinc-400 opacity-0 group-hover:opacity-100"
+          onClick={handleCopy}
+        />
       </div>
-      <ContentEditable
-        id={id}
-        allowFormatting={false}
-        syntaxHighlighting={true}
-        placeholder="Type code here..."
-        ref={ref}
-        value={content}
-        onEdit={handleEdit}
-      />
+      <div className="w-full flex items-center justify-start pb-4 px-4">
+        <ContentEditable
+          id={id}
+          allowFormatting={false}
+          syntaxHighlighting={true}
+          placeholder="Type code here..."
+          ref={ref}
+          value={content}
+          onEdit={handleEdit}
+        />
+      </div>
     </div>
   );
 };

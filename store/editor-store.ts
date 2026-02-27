@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
-import { temporal } from "zundo";
 
 export type EditorState = {
   data: SiteObject;
@@ -33,7 +32,10 @@ export const useEditorStore = create<EditorState & Actions>()(
         subheading: "",
       },
       pages: [],
-      hasArticles: false,
+      theme: {
+        accent: "blue",
+        typography: "sans",
+      },
     },
     pageIndex: 0,
     selectedIndex: 0,

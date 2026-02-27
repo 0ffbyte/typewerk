@@ -2,17 +2,19 @@
 
 - [ ] selected indexes not updating correctly
 
+- [ ] slash menu tap events on mobile not registering
+
 - [x] allowFormatting option not working on contenteditable
 
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
 
 # Quests
 
-- [ ] Showcase a mini demo of the editor
-
 - [ ] Undo / redo (main boss)
 
-- [ ] Block toolbar redesign ...
+- [ ] Add a new block type (Gallery)
+
+- [ ] Dark mode ...
 
 - [x] fix & update slash command menu
 

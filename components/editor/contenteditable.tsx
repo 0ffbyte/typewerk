@@ -8,7 +8,7 @@ import { useSelectionStore } from "@/store/selection-store";
 import Prism from "prismjs";
 import "@/lib/prism-themes/dracula.css"; // or your preferred theme
 
-import { cn } from "@/lib/utils";
+import { cn, THEME_MAPPING } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
 import { unwrapSafe } from "@/lib/utils";
@@ -21,6 +21,7 @@ import {
   LinkIcon,
   UnderlineIcon,
 } from "lucide-react";
+import { useEditorStore } from "@/store/editor-store";
 
 type ToolbarPos = { x: number; y: number };
 
@@ -53,6 +54,8 @@ const ContentEditable = ({
 }: ContentEditableProps) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const theme = useEditorStore((s) => s.data.theme);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
@@ -309,6 +312,7 @@ const ContentEditable = ({
         aria-label="rich text editor"
         className={cn(
           "outline-none select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
+          THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting && "caret-blue-500 text-transparent font-mono",
           className
         )}
@@ -347,7 +351,7 @@ const ContentEditable = ({
 
       {toolbarPos && (
         <div
-          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-lg shadow-md bg-zinc-900/80 backdrop-blur-xs text-zinc-200 z-10 select-none"
+          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-lg shadow-md bg-zinc-900/80 border border-border/20 backdrop-blur-xs text-zinc-200 z-10 select-none"
           style={{
             left: toolbarPos.x,
             top: toolbarPos.y,

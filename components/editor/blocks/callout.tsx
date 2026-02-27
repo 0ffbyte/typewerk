@@ -31,33 +31,33 @@ export type CalloutProps = {
   type: CalloutTypes;
 };
 
-const typeMapping: Record<
+const TYPE_MAPPING: Record<
   CalloutTypes,
-  { background: string; text: string; border: string; icon: LucideIcon }
+  { background: string; text: string; border: string; icon: any }
 > = {
   tip: {
     background: "bg-sky-100",
     text: "text-sky-800",
     border: "border-sky-200",
-    icon: LightbulbIcon,
+    icon: <LightbulbIcon size={20} />,
   },
   success: {
     background: "bg-teal-100",
     text: "text-teal-800",
     border: "border-teal-200",
-    icon: CheckCircleIcon,
+    icon: <CheckCircleIcon size={20} />,
   },
   warning: {
     background: "bg-yellow-100",
     text: "text-yellow-800",
     border: "border-yellow-200",
-    icon: AlertCircleIcon,
+    icon: <AlertCircleIcon size={20} />,
   },
   error: {
     background: "bg-rose-100",
     text: "text-rose-800",
     border: "border-rose-200",
-    icon: AlertTriangleIcon,
+    icon: <AlertTriangleIcon size={20} />,
   },
 };
 
@@ -107,24 +107,24 @@ const CalloutBlock = ({
     <div
       className={cn(
         "w-full rounded-lg border flex gap-2 group p-2",
-        typeMapping[type].border,
-        typeMapping[type].text,
-        typeMapping[type].background
+        TYPE_MAPPING[type].border,
+        TYPE_MAPPING[type].text,
+        TYPE_MAPPING[type].background
       )}
       onKeyDown={handleKeyDown}
     >
       <DropdownMenu>
         <DropdownMenuTrigger
-          className="h-full flex items-center justify-center min-h-[24px] p-2 rounded-sm hover:bg-zinc-900/5 transition-colors duration-200 outline-none"
+          className="h-full flex items-center justify-center p-2 rounded-sm group-hover:bg-zinc-900/5 transition-colors duration-100 outline-none"
           title={type}
         >
-          {React.createElement(typeMapping[type].icon)}
+          {TYPE_MAPPING[type as CalloutTypes].icon}
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="rounded-md bg-zinc-900/80 backdrop-blur-xs shadow-sm text-zinc-200 border-border/10">
-          {Object.keys(typeMapping).map((type) => (
+        <DropdownMenuContent className="rounded-md bg-zinc-900/80 backdrop-blur-xs shadow-sm text-zinc-200 border-border/20">
+          {Object.keys(TYPE_MAPPING).map((type) => (
             <DropdownMenuItem key={type} onClick={() => handleTypeChange(type)}>
               <span className="flex gap-2 items-center">
-                {React.createElement(typeMapping[type as CalloutTypes].icon)}
+                {TYPE_MAPPING[type as CalloutTypes].icon}
                 {type}
               </span>
             </DropdownMenuItem>
@@ -133,7 +133,7 @@ const CalloutBlock = ({
       </DropdownMenu>
       <ContentEditable
         id={id}
-        className={cn(typeMapping[type].text, "py-2")}
+        className={cn(TYPE_MAPPING[type].text, "pt-[6px]")}
         placeholderClassName={"text-zinc-950/30"}
         placeholder="Type callout here..."
         ref={ref}

@@ -17,32 +17,30 @@ const useSync = (
 
   // track mount state
   useEffect(() => {
+    mountedRef.current = true; // ← reset on mount too (handles remounts)
     return () => {
       mountedRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
     };
   }, []);
 
   useEffect(() => {
     if (!isInitialized) return;
-    // 👇 first initialized run = baseline, not a sync
+
     if (!hasBaselineRef.current) {
       prevState.current = data;
       hasBaselineRef.current = true;
       return;
     }
 
-    // shallow escape hatch — replace with hash / version if possible
     if (JSON.stringify(data) === JSON.stringify(prevState.current)) return;
 
-    // cancel previous debounce
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+      timeoutRef.current = null; // ← always null after clearing
     }
 
     timeoutRef.current = setTimeout(async () => {
+      timeoutRef.current = null; // ← null once it fires
       if (!mountedRef.current) return;
 
       setState((s) => {
@@ -50,7 +48,6 @@ const useSync = (
       });
 
       try {
-        console.log("syncing...");
         await UpdateSiteAction(siteId, data);
         prevState.current = data;
       } finally {
@@ -65,6 +62,7 @@ const useSync = (
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        timeoutRef.current = null; // ← same here
       }
     };
   }, [data, siteId, debounce, isInitialized]);

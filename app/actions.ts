@@ -28,7 +28,6 @@ export const CreateSiteAction = async (subdomain: string) => {
         heading: "Hello, World",
         subheading: "Welcome to your new site",
       },
-      hasArticles: false,
       pages: [
         {
           id: crypto.randomUUID(),
@@ -57,6 +56,10 @@ export const CreateSiteAction = async (subdomain: string) => {
           ],
         },
       ],
+      theme: {
+        accent: "blue",
+        typography: "sans",
+      },
     };
 
     // Create site
