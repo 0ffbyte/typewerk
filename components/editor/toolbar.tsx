@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import usePage from "@/hooks/use-page";
+import { useTheme } from "next-themes";
 
 // Utils
 import { cn, slugify } from "@/lib/utils";
@@ -22,7 +23,7 @@ import {
 } from "../ui/select";
 
 // Icons
-import { ChevronDown, XIcon } from "lucide-react";
+import { ChevronDown, LoaderIcon } from "lucide-react";
 import { PlusIcon } from "@radix-ui/react-icons";
 
 // Actions
@@ -160,16 +161,13 @@ const PageDropdown = () => {
                   </p>
 
                   <button
+                    title="Delete"
                     onClick={() => {
                       removePage(index);
                     }}
                     className="group-hover:block hidden cursor-pointer"
                   >
-                    <XIcon
-                      className="text-zinc-500"
-                      size={20}
-                      strokeLinecap="square"
-                    />
+                    <PlusIcon className="text-zinc-500 rotate-45" />
                   </button>
                 </>
               )}
@@ -187,6 +185,8 @@ const ThemeDropdown = () => {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const { setTheme, theme: nextTheme } = useTheme();
+
   const handleAccentChange = (value: Accent) => {
     setState((s) => {
       s.data.theme.accent = value;
@@ -197,6 +197,10 @@ const ThemeDropdown = () => {
     setState((s) => {
       s.data.theme.typography = value;
     });
+  };
+
+  const handleThemeChange = (value: "light" | "dark" | "system") => {
+    setTheme(value);
   };
 
   return (
@@ -274,7 +278,7 @@ const ThemeDropdown = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Accent</SelectLabel>
+                <SelectLabel>Typeface</SelectLabel>
                 <SelectItem value="sans">Sans</SelectItem>
                 <SelectItem value="mono">Mono</SelectItem>
               </SelectGroup>
@@ -283,14 +287,14 @@ const ThemeDropdown = () => {
         </div>
 
         <div className="flex items-center justify-between pl-[8px] py-[2px] h-[32px] rounded-[12px] cursor-default hover:bg-white/5 group text-sm">
-          Theme
-          <Select defaultValue="light">
+          Mode
+          <Select defaultValue={nextTheme} onValueChange={handleThemeChange}>
             <SelectTrigger className="w-[100px] border-none" size="sm">
               <SelectValue placeholder="Select a typeface" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Accent</SelectLabel>
+                <SelectLabel>Mode</SelectLabel>
                 <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
               </SelectGroup>
@@ -340,7 +344,7 @@ const PublishButton = ({
   return (
     <button
       className={cn(
-        "w-[100px] h-full text-zinc-200 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-200",
+        "w-[100px] h-full text-zinc-200 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-100",
         (isSyncing || isPublishing) && "cursor-wait text-zinc-200/50"
       )}
       style={{
@@ -350,13 +354,18 @@ const PublishButton = ({
       onClick={handleClick}
       disabled={isSyncing || isPublishing}
     >
-      {isSyncing
-        ? "Saving"
-        : isPublishing
-        ? "Publishing"
-        : isUptoDate
-        ? "Copy URL"
-        : "Publish"}
+      {isSyncing ? (
+        <div className="flex items-center gap-1">
+          <LoaderIcon className="animate-spin" size={16} />
+          Saving
+        </div>
+      ) : isPublishing ? (
+        <div className="flex items-center gap-2">Publishing</div>
+      ) : isUptoDate ? (
+        "Copy URL"
+      ) : (
+        "Publish"
+      )}
     </button>
   );
 };

@@ -15,6 +15,7 @@ import R_Image from "@/components/renderer/image";
 
 import {
   AlertTriangleIcon,
+  CheckSquareIcon,
   ChessKnightIcon,
   CodeIcon,
   Heading1Icon,
@@ -24,6 +25,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import CodeBlock, { CodeProps } from "@/components/editor/blocks/code";
+import Checklist, {
+  type ChecklistProps,
+} from "@/components/editor/blocks/checklist";
+
+import R_Checklist from "@/components/renderer/checklist";
 
 export type BlockDefinition<P = Record<string, any>> = {
   component: React.FC<any>;
@@ -92,7 +98,7 @@ export const BlockRegistry = {
       type: "tip",
     },
     sanitize: true,
-    displayName: "Alertum",
+    displayName: "Callout",
     icon: AlertTriangleIcon,
   } as BlockDefinition<CalloutProps>,
 
@@ -106,6 +112,16 @@ export const BlockRegistry = {
     displayName: "Code",
     icon: CodeIcon,
   } as BlockDefinition<CodeProps>,
+  checklist: {
+    component: Checklist,
+    renderedComponent: R_Checklist,
+    sanitize: true,
+    defaultProps: {
+      items: [{ id: "checklist-item-1", content: "", checked: false }],
+    },
+    displayName: "Checklist",
+    icon: CheckSquareIcon,
+  } as BlockDefinition<ChecklistProps>,
 };
 
 export type BlockType = keyof typeof BlockRegistry;

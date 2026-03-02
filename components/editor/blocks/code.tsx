@@ -49,13 +49,13 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="w-full bg-zinc-900 border rounded-lg relative flex flex-col items-center overflow-hidden group"
+      className="w-full bg-zinc-200 dark:bg-zinc-900 border rounded-lg relative flex flex-col items-center overflow-hidden group"
       onKeyDown={handleKeyDown}
     >
-      <div className="w-full flex items-center justify-between gap-2 p-4">
+      <div className="w-full flex items-center justify-between p-2 border-b border-border/20">
         <div className="flex items-center gap-2">
           <CodeIcon className=" text-zinc-400" size={16} />
-          <p className="text-zinc-400 text-sm">Code</p>
+          <p className="text-zinc-400 text">Typescript</p>
         </div>
 
         <CopyIcon
@@ -63,31 +63,18 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
           onClick={handleCopy}
         />
       </div>
-      <div className="w-full flex items-center justify-start pb-4 px-4">
+
+      <div className="w-full flex items-center justify-start">
         <ContentEditable
           id={id}
+          className="pl-8 pr-4 py-2"
           allowFormatting={false}
           syntaxHighlighting={true}
-          placeholder="Type code here..."
+          placeholder="Type code here"
           ref={ref}
           value={content}
           onEdit={handleEdit}
         />
-      </div>
-    </div>
-  );
-};
-
-const Toolbar = () => {
-  return (
-    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center gap-2 backdrop-blur-xs ">
-        <button
-          title="Copy"
-          className="h-full aspect-square flex items-center justify-center"
-        >
-          <CopyIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
-        </button>
       </div>
     </div>
   );

@@ -36,27 +36,27 @@ const TYPE_MAPPING: Record<
   { background: string; text: string; border: string; icon: any }
 > = {
   tip: {
-    background: "bg-sky-100",
+    background: "bg-sky-200",
     text: "text-sky-800",
-    border: "border-sky-200",
+    border: "border-sky-300",
     icon: <LightbulbIcon size={20} />,
   },
   success: {
-    background: "bg-teal-100",
+    background: "bg-teal-200",
     text: "text-teal-800",
-    border: "border-teal-200",
+    border: "border-teal-300",
     icon: <CheckCircleIcon size={20} />,
   },
   warning: {
-    background: "bg-yellow-100",
+    background: "bg-yellow-200",
     text: "text-yellow-800",
-    border: "border-yellow-200",
+    border: "border-yellow-300",
     icon: <AlertCircleIcon size={20} />,
   },
   error: {
-    background: "bg-rose-100",
+    background: "bg-rose-200",
     text: "text-rose-800",
-    border: "border-rose-200",
+    border: "border-rose-300",
     icon: <AlertTriangleIcon size={20} />,
   },
 };

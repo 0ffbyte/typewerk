@@ -11,6 +11,7 @@ import {
   CodeIcon,
   QuoteIcon,
   AlertCircleIcon,
+  CheckSquareIcon,
 } from "lucide-react";
 
 import { useEditorStore } from "@/store/editor-store";
@@ -102,6 +103,12 @@ const SlashMenu = ({
           icon: CodeIcon,
           shortcuts: ["alt+c"],
           action: () => addBlock("code", selectedIndex + 1),
+        },
+        {
+          name: "checklist",
+          icon: CheckSquareIcon,
+          shortcuts: [],
+          action: () => addBlock("checklist", selectedIndex + 1),
         },
       ],
     },
@@ -205,7 +212,7 @@ const SlashMenu = ({
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{
         type: "spring",
-        damping: 24,
+        damping: 20,
         stiffness: 200,
         opacity: { duration: 0.1 },
       }}
@@ -214,7 +221,7 @@ const SlashMenu = ({
         {isSearching ? (
           // ── Flat filtered results ──────────────────────────────────────
           <motion.div
-            key="search"
+            key={flatItems.length}
             className="w-full"
             initial={{ opacity: 0, filter: "blur(4px)" }}
             animate={{ opacity: 1, filter: "blur(0px)" }}

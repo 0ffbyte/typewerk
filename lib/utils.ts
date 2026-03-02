@@ -41,6 +41,17 @@ export function unwrapSafe(element: Element): Node[] {
   return moved;
 }
 
+export function moveCaretToEnd(el: HTMLDivElement) {
+  // Move caret to the end of contentEditable
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+
+  const sel = document.getSelection();
+  sel?.removeAllRanges();
+  sel?.addRange(range);
+}
+
 export const THEME_MAPPING = {
   accent: {
     blue: "var(--color-blue-500)",

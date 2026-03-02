@@ -28,12 +28,12 @@ type ToolbarPos = { x: number; y: number };
 type ContentEditableProps = {
   id: string;
   value: string;
+  ref?: any;
   placeholder?: string;
   maxLength?: number;
   multiLine?: boolean;
   allowFormatting?: boolean;
   syntaxHighlighting?: boolean;
-  ref: React.RefObject<HTMLDivElement | null>;
   className?: string;
   placeholderClassName?: string;
   onEdit?: (value: string) => void;
@@ -183,13 +183,19 @@ const ContentEditable = ({
 
         const range = selection.getRangeAt(0);
 
-        // Insert first br for line break
         const br1 = document.createElement("br");
         range.insertNode(br1);
-
-        // Move cursor AFTER the second br
         range.setStartAfter(br1);
         range.setEndAfter(br1);
+
+        // Check if br1 is the last node — if so, insert a trailing br
+        // so the cursor has somewhere to visually land
+        if (!br1.nextSibling) {
+          const br2 = document.createElement("br");
+          range.insertNode(br2);
+          range.setStartBefore(br2);
+          range.setEndBefore(br2);
+        }
 
         selection.removeAllRanges();
         selection.addRange(range);
@@ -311,11 +317,16 @@ const ContentEditable = ({
         spellCheck={true}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text overflow-hidden text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground whitespace-pre-wrap border-b border-transparent z-40",
+          "outline-none select-text text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
-          syntaxHighlighting && "caret-blue-500 text-transparent font-mono",
+          syntaxHighlighting &&
+            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto",
           className
         )}
+        style={{
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE 10+
+        }}
         onFocus={() => (isFocusedRef.current = true)}
         onBlur={() => {
           isFocusedRef.current = false;
@@ -332,7 +343,11 @@ const ContentEditable = ({
       />
 
       {syntaxHighlighting && (
-        <SyntaxHighlighterOverlay content={innerRef.current?.innerText ?? ""} />
+        <SyntaxHighlighterOverlay
+          content={innerRef.current?.innerText ?? ""}
+          innerRef={innerRef}
+          className={className}
+        />
       )}
 
       {isEmpty && (
@@ -421,19 +436,76 @@ const ContentEditable = ({
   );
 };
 
-const SyntaxHighlighterOverlay = ({ content }: { content: string }) => {
+const SyntaxHighlighterOverlay = ({
+  content,
+  innerRef,
+  className,
+}: {
+  content: string;
+  innerRef: React.RefObject<HTMLDivElement | null>;
+  className?: string;
+}) => {
+  const ref = useRef<HTMLPreElement>(null);
+
+  const lineCount = content.split("\n").length;
+
+  useEffect(() => {
+    if (!ref.current || !innerRef?.current) return;
+
+    const handleScroll = () => {
+      if (ref.current && innerRef.current) {
+        ref.current.scrollLeft = innerRef.current.scrollLeft;
+        ref.current.scrollTop = innerRef.current.scrollTop;
+      }
+    };
+
+    const inner = innerRef.current;
+    inner.addEventListener("scroll", handleScroll);
+    inner.addEventListener("keydown", handleScroll);
+
+    // Sync initial scroll state
+    handleScroll();
+
+    return () => {
+      inner.removeEventListener("scroll", handleScroll);
+      inner.removeEventListener("keydown", handleScroll);
+    };
+  }, []);
+
   return (
-    <pre
-      aria-hidden="true"
-      className="text-zinc-200 font-mono selection:bg-red-500 pointer-events-none select-none overflow-hidden wrap-break-word absolute top-0 left-0 outline-none text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre-wrap border-b border-transparent"
-      dangerouslySetInnerHTML={{
-        __html: Prism.highlight(
-          content,
-          Prism.languages.javascript,
-          "javascript"
-        ),
-      }}
-    />
+    <div className="absolute top-0 left-0 w-full pointer-events-none flex items-center justify-center">
+      <pre
+        ref={ref}
+        aria-hidden="true"
+        className={cn(
+          "text-foreground font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre",
+          className
+        )}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+        dangerouslySetInnerHTML={{
+          __html: Prism.highlight(
+            content,
+            Prism.languages.javascript,
+            "javascript"
+          ),
+        }}
+      />
+
+      {Array.from({ length: lineCount }, (_, i) => (
+        <div
+          key={i}
+          className="absolute left-2 text-[16px] text-zinc-400 font-mono pointer-events-none"
+          style={{
+            top: `${8 + i * 24}px`,
+          }}
+        >
+          {i + 1}
+        </div>
+      ))}
+    </div>
   );
 };
 

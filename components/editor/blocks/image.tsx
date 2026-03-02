@@ -28,7 +28,7 @@ const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
       tabIndex={index}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
-      className="w-full aspect-video border relative overflow-hidden outline-none bg-zinc-100 rounded-lg group"
+      className="w-full aspect-video border relative overflow-hidden outline-none rounded-lg group"
     >
       <img className="w-full h-full object-cover" src={url ?? ""} />
       {isToolbarVisible && <Toolbar index={index} />}
@@ -56,7 +56,7 @@ const Toolbar = ({ index }: { index: number }) => {
 
   return (
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/90 flex items-center justify-center backdrop-blur-xs">
+      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 flex items-center justify-center backdrop-blur-xs">
         <button
           title="Upload"
           onClick={() => handleUpdateUrl()}

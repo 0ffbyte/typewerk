@@ -17,6 +17,7 @@ type Props = {
 
 const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const state = useEditorStore((state) => state);
+  const setState = useEditorStore((state) => state.setState);
   const setSelectedIndex = useEditorStore((state) => state.setSelectedIndex);
   const addBlock = useEditorStore((state) => state.addBlock);
   const pageIndex = useEditorStore((state) => state.pageIndex);
@@ -95,6 +96,15 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
         default:
           break;
       }
+    }
+
+    // clear editor shortcut
+    if (e.shiftKey && e.key === "1") {
+      e.preventDefault();
+      setSelectedIndex(-1);
+      setState((s) => {
+        s.data.pages[s.pageIndex].blocks = [];
+      });
     }
   };
 

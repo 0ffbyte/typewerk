@@ -1,4 +1,5 @@
 import { BlockRegistry } from "@/lib/block-registry";
+import { THEME_MAPPING } from "@/lib/utils";
 
 export type BlockProps = {
   index: number;
@@ -17,9 +18,7 @@ export type Page = {
   blocks: BaseBlock[];
 };
 
-export const ACCENT_COLORS = ["blue", "pink"] as const;
-
-export type Accent = (typeof ACCENT_COLORS)[number];
+export type Accent = keyof typeof THEME_MAPPING.accent;
 
 export type Theme = {
   accent: Accent;
