@@ -16,6 +16,8 @@
 
 - [ ] Undo / redo (main boss)
 
+- [ ] AI rewrite feature
+
 - [x] Dark mode
 
 - [x] fix & update slash command menu
