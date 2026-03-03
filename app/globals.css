@@ -59,7 +59,7 @@ mark {
 }
 
 :root {
-  --radius: 12px;
+  --radius: 16px;
   --background: var(--color-zinc-100);
   --foreground: var(--color-zinc-900);
   --card: oklch(1 0 0);

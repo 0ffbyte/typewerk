@@ -38,7 +38,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
 
   const draggableStyle: React.CSSProperties = {
     transform: transform ? CSS.Translate.toString(transform) : undefined,
-    zIndex: isDragging ? 1000 : undefined,
+    zIndex: isDragging ? 999 : undefined,
     opacity: isDragging ? 0.5 : 1,
   };
 

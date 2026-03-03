@@ -88,7 +88,7 @@ export default function Header() {
       <div className="flex flex-col gap-1">
         <textarea
           ref={headingRef}
-          className="font-sans font-semibold text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 resize-none overflow-hidden"
+          className="font-sans font-semibold text-[20px] leading-[24px] w-full outline-none placeholder:text-zinc-300 resize-none overflow-hidden"
           placeholder="Heading"
           spellCheck={false}
           value={state.data.header.heading}
@@ -111,7 +111,7 @@ export default function Header() {
         />
         <textarea
           ref={subRef}
-          className="font-sans font-semibold text-[32px] leading-[36px] w-full outline-none placeholder:text-zinc-300 text-zinc-400 resize-none overflow-hidden"
+          className="font-sans font-semibold text-[20px] leading-[24px] w-full outline-none placeholder:text-zinc-300 text-zinc-400 resize-none overflow-hidden"
           placeholder="Subheading"
           spellCheck
           value={state.data.header.subheading}

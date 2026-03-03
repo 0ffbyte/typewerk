@@ -176,10 +176,7 @@ const ContentEditable = ({
       }
       if (e.key === "Enter") {
         e.preventDefault();
-        if (!multiLine) return;
-
-        e.stopPropagation();
-        if (isEmpty) return;
+        if (!multiLine || isEmpty) return;
 
         const selection = window.getSelection();
         if (!selection || !selection.rangeCount) return;

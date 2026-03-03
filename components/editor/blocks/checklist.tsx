@@ -76,9 +76,10 @@ const ChecklistBlock = ({
     setCurrentIndex(Math.max(0, itemIdx - 1));
   };
 
+  // focus handler
   useEffect(() => {
     const el = itemRefs.current.get(currentIndex);
-    if (el) {
+    if (el && isBlockSelected) {
       el.focus();
       moveCaretToEnd(el);
     }

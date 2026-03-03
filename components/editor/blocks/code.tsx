@@ -53,37 +53,32 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="w-full dark:bg-zinc-900 border rounded-lg relative flex flex-col items-center group"
+      className="w-full grid grid-cols-[40px_1fr] grid-rows-[40px_1fr] rounded-lg overflow-hidden"
       onKeyDown={handleKeyDown}
     >
-      <div className="w-full flex items-center justify-between p-2 rounded-t-lg bg-zinc-900">
-        <div className="flex items-center gap-4">
-          <CodeIcon className="text-muted-foreground" size={16} />
-
-          <p className="text-muted-foreground text-sm">Typescript</p>
-        </div>
-
-        <CopyIcon
-          className="text-zinc-200 opacity-0 group-hover:opacity-100"
-          onClick={handleCopy}
-        />
+      <div className="bg-zinc-800 flex items-center justify-center">
+        <CodeIcon className="text-muted-foreground" size={16} />
       </div>
 
-      <div className="w-full h-full flex items-start justify-start rounded-b-lg gap-5 pb-2 bg-zinc-900">
-        <div className="pl-3 h-full flex flex-col">
-          {Array.from({ length: getLineCount(content) }, (_, i) => (
-            <div
-              key={i}
-              className="text-sm text-muted-foreground font-mono pointer-events-none  flex items-center justify-center"
-              style={{
-                height: "20px",
-              }}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
+      <div className="bg-zinc-900 flex items-center pl-2">
+        <p className="text-muted-foreground text-sm">Typescript</p>
+      </div>
 
+      <div className="w-full bg-zinc-800 pb-2">
+        {Array.from({ length: getLineCount(content) }, (_, i) => (
+          <div
+            key={i}
+            className="text-sm text-muted-foreground font-mono pointer-events-none flex items-center justify-center"
+            style={{
+              height: "20px",
+            }}
+          >
+            {i + 1}
+          </div>
+        ))}
+      </div>
+
+      <div className="w-full bg-zinc-900 px-2 pb-2">
         <ContentEditable
           id={id}
           allowFormatting={false}
@@ -99,3 +94,48 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 };
 
 export default CodeBlock;
+
+/**
+ * 
+ * <div
+      className="w-full dark:bg-zinc-900 bg-zinc-900 rounded-lg relative flex items-center justify-start group gap-2"
+      onKeyDown={handleKeyDown}
+    >
+      <div className="w-10 h-full flex flex-col items-center justify-start">
+        <div className="w-10 h-10 flex items-center justify-center">
+          <CodeIcon className="text-muted-foreground" size={16} />
+        </div>
+
+        <div className="w-full flex-col items-center justify-start pb-2">
+          {Array.from({ length: getLineCount(content) }, (_, i) => (
+            <div
+              key={i}
+              className="text-sm text-muted-foreground font-mono pointer-events-none flex items-center justify-center"
+              style={{
+                height: "20px",
+              }}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="w-full h-full flex flex-col items-start justify-center">
+        <div className="h-10 flex items-center justify-betwee">
+          <p className="text-muted-foreground text-sm">Typescript</p>
+        </div>
+        <div className="w-full pb-2 border">
+          <ContentEditable
+            id={id}
+            allowFormatting={false}
+            syntaxHighlighting={true}
+            placeholder="let hey = 'mom!';"
+            ref={ref}
+            value={content}
+            onEdit={handleEdit}
+          />
+        </div>
+      </div>
+    </div>
+ */
