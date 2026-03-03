@@ -106,7 +106,7 @@ const CalloutBlock = ({
   return (
     <div
       className={cn(
-        "w-full rounded-lg border flex gap-2 group p-2",
+        "w-full rounded-lg border flex gap-2 group p-2 h-full items-start",
         TYPE_MAPPING[type].border,
         TYPE_MAPPING[type].text,
         TYPE_MAPPING[type].background
@@ -135,7 +135,7 @@ const CalloutBlock = ({
         id={id}
         className={cn(TYPE_MAPPING[type].text, "pt-[6px]")}
         placeholderClassName={"text-zinc-950/30"}
-        placeholder="Type callout here..."
+        placeholder="Type callout here"
         ref={ref}
         value={content}
         onEdit={handleEdit}

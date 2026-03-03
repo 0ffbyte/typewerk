@@ -16,7 +16,11 @@ export type ChecklistProps = {
   items: Item[];
 };
 
-const ChecklistBlock = ({ items, index }: ChecklistProps & BlockProps) => {
+const ChecklistBlock = ({
+  items,
+  index,
+  id: blockId,
+}: ChecklistProps & BlockProps) => {
   const setState = useEditorStore((s) => s.setState);
   const selectedIndex = useEditorStore((s) => s.selectedIndex);
   const removeBlock = useEditorStore((state) => state.removeBlock);
@@ -35,18 +39,21 @@ const ChecklistBlock = ({ items, index }: ChecklistProps & BlockProps) => {
     checked: boolean
   ) => {
     setState((s) => {
-      const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "checklist") {
-        if (content != null) block.props.items[idx].content = content;
-        block.props.items[idx].checked = checked;
-      }
+      const block = s.data.pages[s.pageIndex].blocks.find(
+        (b) => b.id === blockId
+      );
+      if (!block || block.type !== "checklist") return;
+      if (content != null) block.props.items[idx].content = content;
+      block.props.items[idx].checked = checked;
     });
   };
 
   const addItem = () => {
     const insertAt = currentIndex + 1;
     setState((s) => {
-      const block = s.data.pages[s.pageIndex].blocks[index];
+      const block = s.data.pages[s.pageIndex].blocks.find(
+        (b) => b.id === blockId
+      );
       if (!block || block.type !== "checklist") return;
       block.props.items.splice(insertAt, 0, {
         id: crypto.randomUUID(),
@@ -59,11 +66,11 @@ const ChecklistBlock = ({ items, index }: ChecklistProps & BlockProps) => {
 
   const removeItem = (itemIdx: number) => {
     setState((s) => {
-      const block = s.data.pages[s.pageIndex].blocks[index];
-      if (!block) return;
-      if (block.type === "checklist") {
-        block.props.items.splice(itemIdx, 1);
-      }
+      const block = s.data.pages[s.pageIndex].blocks.find(
+        (b) => b.id === blockId
+      );
+      if (!block || block.type !== "checklist") return;
+      block.props.items.splice(itemIdx, 1);
     });
 
     setCurrentIndex(Math.max(0, itemIdx - 1));
@@ -75,19 +82,12 @@ const ChecklistBlock = ({ items, index }: ChecklistProps & BlockProps) => {
       el.focus();
       moveCaretToEnd(el);
     }
-  }, [currentIndex]);
-
-  useEffect(() => {
-    const el = itemRefs.current.get(0);
-    if (el && isBlockSelected) {
-      el.focus();
-      moveCaretToEnd(el);
-    }
-  }, [isBlockSelected]);
+  }, [currentIndex, isBlockSelected]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Enter") {
+        console.log("enter");
         const el = itemRefs.current.get(currentIndex);
         const nextEl = itemRefs.current.get(currentIndex + 1);
         const textContent = el?.textContent || "";

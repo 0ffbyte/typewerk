@@ -15,6 +15,7 @@ import R_Image from "@/components/renderer/image";
 
 import {
   AlertTriangleIcon,
+  CheckCircleIcon,
   CheckSquareIcon,
   ChessKnightIcon,
   CodeIcon,
@@ -101,7 +102,6 @@ export const BlockRegistry = {
     displayName: "Callout",
     icon: AlertTriangleIcon,
   } as BlockDefinition<CalloutProps>,
-
   code: {
     component: CodeBlock,
     renderedComponent: Text,
@@ -120,7 +120,7 @@ export const BlockRegistry = {
       items: [{ id: "checklist-item-1", content: "", checked: false }],
     },
     displayName: "Checklist",
-    icon: CheckSquareIcon,
+    icon: CheckCircleIcon,
   } as BlockDefinition<ChecklistProps>,
 };
 

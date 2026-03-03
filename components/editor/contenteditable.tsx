@@ -176,34 +176,25 @@ const ContentEditable = ({
       }
       if (e.key === "Enter") {
         e.preventDefault();
-        if (!multiLine || isEmpty) return;
+        if (!multiLine) return;
+
+        e.stopPropagation();
+        if (isEmpty) return;
 
         const selection = window.getSelection();
         if (!selection || !selection.rangeCount) return;
 
         const range = selection.getRangeAt(0);
-
-        const br1 = document.createElement("br");
-        range.insertNode(br1);
-        range.setStartAfter(br1);
-        range.setEndAfter(br1);
-
-        // Check if br1 is the last node — if so, insert a trailing br
-        // so the cursor has somewhere to visually land
-        if (!br1.nextSibling) {
-          const br2 = document.createElement("br");
-          range.insertNode(br2);
-          range.setStartBefore(br2);
-          range.setEndBefore(br2);
-        }
-
+        const br = document.createElement("br");
+        range.insertNode(br);
+        range.setStartAfter(br);
+        range.setEndAfter(br);
         selection.removeAllRanges();
         selection.addRange(range);
-
         emitSanitizedEdit();
       }
     },
-    [isEmpty, allowFormatting]
+    [isEmpty, allowFormatting, multiLine]
   );
 
   const toggleFormat = useCallback(
@@ -314,13 +305,13 @@ const ContentEditable = ({
         ref={mergeRefs(innerRef, ref)}
         contentEditable
         suppressContentEditableWarning
-        spellCheck={true}
+        spellCheck={!syntaxHighlighting}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text text-[16px] leading-[24px] w-full min-h-[24px] text-muted-foreground z-40 whitespace-pre-wrap",
+          "outline-none select-text text-[16px] leading-[24px] w-full min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
-            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto",
+            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-sm leading-auto",
           className
         )}
         style={{
@@ -353,9 +344,10 @@ const ContentEditable = ({
       {isEmpty && (
         <div
           className={cn(
-            "pointer-events-none absolute left-0 top-0 text-[16px] leading-[24px] w-full min-h-[20px]",
+            "pointer-events-none absolute left-0 top-0 text-muted-foreground text-[16px] leading-[24px] w-full min-h-[20px]",
             className,
-            "text-zinc-400",
+            syntaxHighlighting &&
+              "caret-blue-500 font-mono whitespace-pre overflow-x-auto text-sm leading-auto",
             placeholderClassName
           )}
           aria-hidden="true"
@@ -445,9 +437,7 @@ const SyntaxHighlighterOverlay = ({
   innerRef: React.RefObject<HTMLDivElement | null>;
   className?: string;
 }) => {
-  const ref = useRef<HTMLPreElement>(null);
-
-  const lineCount = content.split("\n").length;
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ref.current || !innerRef?.current) return;
@@ -474,11 +464,12 @@ const SyntaxHighlighterOverlay = ({
 
   return (
     <div className="absolute top-0 left-0 w-full pointer-events-none flex items-center justify-center">
-      <pre
+      <div
         ref={ref}
         aria-hidden="true"
+        spellCheck={false}
         className={cn(
-          "text-foreground font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-[16px] leading-[24px] w-full min-h-[24px] whitespace-pre",
+          "text-zinc-200 font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-sm w-full min-h-[24px] whitespace-pre",
           className
         )}
         style={{
@@ -493,18 +484,6 @@ const SyntaxHighlighterOverlay = ({
           ),
         }}
       />
-
-      {Array.from({ length: lineCount }, (_, i) => (
-        <div
-          key={i}
-          className="absolute left-2 text-[16px] text-zinc-400 font-mono pointer-events-none"
-          style={{
-            top: `${8 + i * 24}px`,
-          }}
-        >
-          {i + 1}
-        </div>
-      ))}
     </div>
   );
 };

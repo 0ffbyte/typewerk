@@ -96,7 +96,7 @@ export default function Editor({
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.data.pages[state.pageIndex].blocks, null, 2)}
+          {JSON.stringify(state.pageIndex, null, 2)}
 
           <br />
         </pre>

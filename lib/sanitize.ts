@@ -13,14 +13,23 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
     a: ["href", "target", "rel"],
     span: ["id"],
   },
-  allowedTags: ["br", "p", "span", "i", "em", "u", "mark", "a", "b", "strong"],
+  allowedTags: [
+    "br",
+    "div",
+    "p",
+    "span",
+    "i",
+    "em",
+    "u",
+    "mark",
+    "a",
+    "b",
+    "strong",
+  ],
   exclusiveFilter: (frame) => {
     // Remove empty tags (no text content and no meaningful children)
-    const isSelfClosing = frame.tag === "br";
-    if (isSelfClosing) return false;
-
-    const isEmpty = !frame.text.trim() && frame.tag !== "br";
-    return isEmpty;
+    //const isEmpty = !frame.text.trim() && frame.tag !== "br";
+    return false;
   },
 };
 

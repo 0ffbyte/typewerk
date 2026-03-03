@@ -55,7 +55,7 @@ const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
         maxLength={32}
         multiLine={false}
         allowFormatting={false}
-        className="text-foreground"
+        className="text-foreground dark:text-zinc-100"
       />
     </div>
   );

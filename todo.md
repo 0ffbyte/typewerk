@@ -4,6 +4,10 @@
 
 - [ ] slash menu tap events on mobile not registering
 
+- [x] stopped propagation of enter keypress on contenteditable
+
+- [x] 'Enter' keypress behavior not inserting new lines consistently (back to using br insertion)
+
 - [x] allowFormatting option not working on contenteditable
 
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
@@ -12,9 +16,7 @@
 
 - [ ] Undo / redo (main boss)
 
-- [ ] Add a new block type (Gallery)
-
-- [ ] Dark mode ...
+- [x] Dark mode
 
 - [x] fix & update slash command menu
 

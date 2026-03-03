@@ -67,7 +67,7 @@ const PageDropdown = () => {
         >
           <p className="text-ellipsis overflow-hidden whitespace-nowrap">
             Page{" "}
-            <span className="text-zinc-500">
+            <span className="text-zinc-500 capitalize">
               {pageIndex === 0 ? "Home" : pageName}
             </span>
           </p>
@@ -155,7 +155,7 @@ const PageDropdown = () => {
 
                       navigateToPage(page.name);
                     }}
-                    className="w-full"
+                    className="w-full capitalize"
                   >
                     {page.name}
                   </p>

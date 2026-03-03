@@ -52,6 +52,25 @@ export function moveCaretToEnd(el: HTMLDivElement) {
   sel?.addRange(range);
 }
 
+export const getLineCount = (html: string) => {
+  if (!html) return 1;
+
+  const normalized = html
+    // treat <br> as newline
+    .replace(/<br\s*\/?>/gi, "\n")
+    // treat common block-closing tags as line breaks
+    .replace(/<\/(div|p|li|h[1-6]|pre)>/gi, "\n")
+    // strip remaining tags
+    .replace(/<[^>]+>/g, "");
+
+  const lines = normalized.split("\n");
+  const count =
+    lines.filter((line, idx) => !(idx === lines.length - 1 && line === ""))
+      .length || 1;
+
+  return count;
+};
+
 export const THEME_MAPPING = {
   accent: {
     blue: "var(--color-blue-500)",
