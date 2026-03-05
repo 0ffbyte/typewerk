@@ -3,27 +3,18 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
 
-import { useSelectionStore } from "@/store/selection-store";
-
 import Prism from "prismjs";
 import "@/lib/prism-themes/dracula.css"; // or your preferred theme
 
 import { cn, THEME_MAPPING } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
-import { unwrapSafe } from "@/lib/utils";
 
 import SlashMenu from "./slashMenu";
-import {
-  BoldIcon,
-  CopyIcon,
-  ItalicIcon,
-  LinkIcon,
-  UnderlineIcon,
-} from "lucide-react";
+
 import { useEditorStore } from "@/store/editor-store";
 
-type ToolbarPos = { x: number; y: number };
+import SelectionToolbar from "./selectionToolbar";
 
 type ContentEditableProps = {
   id: string;
@@ -61,11 +52,6 @@ const ContentEditable = ({
   const isComposingRef = useRef(false);
 
   const [isEmpty, setIsEmpty] = useState(true);
-  const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
-  const [foundTags, setFoundTags] = useState<string[]>([]);
-
-  const { selection, tick, activeEditorId } = useSelectionStore();
-  const isActive = activeEditorId === id;
 
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
@@ -194,107 +180,6 @@ const ContentEditable = ({
     [isEmpty, allowFormatting, multiLine]
   );
 
-  const toggleFormat = useCallback(
-    (command: "bold" | "italic" | "underline" | "createLink") => {
-      if (command === "createLink") {
-        const selection = document.getSelection();
-        if (!selection || selection.rangeCount === 0) return;
-
-        const range = selection.getRangeAt(0);
-        const root =
-          range.commonAncestorContainer.nodeType === Node.TEXT_NODE
-            ? range.commonAncestorContainer.parentNode!
-            : range.commonAncestorContainer;
-
-        const walker = document.createTreeWalker(
-          root,
-          NodeFilter.SHOW_ELEMENT,
-          {
-            acceptNode(node) {
-              return range.intersectsNode(node)
-                ? NodeFilter.FILTER_ACCEPT
-                : NodeFilter.FILTER_SKIP;
-            },
-          }
-        );
-        let node = walker.currentNode as Element;
-        const toUnwrap: Element[] = [];
-
-        while (node) {
-          if (node.tagName?.toLowerCase() === "a") {
-            toUnwrap.push(node);
-          }
-
-          node = walker.nextNode() as Element;
-        }
-
-        toUnwrap.forEach((node) => unwrapSafe(node));
-
-        if (foundTags.includes("a")) {
-          //console.log("unwrapped link");
-        } else {
-          //console.log("creating link");
-          // create new link wrapping the cleaned content
-          const linkElement = document.createElement("a");
-          const url = window.prompt("Enter URL", "https://");
-          linkElement.href = url || "https://artntek.co";
-          linkElement.target = "_blank";
-          linkElement.rel = "noopener noreferrer";
-          linkElement.textContent = range.cloneContents().textContent;
-
-          // replace the selection with the new link
-          range.deleteContents();
-          range.insertNode(linkElement);
-
-          // move cursor to end of link
-          range.setStartAfter(linkElement);
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-
-        return;
-      }
-
-      document.execCommand(command, false);
-    },
-    [onEdit, foundTags]
-  );
-
-  useEffect(() => {
-    const container = containerRef.current;
-
-    if (!isActive || !selection || !container) {
-      setToolbarPos(null);
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const root =
-      range.commonAncestorContainer.nodeType === Node.TEXT_NODE
-        ? range.commonAncestorContainer.parentNode!
-        : range.commonAncestorContainer;
-
-    let current = root instanceof Element ? root : root.parentElement;
-    let foundTags = [];
-
-    // walk up the DOM tree to find desired tags and stop at the root div parent
-    while (current?.tagName !== "DIV" && current) {
-      const foundTag = current.tagName.toLowerCase();
-      foundTags.push(foundTag);
-      current = current.parentElement;
-    }
-
-    setFoundTags(foundTags);
-
-    setToolbarPos({
-      x: rect.left - containerRect.left + rect.width / 2,
-      y: rect.top - containerRect.top - 48,
-    });
-  }, [tick, selection, isActive]);
-
   return (
     <div ref={containerRef} className="relative w-full">
       <div
@@ -305,10 +190,10 @@ const ContentEditable = ({
         spellCheck={!syntaxHighlighting}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text text-[16px] leading-[24px] w-full min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
+          "outline-none select-text text-[20px] leading-[32px] w-full min-h-[32px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
-            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-sm leading-auto",
+            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-sm leading-auto min-h-[24px]",
           className
         )}
         style={{
@@ -319,8 +204,8 @@ const ContentEditable = ({
         onBlur={() => {
           isFocusedRef.current = false;
           emitSanitizedEdit();
-          setToolbarPos(null);
-          setFoundTags([]);
+          //setToolbarPos(null);
+          //setFoundTags([]);
         }}
         onCompositionStart={() => (isComposingRef.current = true)}
         onCompositionEnd={() => (isComposingRef.current = false)}
@@ -341,10 +226,11 @@ const ContentEditable = ({
       {isEmpty && (
         <div
           className={cn(
-            "pointer-events-none absolute left-0 top-0 text-muted-foreground text-[16px] leading-[24px] w-full min-h-[20px]",
-            className,
+            "pointer-events-none absolute left-0 top-0 text-[20px] leading-[32px] w-full min-h-[32px]",
             syntaxHighlighting &&
               "caret-blue-500 font-mono whitespace-pre overflow-x-auto text-sm leading-auto",
+            className,
+            "text-muted-foreground/50",
             placeholderClassName
           )}
           aria-hidden="true"
@@ -353,72 +239,12 @@ const ContentEditable = ({
         </div>
       )}
 
-      {toolbarPos && (
-        <div
-          className="absolute flex items-center text-xs p-[4px] gap-[8px] h-[40px] rounded-lg shadow-md bg-zinc-900/80 border border-border/20 backdrop-blur-xs text-zinc-200 z-10 select-none"
-          style={{
-            left: toolbarPos.x,
-            top: toolbarPos.y,
-            transform: "translateX(-50%)",
-          }}
-        >
-          <button
-            className="hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => {
-              navigator.clipboard.writeText(selection?.toString() ?? "");
-            }}
-          >
-            <CopyIcon size={20} />
-          </button>
-
-          {allowFormatting && (
-            <>
-              <div className="h-[32px] w-px bg-zinc-500" />
-              <button
-                className={cn(
-                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("b") && "text-blue-500"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("bold")}
-              >
-                <BoldIcon size={20} />
-              </button>
-              <button
-                className={cn(
-                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("i") && "text-blue-500"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("italic")}
-              >
-                <ItalicIcon size={20} />
-              </button>
-              <button
-                className={cn(
-                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("u") && "text-blue-500"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("underline")}
-              >
-                <UnderlineIcon size={20} />
-              </button>
-              <button
-                className={cn(
-                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("a") && "text-blue-500"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("createLink")}
-              >
-                <LinkIcon size={20} />
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      <SelectionToolbar
+        ref={innerRef}
+        containerRef={containerRef}
+        blockId={id}
+        allowFormatting={allowFormatting}
+      />
 
       <SlashMenu ref={innerRef} />
     </div>

@@ -27,8 +27,7 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
     "strong",
   ],
   exclusiveFilter: (frame) => {
-    // Remove empty tags (no text content and no meaningful children)
-    //const isEmpty = !frame.text.trim() && frame.tag !== "br";
+    if (frame.tag === "span") return true; // causes sanitize-html to drop the tag and promote its children
     return false;
   },
 };

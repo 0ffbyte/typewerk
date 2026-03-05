@@ -2,18 +2,16 @@
 
 import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
-import ContentEditable from "../contenteditable";
-import { useRef, useState } from "react";
+import ContentEditable from "../contenteditable/contenteditable";
+import { useRef } from "react";
 import useFocused from "@/hooks/use-focused";
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
   LightbulbIcon,
-  LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import React from "react";
 
 import {
@@ -131,15 +129,17 @@ const CalloutBlock = ({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <ContentEditable
-        id={id}
-        className={cn(TYPE_MAPPING[type].text, "pt-[6px]")}
-        placeholderClassName={"text-zinc-950/30"}
-        placeholder="Type callout here"
-        ref={ref}
-        value={content}
-        onEdit={handleEdit}
-      />
+      <div className="pt-[2px] w-full">
+        <ContentEditable
+          id={id}
+          className={cn(TYPE_MAPPING[type].text)}
+          placeholderClassName={"text-zinc-950/30"}
+          placeholder="Type callout here"
+          ref={ref}
+          value={content}
+          onEdit={handleEdit}
+        />
+      </div>
     </div>
   );
 };

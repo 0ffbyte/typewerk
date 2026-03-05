@@ -12,6 +12,7 @@ import {
   QuoteIcon,
   AlertCircleIcon,
   CheckSquareIcon,
+  ChessKnightIcon,
 } from "lucide-react";
 
 import { useEditorStore } from "@/store/editor-store";
@@ -90,6 +91,12 @@ const SlashMenu = ({
           icon: QuoteIcon,
           shortcuts: [],
           action: () => addBlock("blockquote", selectedIndex + 1),
+        },
+        {
+          name: "checkmate",
+          icon: ChessKnightIcon,
+          shortcuts: [],
+          action: () => addBlock("checkmate", selectedIndex + 1),
         },
         {
           name: "callout",

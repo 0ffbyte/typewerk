@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
-import ContentEditable from "../contenteditable";
+import ContentEditable from "../contenteditable/contenteditable";
 import { moveCaretToEnd, THEME_MAPPING, cn } from "@/lib/utils";
 
 type Item = {
@@ -132,18 +132,18 @@ const ChecklistBlock = ({
   return (
     <div
       ref={containerRef}
-      className="w-full space-y-2"
+      className="w-full space-y-1"
       onKeyDown={handleKeyDown}
     >
       {items.map((item, idx) => (
         <div
           key={item.id}
-          className="flex items-start gap-2"
+          className="flex items-start gap-3"
           onFocus={() => setCurrentIndex(idx)}
         >
           <input
             className={cn(
-              "h-5 w-5 mt-px border-zinc-200 bg-transparent rounded-md cursor-pointer"
+              "h-5 w-5 mt-[6px] border-zinc-200 bg-transparent rounded-md cursor-pointer"
             )}
             style={{
               accentColor: THEME_MAPPING.accent[theme?.accent],

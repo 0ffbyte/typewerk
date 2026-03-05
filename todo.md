@@ -16,7 +16,11 @@
 
 - [ ] Undo / redo (main boss)
 
+- [ ] Starter templates
+
 - [ ] AI rewrite feature
+
+- [ ] Optimize and clean up code ...
 
 - [x] Dark mode
 

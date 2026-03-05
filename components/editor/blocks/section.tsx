@@ -7,7 +7,7 @@ import useFocused from "@/hooks/use-focused";
 import type { BlockProps } from "@/app/types";
 import { slugify } from "@/lib/utils";
 
-import ContentEditable from "../contenteditable";
+import ContentEditable from "../contenteditable/contenteditable";
 
 // define block props
 export type SectionProps = {

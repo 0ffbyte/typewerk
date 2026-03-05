@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import ContentEditable from "../contenteditable";
+import ContentEditable from "../contenteditable/contenteditable";
 import { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 import useFocused from "@/hooks/use-focused";

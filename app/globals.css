@@ -47,7 +47,7 @@
 }
 
 a {
-  color: var(--color-blue-500);
+  color: var(--color-muted-foreground);
   text-decoration: underline;
 }
 
@@ -59,7 +59,7 @@ mark {
 }
 
 :root {
-  --radius: 16px;
+  --radius: 12px;
   --background: var(--color-zinc-100);
   --foreground: var(--color-zinc-900);
   --card: oklch(1 0 0);

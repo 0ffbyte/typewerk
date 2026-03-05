@@ -85,10 +85,10 @@ export default function Header() {
 
   return (
     <div className="flex flex-col mb-[92px] gap-[16px] w-full">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <textarea
           ref={headingRef}
-          className="font-sans font-semibold text-[20px] leading-[24px] w-full outline-none placeholder:text-zinc-300 resize-none overflow-hidden"
+          className="font-sans font-medium text-[32px] leading-[32px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
           placeholder="Heading"
           spellCheck={false}
           value={state.data.header.heading}
@@ -111,7 +111,7 @@ export default function Header() {
         />
         <textarea
           ref={subRef}
-          className="font-sans font-semibold text-[20px] leading-[24px] w-full outline-none placeholder:text-zinc-300 text-zinc-400 resize-none overflow-hidden"
+          className="font-sans font-medium text-[32px] leading-[32px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
           placeholder="Subheading"
           spellCheck
           value={state.data.header.subheading}

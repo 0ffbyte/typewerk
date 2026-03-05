@@ -2,7 +2,7 @@
 
 import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
-import ContentEditable from "../contenteditable";
+import ContentEditable from "../contenteditable/contenteditable";
 import { useRef } from "react";
 import useFocused from "@/hooks/use-focused";
 

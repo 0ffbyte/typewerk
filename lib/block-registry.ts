@@ -16,7 +16,6 @@ import R_Image from "@/components/renderer/image";
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
-  CheckSquareIcon,
   ChessKnightIcon,
   CodeIcon,
   Heading1Icon,
@@ -66,7 +65,7 @@ export const BlockRegistry = {
     component: Image,
     renderedComponent: R_Image,
     defaultProps: {
-      url: "https://i.pinimg.com/1200x/57/d9/5e/57d95e17aea9169c28ce7a5ca5c85665.jpg",
+      url: "https://i.pinimg.com/originals/08/6c/7d/086c7d8a368770316c0ef496bd69cdd3.gif",
     },
     displayName: "Image",
     icon: ImageIcon,

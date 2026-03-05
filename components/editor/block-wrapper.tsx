@@ -10,6 +10,7 @@ import { add, CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 
 import type { BlockProps } from "@/app/types";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 
 type Props = {
   children: React.ReactNode;
@@ -142,7 +143,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
               ref={setActivatorNodeRef}
               className="hover:bg-zinc-200/50 rounded-[4px]"
             >
-              <GripVerticalIcon className="h-6 w-6 text-zinc-400" />
+              <DragHandleDots2Icon className="h-6 w-6 text-zinc-400" />
             </button>
           </div>
         </div>

@@ -96,7 +96,7 @@ export default function Editor({
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.pageIndex, null, 2)}
+          {JSON.stringify(state.data.pages[state.pageIndex].blocks, null, 2)}
 
           <br />
         </pre>
@@ -134,7 +134,7 @@ export default function Editor({
       {
         <div
           id="foreword"
-          className="w-full min-h-[512px] h-full flex flex-1 cursor-text rounded-[8px] hover:bg-zinc-200/50 transition-colors duration-200"
+          className="w-full min-h-[512px] h-full flex flex-1 cursor-text rounded-[8px] hover:bg-zinc-200/0 transition-colors duration-200"
           onClick={() => {
             const insertAt = state.data.pages[state.pageIndex].blocks.length;
             state.addBlock("text", insertAt);
