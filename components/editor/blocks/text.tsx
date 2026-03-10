@@ -14,6 +14,7 @@ export default function TextBlock({
   index,
   id,
 }: TextProps & BlockProps) {
+  const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -41,7 +42,11 @@ export default function TextBlock({
 
   const handleBlur = () => {
     const textContent = ref.current?.textContent;
-    if (textContent?.length === 0 || textContent === "/") removeBlock(index);
+    if (
+      textContent?.length === 0 &&
+      state.data.pages[state.pageIndex].blocks.length > 1
+    )
+      removeBlock(index);
   };
 
   return (

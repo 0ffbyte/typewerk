@@ -32,11 +32,21 @@ const ImageBlock = ({ url, index }: ImageProps & BlockProps) => {
     >
       <img className="w-full h-full object-cover" src={url ?? ""} />
       {isToolbarVisible && <Toolbar index={index} />}
+
+      {false && <Caption caption={"By Edward Snowden"} />}
     </div>
   );
 };
 
 export default ImageBlock;
+
+const Caption = ({ caption }: { caption: string }) => {
+  return (
+    <div className="absolute bottom-1 left-1 bg-zinc-900/80 text-muted-foreground text-sm px-2 h-[32px] rounded-md flex items-center justify-center">
+      {caption}
+    </div>
+  );
+};
 
 const Toolbar = ({ index }: { index: number }) => {
   const setState = useEditorStore((state) => state.setState);

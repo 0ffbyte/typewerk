@@ -185,13 +185,25 @@ const useInlineMenu = (
     [state]
   );
 
-  const handleClick = useCallback(() => {
-    //state && closeMenu();
-  }, []);
+  const handleClick = () => {
+    requestAnimationFrame(() => {
+      if (state) {
+        closeMenu();
+      }
+    });
+  };
 
-  const handleBlur = useCallback(() => {
-    //setTimeout(() => closeMenu(), 100);
-  }, []);
+  const handleBlur = () => {
+    requestAnimationFrame(() => {
+      if (state) {
+        closeMenu();
+      }
+    });
+  };
+  const handleFocus = () => {
+    const targetEl = document.getElementById("slash-commander");
+    if (!targetEl) closeMenu();
+  };
 
   useEffect(() => {
     const element = ref.current;
@@ -201,12 +213,14 @@ const useInlineMenu = (
     element.addEventListener("keydown", handleKeyDown);
     element.addEventListener("click", handleClick);
     element.addEventListener("blur", handleBlur);
+    element.addEventListener("focus", handleFocus);
 
     return () => {
       element.removeEventListener("input", handleInput);
       element.removeEventListener("keydown", handleKeyDown);
       element.removeEventListener("click", handleClick);
       element.removeEventListener("blur", handleBlur);
+      element.removeEventListener("focus", handleFocus);
     };
   }, [handleInput, handleKeyDown]); // Event listeners & handlers
 

@@ -250,14 +250,14 @@ const ThemeDropdown = () => {
             >
               <SelectValue placeholder="Select an accent" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 text-zinc-200 border-border/20">
               <SelectGroup>
                 <SelectLabel>Accent</SelectLabel>
                 {Object.keys(THEME_MAPPING.accent).map((accent) => (
                   <SelectItem
                     key={accent}
                     value={accent}
-                    className="capitalize"
+                    className="capitalize focus:bg-white/5 focus:text-zinc-200"
                   >
                     {accent}
                   </SelectItem>
@@ -276,11 +276,21 @@ const ThemeDropdown = () => {
             <SelectTrigger className="w-[100px] border-none" size="sm">
               <SelectValue placeholder="Select a typeface" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 text-zinc-200 border-border/20">
               <SelectGroup>
                 <SelectLabel>Typeface</SelectLabel>
-                <SelectItem value="sans">Sans</SelectItem>
-                <SelectItem value="mono">Mono</SelectItem>
+                <SelectItem
+                  value="sans"
+                  className="capitalize focus:bg-white/5 focus:text-zinc-200"
+                >
+                  Sans
+                </SelectItem>
+                <SelectItem
+                  value="mono"
+                  className="capitalize focus:bg-white/5 focus:text-zinc-200"
+                >
+                  Mono
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -292,11 +302,21 @@ const ThemeDropdown = () => {
             <SelectTrigger className="w-[100px] border-none" size="sm">
               <SelectValue placeholder="Select a typeface" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 text-zinc-200 border-border/20">
               <SelectGroup>
                 <SelectLabel>Mode</SelectLabel>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem
+                  value="light"
+                  className="capitalize focus:bg-white/5 focus:text-zinc-200"
+                >
+                  Light
+                </SelectItem>
+                <SelectItem
+                  value="dark"
+                  className="capitalize focus:bg-white/5 focus:text-zinc-200"
+                >
+                  Dark
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

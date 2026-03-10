@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { UpdateSiteAction } from "@/app/actions";
 import type { SiteObject } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
@@ -7,7 +7,7 @@ const useSync = (
   siteId: string,
   data: SiteObject,
   isInitialized: boolean,
-  debounce = 600
+  debounce = 1000
 ) => {
   const setState = useEditorStore((s) => s.setState);
   const prevState = useRef<SiteObject>(data);

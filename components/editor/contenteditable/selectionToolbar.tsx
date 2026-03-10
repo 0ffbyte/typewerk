@@ -262,19 +262,19 @@ const SelectionToolbar = ({
             </>
           ) : (
             <>
+              <div className="h-[32px] w-px bg-zinc-500" />
+
               <button
                 title="Rewrite"
                 className={cn(
                   "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("b") && "text-blue-500"
+                  foundTags.includes("ai-completion") && "text-blue-500"
                 )}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => rewriteSelection()}
               >
                 <WandSparklesIcon size={20} />
               </button>
-
-              <div className="h-[32px] w-px bg-zinc-500" />
 
               <button
                 className={cn(

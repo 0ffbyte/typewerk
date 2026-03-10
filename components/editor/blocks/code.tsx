@@ -77,7 +77,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         ))}
       </div>
 
-      <div className="w-full bg-zinc-900 px-2 pb-3">
+      <div className="w-full bg-zinc-900 px-2 pb-2">
         <ContentEditable
           id={id}
           allowFormatting={false}

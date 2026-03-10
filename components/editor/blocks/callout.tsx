@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type CalloutTypes = "tip" | "warning" | "error" | "success";
+export type CalloutTypes = "tip" | "warning" | "error" | "success";
 
 // define block props
 export type CalloutProps = {
@@ -29,7 +29,7 @@ export type CalloutProps = {
   type: CalloutTypes;
 };
 
-const TYPE_MAPPING: Record<
+export const CALLOUT_TYPE_MAPPING: Record<
   CalloutTypes,
   { background: string; text: string; border: string; icon: any }
 > = {
@@ -105,24 +105,24 @@ const CalloutBlock = ({
     <div
       className={cn(
         "w-full rounded-lg border flex gap-2 group p-2 h-full items-start",
-        TYPE_MAPPING[type].border,
-        TYPE_MAPPING[type].text,
-        TYPE_MAPPING[type].background
+        CALLOUT_TYPE_MAPPING[type].border,
+        CALLOUT_TYPE_MAPPING[type].text,
+        CALLOUT_TYPE_MAPPING[type].background
       )}
       onKeyDown={handleKeyDown}
     >
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           className="h-full flex items-center justify-center p-2 rounded-sm group-hover:bg-zinc-900/5 transition-colors duration-100 outline-none"
           title={type}
         >
-          {TYPE_MAPPING[type as CalloutTypes].icon}
+          {CALLOUT_TYPE_MAPPING[type as CalloutTypes].icon}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="rounded-md bg-zinc-900/80 backdrop-blur-xs shadow-sm text-zinc-200 border-border/20">
-          {Object.keys(TYPE_MAPPING).map((type) => (
+          {Object.keys(CALLOUT_TYPE_MAPPING).map((type) => (
             <DropdownMenuItem key={type} onClick={() => handleTypeChange(type)}>
               <span className="flex gap-2 items-center">
-                {TYPE_MAPPING[type as CalloutTypes].icon}
+                {CALLOUT_TYPE_MAPPING[type as CalloutTypes].icon}
                 {type}
               </span>
             </DropdownMenuItem>
@@ -132,7 +132,7 @@ const CalloutBlock = ({
       <div className="pt-[2px] w-full">
         <ContentEditable
           id={id}
-          className={cn(TYPE_MAPPING[type].text)}
+          className={cn(CALLOUT_TYPE_MAPPING[type].text)}
           placeholderClassName={"text-zinc-950/30"}
           placeholder="Type callout here"
           ref={ref}

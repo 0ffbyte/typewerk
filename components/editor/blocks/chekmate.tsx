@@ -36,7 +36,7 @@ const CheckmateBlock = ({
       <ContentEditable
         id={id}
         ref={ref}
-        className="font-sans text-foreground text-[42px] leading-[48px] font-bold"
+        className="font-sans text-[42px] leading-[48px] font-bold"
         value={content}
         onEdit={(v) =>
           setState((s) => {
@@ -46,7 +46,7 @@ const CheckmateBlock = ({
             }
           })
         }
-        placeholder="Checkmate"
+        placeholder="Type here"
       />
     </div>
   );

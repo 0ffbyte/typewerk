@@ -142,7 +142,7 @@ const SlashMenu = ({
     const container = menuRef.current;
     if (el && container) {
       container.scrollTo({
-        top: el.offsetTop - container.offsetTop - container.clientHeight / 2,
+        top: el.offsetTop - container.offsetTop - container.clientHeight / 4,
         behavior: "smooth",
       });
     }

@@ -33,8 +33,8 @@ type ContentEditableProps = {
 const ContentEditable = ({
   id,
   value,
-  placeholder = "Start typing or press `/` for commands",
-  maxLength = 256,
+  placeholder = "Type here or tap / for commands",
+  maxLength = 1024,
   multiLine = true,
   allowFormatting = true,
   syntaxHighlighting = false,

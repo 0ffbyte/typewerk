@@ -63,6 +63,16 @@ export const useEditorStore = create<EditorState & Actions>()(
       set((s) => {
         s.data.pages[s.pageIndex].blocks.splice(index, 1);
         s.selectedIndex = Math.max(-1, index - 1);
+
+        if (s.data.pages[s.pageIndex].blocks.length === 0) {
+          s.data.pages[s.pageIndex].blocks[0] = {
+            id: crypto.randomUUID(),
+            type: "text",
+            props: {
+              content: "",
+            },
+          };
+        }
       }),
     setState: (updater: (draft: EditorState) => void) =>
       set((state) => {

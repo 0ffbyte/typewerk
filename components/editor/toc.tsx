@@ -76,7 +76,7 @@ const TOC = () => {
         </div>
       ) : (
         <div key="expanded" className="flex flex-col gap-2">
-          <p className="text-muted-foreground">Page index</p>
+          <p className="text-muted-foreground">Page Index</p>
           {pages[pageIndex].blocks.map((block) => {
             if (block.type !== "section") return null;
             const props = block.props as SectionProps;
