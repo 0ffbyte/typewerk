@@ -11,11 +11,15 @@ import ContentEditable from "../contenteditable/contenteditable";
 
 // define block props
 export type SectionProps = {
-  title: string;
+  content: string;
 };
 
 // define block component
-const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
+const SectionBlock = ({
+  content = "",
+  index,
+  id,
+}: SectionProps & BlockProps) => {
   const setState = useEditorStore((state) => state.setState);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -39,17 +43,17 @@ const SectionBlock = ({ title = "", index, id }: SectionProps & BlockProps) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
       if (block.type === "section") {
-        block.props.title = v;
+        block.props.content = v;
       }
     });
   };
 
   return (
-    <div className="w-full" onKeyDown={handleKeyDown} id={slugify(title)}>
+    <div className="w-full" onKeyDown={handleKeyDown} id={slugify(content)}>
       <ContentEditable
         id={id}
         ref={ref}
-        value={title}
+        value={content}
         onEdit={handleEdit}
         placeholder="Section"
         maxLength={32}

@@ -2,7 +2,7 @@
 
 - [ ] selected indexes not updating correctly
 
-- [ ] slash menu tap events on mobile not registering
+- [x] selection menu viewport collision handling
 
 - [x] stopped propagation of enter keypress on contenteditable
 
@@ -16,11 +16,11 @@
 
 - [ ] Undo / redo (main boss)
 
-- [ ] Starter templates
+- [ ] Starter templates (accept / return) ...
 
 - [ ] AI rewrite feature
 
-- [ ] Optimize and clean up code ...
+- [ ] Partial select text type swaps ...
 
 - [x] Dark mode
 

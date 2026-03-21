@@ -42,19 +42,6 @@ export const CreateSiteAction = async (subdomain: string) => {
             },
           ],
         },
-        {
-          id: crypto.randomUUID(),
-          name: "work",
-          blocks: [
-            {
-              id: crypto.randomUUID(),
-              type: "text",
-              props: {
-                content: "work page",
-              },
-            },
-          ],
-        },
       ],
       theme: {
         accent: "blue",

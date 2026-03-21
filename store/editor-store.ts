@@ -16,7 +16,7 @@ type Actions = {
   setState: (updater: (draft: EditorState) => void) => void;
   setPageIndex: (index: number) => void;
   setSelectedIndex: (index: number) => void;
-  addBlock: (type: BlockType, index: number) => void;
+  addBlock: (type: BlockType, index: number, content?: string) => void;
   removeBlock: (index: number) => void;
   reorderBlocks: (activeId: string, overId: string) => void;
   addPage: (name?: string) => void;
@@ -49,13 +49,13 @@ export const useEditorStore = create<EditorState & Actions>()(
       set((s) => {
         s.pageIndex = index;
       }),
-    addBlock: (type: BlockType, index: number) =>
+    addBlock: (type: BlockType, index: number, content?: string) =>
       set((s) => {
         const def = BlockRegistry[type];
         s.data.pages[s.pageIndex].blocks.splice(index, 0, {
           id: crypto.randomUUID(),
           type,
-          props: def.defaultProps,
+          props: { ...def.defaultProps, ...(content && { content }) },
         });
         s.selectedIndex = index;
       }),

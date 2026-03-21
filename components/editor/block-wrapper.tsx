@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import { GripVerticalIcon } from "lucide-react";
 
 // dnd-kit
 import { useDraggable } from "@dnd-kit/core";
-import { add, CSS } from "@dnd-kit/utilities";
+import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 
 import type { BlockProps } from "@/app/types";

@@ -63,7 +63,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         <p className="text-muted-foreground text-sm">Typescript</p>
       </div>
 
-      <div className="w-full bg-zinc-900 pb-2">
+      <div className="w-full bg-zinc-900 py-2">
         {Array.from({ length: getLineCount(content) }, (_, i) => (
           <div
             key={i}
@@ -77,7 +77,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         ))}
       </div>
 
-      <div className="w-full bg-zinc-900 px-2 pb-2">
+      <div className="w-full bg-zinc-800 px-2 py-2">
         <ContentEditable
           id={id}
           allowFormatting={false}

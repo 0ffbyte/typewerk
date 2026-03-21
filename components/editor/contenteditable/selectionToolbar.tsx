@@ -7,15 +7,35 @@ import { cn } from "@/lib/utils";
 import { unwrapSafe } from "@/lib/utils";
 
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
   BoldIcon,
+  CodeIcon,
   CopyIcon,
   ItalicIcon,
   LinkIcon,
+  QuoteIcon,
+  TextIcon,
   UnderlineIcon,
   WandSparklesIcon,
 } from "lucide-react";
+import { useEditorStore } from "@/store/editor-store";
+import { BlockType } from "@/lib/block-registry";
 
 type ToolbarPos = { x: number; y: number };
+
+const BLOCK_ICON_MAPPING: Record<string, React.ReactNode> = {
+  text: <TextIcon size={20} />,
+  section: <TextIcon size={20} />,
+  blockquote: <QuoteIcon size={20} />,
+  code: <CodeIcon size={20} />,
+};
 
 const SelectionToolbar = ({
   ref,
@@ -33,6 +53,18 @@ const SelectionToolbar = ({
 
   const { selection, tick, activeEditorId } = useSelectionStore();
   const isActive = activeEditorId === blockId;
+
+  const selectedIndex = useEditorStore((s) => s.selectedIndex);
+  const [blockType, setBlockType] = useState("text");
+
+  const addBlock = useEditorStore((s) => s.addBlock);
+
+  useEffect(() => {
+    setBlockType(
+      useEditorStore.getState().data.pages[useEditorStore.getState().pageIndex]
+        .blocks[selectedIndex]?.type ?? "text"
+    );
+  }, [selectedIndex]);
 
   const toggleFormat = useCallback(
     (command: "bold" | "italic" | "underline" | "createLink") => {
@@ -207,9 +239,41 @@ const SelectionToolbar = ({
 
     setFoundTags(foundTags);
 
+    const menuWidth = 354;
+    const menuHeight = 48;
+
+    // Initial x, y centered above selection anchor
+    let x = rect.left - containerRect.left + rect.width / 2;
+    let y = rect.top - containerRect.top - menuHeight;
+
+    // Calculate intended menu boundaries relative to viewport
+    let menuLeft = x - menuWidth / 2 + containerRect.left;
+    let menuRight = menuLeft + menuWidth;
+    let menuTop = y + containerRect.top;
+    let menuBottom = menuTop + menuHeight;
+
+    // Clamp horizontally within viewport
+    if (menuLeft < 8) {
+      x += 8 - menuLeft; // Shift right
+    } else if (menuRight > window.innerWidth - 8) {
+      x -= menuRight - (window.innerWidth - 8); // Shift left
+    }
+
+    // Clamp vertically: if above is not enough space, place below selection if possible
+    if (menuTop < 8) {
+      // Not enough space above, place below selection
+      y = rect.bottom - containerRect.top + 8;
+      menuTop = y + containerRect.top;
+      menuBottom = menuTop + menuHeight;
+      // (Optional) Clamp below as well
+      if (menuBottom > window.innerHeight - 8) {
+        y -= menuBottom - (window.innerHeight - 8);
+      }
+    }
+
     setToolbarPos({
-      x: rect.left - containerRect.left + rect.width / 2,
-      y: rect.top - containerRect.top - 48,
+      x,
+      y,
     });
   }, [tick, selection, isActive]);
 
@@ -233,6 +297,45 @@ const SelectionToolbar = ({
       >
         <CopyIcon size={20} />
       </button>
+
+      {/* Shadcn Select for Block Types */}
+      <div className="w-[100px]">
+        <Select
+          defaultValue={blockType}
+          onValueChange={(value) => {
+            const selection = document.getSelection();
+            if (!selection || selection.rangeCount === 0) return;
+
+            const range = selection.getRangeAt(0);
+            const extraction = range.extractContents();
+
+            addBlock(
+              value as BlockType,
+              selectedIndex + 1,
+              extraction.textContent
+            );
+          }}
+        >
+          <SelectTrigger className="w-full h-8 text-xs border-none">
+            <SelectValue placeholder="Select a block type" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(BLOCK_ICON_MAPPING).map((blockType) => (
+              <SelectItem
+                key={blockType}
+                value={blockType}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                {BLOCK_ICON_MAPPING[blockType]}
+                <span className="capitalize">{blockType}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {allowFormatting && (
         <>

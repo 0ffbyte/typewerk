@@ -17,6 +17,7 @@ const BlockquoteBlock = ({
   index,
   id,
 }: BlockquoteProps & BlockProps) => {
+  const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -43,8 +44,17 @@ const BlockquoteBlock = ({
     });
   };
 
+  const handleBlur = () => {
+    const textContent = ref.current?.textContent;
+    if (
+      textContent?.length === 0 &&
+      state.data.pages[state.pageIndex].blocks.length > 1
+    )
+      removeBlock(index);
+  };
+
   return (
-    <div className="pl-4 w-full" onKeyDown={handleKeyDown}>
+    <div className="pl-4 w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
       <div className="absolute left-0 top-0 h-full w-[4px] bg-zinc-500 rounded-full" />
       <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
     </div>
