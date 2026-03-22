@@ -204,8 +204,6 @@ const ContentEditable = ({
         onBlur={() => {
           isFocusedRef.current = false;
           emitSanitizedEdit();
-          //setToolbarPos(null);
-          //setFoundTags([]);
         }}
         onCompositionStart={() => (isComposingRef.current = true)}
         onCompositionEnd={() => (isComposingRef.current = false)}

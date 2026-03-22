@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
+import { normalizeHtml } from "@/lib/utils";
 
 export type EditorState = {
   data: SiteObject;
@@ -52,12 +53,37 @@ export const useEditorStore = create<EditorState & Actions>()(
     addBlock: (type: BlockType, index: number, content?: string) =>
       set((s) => {
         const def = BlockRegistry[type];
+        let props = { ...def.defaultProps, ...(content && { content }) };
+
+        if (type === "checklist" && content) {
+          const items = normalizeHtml(content)
+            ?.split("\n")
+            .map((content) => {
+              return { id: crypto.randomUUID(), content, checked: false };
+            });
+
+          props = { items };
+        }
+
         s.data.pages[s.pageIndex].blocks.splice(index, 0, {
           id: crypto.randomUUID(),
           type,
-          props: { ...def.defaultProps, ...(content && { content }) },
+          props,
         });
-        s.selectedIndex = index;
+
+        if (type === "image") {
+          const afterIndex = index + 1;
+          const textDef = BlockRegistry["text"];
+          s.data.pages[s.pageIndex].blocks.splice(afterIndex, 0, {
+            id: crypto.randomUUID(),
+            type: "text",
+            props: textDef.defaultProps,
+          });
+
+          s.selectedIndex = afterIndex;
+        } else {
+          s.selectedIndex = index;
+        }
       }),
     removeBlock: (index: number) =>
       set((s) => {

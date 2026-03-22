@@ -41,6 +41,7 @@ export default function TextBlock({
   };
 
   const handleBlur = () => {
+    console.log("blur event fired");
     const textContent = ref.current?.textContent;
     if (
       textContent?.length === 0 &&

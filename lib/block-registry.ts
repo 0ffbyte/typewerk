@@ -55,7 +55,7 @@ export const BlockRegistry = {
     component: Section,
     renderedComponent: R_Section,
     defaultProps: {
-      title: "",
+      content: "",
     },
     sanitize: true,
     displayName: "Section",

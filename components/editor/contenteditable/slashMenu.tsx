@@ -188,6 +188,7 @@ const SlashMenu = ({
         );
       } else if (e.key === "Enter") {
         e.preventDefault();
+        e.stopPropagation();
         flatItems[activeIndex]?.action();
         closeMenu();
       } else if (e.key === "Escape") {

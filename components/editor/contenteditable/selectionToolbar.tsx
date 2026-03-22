@@ -16,6 +16,8 @@ import {
 
 import {
   BoldIcon,
+  CheckCircleIcon,
+  ChessKnightIcon,
   CodeIcon,
   CopyIcon,
   ItalicIcon,
@@ -24,6 +26,7 @@ import {
   TextIcon,
   UnderlineIcon,
   WandSparklesIcon,
+  AlertCircleIcon,
 } from "lucide-react";
 import { useEditorStore } from "@/store/editor-store";
 import { BlockType } from "@/lib/block-registry";
@@ -34,7 +37,10 @@ const BLOCK_ICON_MAPPING: Record<string, React.ReactNode> = {
   text: <TextIcon size={20} />,
   section: <TextIcon size={20} />,
   blockquote: <QuoteIcon size={20} />,
+  checkmate: <ChessKnightIcon size={20} />,
+  callout: <AlertCircleIcon size={20} />,
   code: <CodeIcon size={20} />,
+  checklist: <CheckCircleIcon size={20} />,
 };
 
 const SelectionToolbar = ({
@@ -303,32 +309,25 @@ const SelectionToolbar = ({
         <Select
           defaultValue={blockType}
           onValueChange={(value) => {
-            const selection = document.getSelection();
             if (!selection || selection.rangeCount === 0) return;
 
             const range = selection.getRangeAt(0);
             const extraction = range.extractContents();
 
-            addBlock(
-              value as BlockType,
-              selectedIndex + 1,
-              extraction.textContent
-            );
+            // preserve line breaks
+            const div = document.createElement("div");
+            div.appendChild(extraction);
+
+            addBlock(value as BlockType, selectedIndex + 1, div.innerHTML);
+            div.remove();
           }}
         >
           <SelectTrigger className="w-full h-8 text-xs border-none">
             <SelectValue placeholder="Select a block type" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
             {Object.keys(BLOCK_ICON_MAPPING).map((blockType) => (
-              <SelectItem
-                key={blockType}
-                value={blockType}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
+              <SelectItem key={blockType} value={blockType}>
                 {BLOCK_ICON_MAPPING[blockType]}
                 <span className="capitalize">{blockType}</span>
               </SelectItem>

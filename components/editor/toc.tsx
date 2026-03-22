@@ -59,7 +59,9 @@ const TOC = () => {
             if (block.type !== "section") return null;
 
             const props = block.props as SectionProps;
-            const isActive = activeId === slugify(props.title);
+            const title = props.content;
+            if (!title) return null;
+            const isActive = activeId === slugify(props.content);
             return (
               <div
                 key={block.id}
@@ -69,7 +71,7 @@ const TOC = () => {
                   height: "4px",
                   width: isActive ? "36px" : "24px",
                 }}
-                title={props.title}
+                title={props.content}
               />
             );
           })}
@@ -80,7 +82,7 @@ const TOC = () => {
           {pages[pageIndex].blocks.map((block) => {
             if (block.type !== "section") return null;
             const props = block.props as SectionProps;
-            const title = props.title;
+            const title = props.content;
             if (!title) return null;
             return (
               <p

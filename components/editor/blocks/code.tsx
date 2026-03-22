@@ -17,6 +17,7 @@ export type CodeProps = {
 
 // define block component
 const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
+  const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,10 +51,20 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
     navigator.clipboard.writeText(content);
   };
 
+  const handleBlur = () => {
+    const textContent = ref.current?.textContent;
+    if (
+      textContent?.length === 0 &&
+      state.data.pages[state.pageIndex].blocks.length > 1
+    )
+      removeBlock(index);
+  };
+
   return (
     <div
       className="w-full grid grid-cols-[40px_1fr] grid-rows-[40px_1fr] rounded-lg overflow-hidden"
       onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
     >
       <div className="bg-zinc-900 flex items-center justify-center">
         <CodeIcon className="text-muted-foreground" size={16} />

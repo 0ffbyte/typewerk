@@ -10,6 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const slugify = (text: string): string => {
+  if (!text) return "";
   return text
     .toString()
     .trim()
@@ -69,6 +70,13 @@ export const getLineCount = (html: string) => {
       .length || 1;
 
   return count;
+};
+
+export const normalizeHtml = (html: string) => {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(div|p|li|h[1-6]|pre)>/gi, "\n")
+    .replace(/<[^>]+>/g, "");
 };
 
 export const THEME_MAPPING = {

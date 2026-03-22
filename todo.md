@@ -2,6 +2,8 @@
 
 - [ ] selected indexes not updating correctly
 
+- [x] text swaps do not update to the latest selected index (fixed using: Radix's SelectContent, onCloseAutoFocus= e => e.preventDefault())
+
 - [x] selection menu viewport collision handling
 
 - [x] stopped propagation of enter keypress on contenteditable
@@ -20,7 +22,7 @@
 
 - [ ] AI rewrite feature
 
-- [ ] Partial select text type swaps ...
+- [x] Partial select text type swaps
 
 - [x] Dark mode
 
