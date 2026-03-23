@@ -9,8 +9,8 @@ type Entry = {
   example: string;
 };
 
-// Number of POST requests to send (10k)
-const n = 10000;
+// Number of POST requests to send (100k)
+const n = 100000;
 const randomWords = [
   "zaza",
   "foo",

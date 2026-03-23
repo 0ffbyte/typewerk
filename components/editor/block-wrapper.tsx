@@ -39,7 +39,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const draggableStyle: React.CSSProperties = {
     transform: transform ? CSS.Translate.toString(transform) : undefined,
     zIndex: isDragging ? 999 : undefined,
-    transition: "transform 0.1s ease-out",
+    transition: "transform 0.2s ease-out",
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -125,7 +125,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
         aria-hidden="true"
         className={cn(
           "w-full h-full absolute top-0 left-0 transition-colors duration-200 rounded-[8]",
-          isDragging && "bg-zinc-200"
+          isDragging && "bg-zinc-500/10"
         )}
       />
 
@@ -141,18 +141,22 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
           )}
         />
         <div className="w-[92px] h-full absolute -left-[92px] top-0 flex items-start justify-end group pr-[8px]">
-          <div className="gap-1 opacity-0 group-hover:opacity-100 flex">
+          <div
+            className={cn(
+              "gap-1 flex",
+              isDragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            )}
+          >
             <button
               {...listeners}
               {...attributes}
               ref={setActivatorNodeRef}
               className={cn(
                 "rounded-[4px]",
-                !isDragging && "hover:bg-zinc-200/50"
+                !isDragging && "hover:bg-zinc-500/10"
               )}
               style={{
                 rotate: isDragging ? "-1deg" : undefined,
-                opacity: isDragging ? 1 : 1,
               }}
             >
               <DragHandleDots2Icon className="h-6 w-6 text-zinc-400" />

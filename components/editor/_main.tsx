@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rectIntersection, DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+  rectIntersection,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+} from "@dnd-kit/core";
 
 import Header from "@/components/editor/header";
 import BlockHandle from "@/components/editor/block-wrapper";
@@ -10,6 +15,8 @@ import SiteCard from "@/components/site-card";
 
 import usePage from "@/hooks/use-page";
 import useSync from "@/hooks/use-sync";
+
+import { motion } from "motion/react";
 
 import { useEditorStore } from "@/store/editor-store";
 import { useSelectionStore } from "@/store/selection-store";
@@ -118,16 +125,25 @@ export default function Editor({
               const Block = definition.component;
 
               return (
-                <div key={block.id} className="w-full">
+                <motion.div
+                  initial={{ opacity: 0, y: 32 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.2,
+                  }}
+                  layout="position"
+                  key={block.id}
+                  className="w-full"
+                >
                   <Spacer id={block.id} index={index} />
                   {block.type === "section" && index >= 1 && (
-                    <div className="h-[64px] hover:bg-rose-100 w-full rounded-lg transition-colors duration-100 cursor-not-allowed" />
+                    <div className="h-[64px] hover:bg-rose-400/10 w-full rounded-lg transition-colors duration-100 cursor-not-allowed" />
                   )}
 
                   <BlockHandle index={index} id={block.id}>
                     <Block {...block.props} index={index} id={block.id} />
                   </BlockHandle>
-                </div>
+                </motion.div>
               );
             })}
 

@@ -1,7 +1,7 @@
 "use client";
 import { useDroppable } from "@dnd-kit/core";
 import { useEditorStore } from "@/store/editor-store";
-import { cn } from "@/lib/utils";
+import { cn, THEME_MAPPING } from "@/lib/utils";
 
 type Props = {
   id: string;
@@ -13,6 +13,7 @@ const Spacer = ({ id, index }: Props) => {
   const { isOver, setNodeRef } = useDroppable({
     id,
   });
+  const theme = useEditorStore((s) => s.data.theme);
   const addBlock = useEditorStore((state) => state.addBlock);
   return (
     <div
@@ -23,9 +24,13 @@ const Spacer = ({ id, index }: Props) => {
     >
       <div
         className={cn(
-          "w-full h-[4] transition-colors duration-100 rounded-full",
-          isOver && "bg-blue-500"
+          "w-full h-[4] transition-colors duration-200 rounded-full"
         )}
+        style={{
+          backgroundColor: isOver
+            ? THEME_MAPPING.accent[theme?.accent || "blue"]
+            : "transparent",
+        }}
       />
     </div>
   );

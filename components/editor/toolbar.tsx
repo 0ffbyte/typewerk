@@ -369,7 +369,7 @@ const PublishButton = ({
       )}
       style={{
         boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset",
-        backgroundColor: THEME_MAPPING.accent[theme?.accent || "pink"],
+        backgroundColor: THEME_MAPPING.accent[theme?.accent || "blue"],
       }}
       onClick={handleClick}
       disabled={isSyncing || isPublishing}
