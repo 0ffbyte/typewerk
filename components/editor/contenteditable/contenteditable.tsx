@@ -123,7 +123,11 @@ const ContentEditable = ({
 
       const html = clipboard.getData("text/html");
       const raw = html || text;
+
+      console.log("raw text:", raw);
       const sanitized = sanitize(raw, SANITIZE_CONFIG);
+
+      console.log("sanitized text:", sanitized);
 
       const temp = document.createElement("div");
       temp.innerHTML = sanitized.trim();

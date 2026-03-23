@@ -27,7 +27,7 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
     "strong",
   ],
   exclusiveFilter: (frame) => {
-    if (frame.tag === "span") return true; // causes sanitize-html to drop the tag and promote its children
+    if (frame.tag === "span") return false; // causes sanitize-html to drop the tag and promote its children
     return false;
   },
 };

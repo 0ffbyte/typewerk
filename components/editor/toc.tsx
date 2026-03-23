@@ -17,7 +17,7 @@ const TOC = () => {
     return (
       pages[pageIndex]?.blocks
         .filter((b) => b.type === "section")
-        .map((s) => slugify(s.props.title)) ?? []
+        .map((s) => slugify(s.props.content)) ?? []
     );
   }, [pages, pageIndex]);
 

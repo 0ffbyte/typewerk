@@ -121,7 +121,7 @@ export default function Editor({
                 <div key={block.id} className="w-full">
                   <Spacer id={block.id} index={index} />
                   {block.type === "section" && index >= 1 && (
-                    <div className="h-[92] hover:bg-rose-100 w-full rounded-lg transition-colors duration-100 cursor-not-allowed" />
+                    <div className="h-[64px] hover:bg-rose-100 w-full rounded-lg transition-colors duration-100 cursor-not-allowed" />
                   )}
 
                   <BlockHandle index={index} id={block.id}>
