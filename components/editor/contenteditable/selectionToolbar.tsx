@@ -320,6 +320,10 @@ const SelectionToolbar = ({
 
             addBlock(value as BlockType, selectedIndex + 1, div.innerHTML);
             div.remove();
+
+            // emit input event
+            const inputEvent = new Event("input", { bubbles: true });
+            ref.current?.dispatchEvent(inputEvent);
           }}
         >
           <SelectTrigger className="w-full h-8 text-xs border-none">

@@ -1,6 +1,22 @@
-# Bugs to fix
+# Quests
+
+- [ ] Undo / redo (main boss)
+
+- [ ] Starter templates (accept / return)
+
+- [ ] AI rewrite feature
+
+- [ ] Toast notification system
+
+# Bugs
 
 - [ ] selected indexes not updating correctly
+
+- [ ] proper dragging/sorting animations (dnd-kit + motion integration)
+
+## Done
+
+- [x] empty block cleanup solution
 
 - [x] text swaps do not update to the latest selected index (fixed using: Radix's SelectContent, onCloseAutoFocus= e => e.preventDefault())
 
@@ -13,14 +29,6 @@
 - [x] allowFormatting option not working on contenteditable
 
 - [x] slash commander not properly killing itself after deleting command (fixed using range.collapse(true))
-
-# Quests
-
-- [ ] Undo / redo (main boss)
-
-- [ ] Starter templates (accept / return) ...
-
-- [ ] AI rewrite feature
 
 - [x] Partial select text type swaps
 
@@ -39,8 +47,6 @@
 - [x] publish (revalidate) button with sync indicator
 
 - [x] editor toolbar w/ page & theme management plus
-
-## Done
 
 - [x] Add a new block type (checklist)
 
@@ -81,3 +87,10 @@
 - [x] home page and editor page
 
 - [x] renderer and isr with reserved domains
+
+## Whiteboard
+
+- it has something to do with text extraction upon range selection
+- text extraction is not removing line breaks
+- on selection, the text block loses focus so it wont fire its auto delete mechanism
+  solution: remove empty blocks on index change not on blur v/

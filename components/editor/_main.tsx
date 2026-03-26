@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  rectIntersection,
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-} from "@dnd-kit/core";
+import { rectIntersection, DndContext, DragEndEvent } from "@dnd-kit/core";
 
 import Header from "@/components/editor/header";
 import BlockHandle from "@/components/editor/block-wrapper";
@@ -24,6 +19,7 @@ import { useSelectionStore } from "@/store/selection-store";
 import { BlockRegistry } from "@/lib/block-registry";
 
 import { SiteObject } from "@/app/types";
+import { normalizeHtml } from "@/lib/utils";
 
 export default function Editor({
   initialState,
@@ -38,7 +34,18 @@ export default function Editor({
 
   const setSelection = useSelectionStore((s) => s.setSelection);
 
-  // setup selection listener
+  // gets page data using page index
+  const pageData = useMemo(() => {
+    return state.data.pages[state.pageIndex];
+  }, [state.pageIndex, state.data.pages]);
+
+  // initializes state
+  useEffect(() => {
+    state.initialize(initialState);
+    setIsInitialized(true);
+  }, [initialState, state.initialize]);
+
+  // setup global selection listener
   useEffect(() => {
     const handler = () => {
       const selection = document.getSelection();
@@ -71,16 +78,23 @@ export default function Editor({
     state.setPageIndex(foundIndex !== -1 ? foundIndex : 0);
   }, [pageName, state.data.pages, state.setPageIndex]);
 
-  // gets page data using page index
-  const pageData = useMemo(() => {
-    return state.data.pages[state.pageIndex];
-  }, [state.pageIndex, state.data.pages]);
-
-  // initializes state
   useEffect(() => {
-    state.initialize(initialState);
-    setIsInitialized(true);
-  }, [initialState, state.initialize]);
+    state.setState((s) => {
+      const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
+      if (blocks.length <= 1) return;
+
+      s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
+        if (
+          typeof block.props?.content !== "string" ||
+          s.selectedIndex === index
+        )
+          return true;
+        const length = normalizeHtml(block.props?.content).trim().length;
+        console.log("length:", length);
+        return length > 0;
+      });
+    });
+  }, [state.selectedIndex]);
 
   // syncs state with db
   useSync(siteId, state.data, isInitialized);

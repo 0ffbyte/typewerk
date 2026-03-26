@@ -1,4 +1,3 @@
-// stores/selectionStore.ts
 import { create } from "zustand";
 
 interface SelectionState {

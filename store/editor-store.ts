@@ -54,6 +54,9 @@ export const useEditorStore = create<EditorState & Actions>()(
       set((s) => {
         const def = BlockRegistry[type];
         let props = { ...def.defaultProps, ...(content && { content }) };
+        const blockLength = s.data.pages[s.pageIndex].blocks.length;
+
+        if (type === "text" && blockLength <= 1) return;
 
         if (type === "checklist" && content) {
           const items = normalizeHtml(content)
@@ -87,8 +90,19 @@ export const useEditorStore = create<EditorState & Actions>()(
       }),
     removeBlock: (index: number) =>
       set((s) => {
+        const block = s.data.pages[s.pageIndex].blocks[index];
+        const isText = block.type === "text";
+        const isLast = s.data.pages[s.pageIndex].blocks.length === 1;
+
+        if (isLast && isText) {
+          s.selectedIndex = Math.max(-1, index - 1);
+          return;
+        }
+
         s.data.pages[s.pageIndex].blocks.splice(index, 1);
-        s.selectedIndex = Math.max(-1, index - 1);
+
+        if (isLast) s.selectedIndex = 0;
+        else s.selectedIndex = Math.max(-1, index - 1);
 
         if (s.data.pages[s.pageIndex].blocks.length === 0) {
           s.data.pages[s.pageIndex].blocks[0] = {

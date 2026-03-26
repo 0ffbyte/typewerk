@@ -40,18 +40,8 @@ export default function TextBlock({
     });
   };
 
-  const handleBlur = () => {
-    console.log("blur event fired");
-    const textContent = ref.current?.textContent;
-    if (
-      textContent?.length === 0 &&
-      state.data.pages[state.pageIndex].blocks.length > 1
-    )
-      removeBlock(index);
-  };
-
   return (
-    <div className="w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
+    <div className="w-full" onKeyDown={handleKeyDown}>
       <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
     </div>
   );
