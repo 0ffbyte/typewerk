@@ -90,29 +90,31 @@ export const useEditorStore = create<EditorState & Actions>()(
       }),
     removeBlock: (index: number) =>
       set((s) => {
-        const block = s.data.pages[s.pageIndex].blocks[index];
-        const isText = block.type === "text";
-        const isLast = s.data.pages[s.pageIndex].blocks.length === 1;
+        const blocks = s.data.pages[s.pageIndex].blocks;
+        const block = blocks[index];
+        const onlyOne = blocks.length === 1;
 
-        if (isLast && isText) {
-          s.selectedIndex = Math.max(-1, index - 1);
+        // Guard: never remove the last text block, only set selectedIndex to -1
+        if (onlyOne && block.type === "text") {
+          s.selectedIndex = -1;
           return;
         }
 
-        s.data.pages[s.pageIndex].blocks.splice(index, 1);
+        blocks.splice(index, 1);
 
-        if (isLast) s.selectedIndex = 0;
-        else s.selectedIndex = Math.max(-1, index - 1);
-
-        if (s.data.pages[s.pageIndex].blocks.length === 0) {
-          s.data.pages[s.pageIndex].blocks[0] = {
+        // If we just emptied the page, seed a fresh text block
+        if (blocks.length === 0) {
+          blocks.push({
             id: crypto.randomUUID(),
             type: "text",
-            props: {
-              content: "",
-            },
-          };
+            props: { content: "" },
+          });
+          s.selectedIndex = 0;
+          return;
         }
+
+        // Select the block before the deleted one, clamped to 0
+        s.selectedIndex = Math.max(-1, index - 1);
       }),
     setState: (updater: (draft: EditorState) => void) =>
       set((state) => {

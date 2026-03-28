@@ -1,16 +1,20 @@
 # Quests
 
+- [ ] Image cropping ...
+
 - [ ] Undo / redo (main boss)
 
 - [ ] Starter templates (accept / return)
 
-- [ ] AI rewrite feature
+- [ ] AI rewrite feature (pro)
 
 - [ ] Toast notification system
 
+- [ ] Rubber band selection (drag area selection)
+
 # Bugs
 
-- [ ] selected indexes not updating correctly
+- [x] selected indexes not updating correctly
 
 - [ ] proper dragging/sorting animations (dnd-kit + motion integration)
 

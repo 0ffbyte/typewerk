@@ -200,10 +200,12 @@ const ContentEditable = ({
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
           className
         )}
-        style={{
-          scrollbarWidth: "none", // Firefox
-          msOverflowStyle: "none", // IE 10+
-        }}
+        style={
+          {
+            //scrollbarWidth: "none", // Firefox
+            //msOverflowStyle: "none", // IE 10+
+          }
+        }
         onFocus={() => (isFocusedRef.current = true)}
         onBlur={() => {
           isFocusedRef.current = false;
@@ -297,10 +299,12 @@ const SyntaxHighlighterOverlay = ({
           "text-zinc-200 font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-[14px] leading-auto w-full min-h-[24px] whitespace-pre",
           className
         )}
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        style={
+          {
+            //scrollbarWidth: "none",
+            //msOverflowStyle: "none",
+          }
+        }
         dangerouslySetInnerHTML={{
           __html: Prism.highlight(
             content,

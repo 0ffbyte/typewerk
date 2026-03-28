@@ -426,6 +426,32 @@ const SelectionToolbar = ({
           )}
         </>
       )}
+
+      {/* Bottom tip for the tooltip */}
+      <svg
+        className="absolute left-1/2 top-full -translate-x-1/2 pointer-events-none"
+        width="16"
+        height="9"
+        viewBox="0 0 16 9"
+        style={{ display: "block" }}
+      >
+        {/* Border layer */}
+        <path
+          d="M1,0 Q1,0 8,9 Q15,0 15,0"
+          fill="none"
+          stroke="rgba(255,255,255,0.2)"
+          strokeWidth="1"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        {/* Fill layer */}
+        <path
+          d="M1,0 Q1,0 8,8 Q15,0 15,0"
+          fill="rgb(24,24,27)"
+          opacity="0.8"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
   );
 };
