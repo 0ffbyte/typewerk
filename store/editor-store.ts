@@ -54,9 +54,9 @@ export const useEditorStore = create<EditorState & Actions>()(
       set((s) => {
         const def = BlockRegistry[type];
         let props = { ...def.defaultProps, ...(content && { content }) };
-        const blockLength = s.data.pages[s.pageIndex].blocks.length;
 
-        if (type === "text" && blockLength <= 1) return;
+        const blockLength = s.data.pages[s.pageIndex].blocks.length;
+        const firstBlock = s.data.pages[s.pageIndex].blocks[0] ?? null;
 
         if (type === "checklist" && content) {
           const items = normalizeHtml(content)

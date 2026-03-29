@@ -9,10 +9,13 @@ import {
   UploadIcon,
   TrashIcon,
   CheckIcon,
+  ResetIcon,
+  EnterFullScreenIcon,
 } from "@radix-ui/react-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import Cropper, { type Area } from "react-easy-crop";
+import { BlockDefinition } from "@/lib/block-registry";
 
 // define block props
 export type ImageProps = {
@@ -42,6 +45,11 @@ const ImageBlock = ({
   const isToolbarVisible = isMobile ? isFocused : isMouseOver;
 
   const [isCropping, setIsCropping] = useState(false);
+  const [pendingCrop, setPendingCrop] = useState({
+    x: transform.x,
+    y: transform.y,
+  });
+  const [pendingZoom, setPendingZoom] = useState(transform.zoom);
 
   return (
     <div
@@ -49,17 +57,25 @@ const ImageBlock = ({
       tabIndex={index}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
-      className="w-full aspect-video border relative outline-none rounded-lg group"
+      className="w-full h-full aspect-video border bg-zinc-200 relative outline-none rounded-lg group"
       style={{
         overflow: isCropping ? "visible" : "clip",
       }}
     >
       {isCropping ? (
-        <CropView index={index} url={url} transform={transform} />
+        <CropView
+          url={url}
+          containerRef={ref}
+          transform={transform}
+          pendingCrop={pendingCrop}
+          pendingZoom={pendingZoom}
+          setPendingCrop={setPendingCrop}
+          setPendingZoom={setPendingZoom}
+        />
       ) : (
         <img
           draggable={false}
-          className="w-full pointer-events-none select-none absolute top-1/2 -translate-y-1/2"
+          className="pointer-events-none select-none w-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
           style={{
             transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
             objectFit: "cover",
@@ -71,8 +87,13 @@ const ImageBlock = ({
       {isToolbarVisible && (
         <Toolbar
           index={index}
+          containerRef={ref}
           isCropping={isCropping}
+          pendingCrop={pendingCrop}
+          pendingZoom={pendingZoom}
           setIsCropping={setIsCropping}
+          setPendingCrop={setPendingCrop}
+          setPendingZoom={setPendingZoom}
         />
       )}
 
@@ -83,57 +104,55 @@ const ImageBlock = ({
 
 const CropView = ({
   url,
+  containerRef,
   transform,
-  index,
+  pendingCrop,
+  pendingZoom,
+  setPendingCrop,
+  setPendingZoom,
 }: {
   url: string;
-  transform: ImageTransform;
-  index: number;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  transform?: ImageTransform;
+  pendingCrop: { x: number; y: number };
+  pendingZoom: number;
+  setPendingCrop: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }>
+  >;
+  setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-
-  const setState = useEditorStore((state) => state.setState);
-
-  const onCropComplete = (croppedArea: Area) => {
-    setState((s) => {
-      const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block && block.type === "image") {
-        block.props.transform.x = crop.x;
-        block.props.transform.y = crop.y;
-        block.props.transform.zoom = zoom;
-      }
-    });
-  };
   return (
     <Cropper
       image={url}
-      crop={crop}
-      zoom={zoom}
-      aspect={16 / 9}
-      cropShape="rect"
+      crop={pendingCrop}
+      zoom={pendingZoom}
       objectFit="cover"
-      zoomSpeed={0.5}
+      cropSize={{
+        width: containerRef.current?.clientWidth ?? 720,
+        height: containerRef.current?.clientHeight ?? 420,
+      }}
+      aspect={16 / 9}
+      maxZoom={2}
+      minZoom={0.2}
+      cropShape="rect"
+      zoomSpeed={0.4}
       style={{
         mediaStyle: {
-          width: "100% !important",
-          height: "100% !important",
           objectFit: "cover",
         },
         cropAreaStyle: {
           borderRadius: "12px",
-          border: "1px solid var(--color-blue-500)",
           boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.5)",
         },
         containerStyle: {
           width: "100%",
           height: "100%",
           overflow: "visible",
+          zIndex: 10,
         },
       }}
-      onCropChange={setCrop}
-      onCropComplete={onCropComplete}
-      onZoomChange={setZoom}
+      onCropChange={setPendingCrop}
+      onZoomChange={setPendingZoom}
     />
   );
 };
@@ -148,11 +167,27 @@ const Caption = ({ caption }: { caption: string }) => {
 
 type ToolbarProps = {
   index: number;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   isCropping: boolean;
+  pendingCrop: { x: number; y: number };
+  pendingZoom: number;
   setIsCropping: React.Dispatch<React.SetStateAction<boolean>>;
+  setPendingCrop: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }>
+  >;
+  setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const Toolbar = ({ index, isCropping, setIsCropping }: ToolbarProps) => {
+const Toolbar = ({
+  index,
+  containerRef,
+  isCropping,
+  pendingCrop,
+  pendingZoom,
+  setIsCropping,
+  setPendingCrop,
+  setPendingZoom,
+}: ToolbarProps) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
 
@@ -168,46 +203,99 @@ const Toolbar = ({ index, isCropping, setIsCropping }: ToolbarProps) => {
     }
   };
 
+  const handleResetCrop = () => {
+    setPendingCrop({ x: 0, y: 0 });
+    setPendingZoom(1);
+  };
+
+  const handleCenterCrop = () => {
+    setPendingCrop({ x: 0, y: 0 });
+  };
+
+  const commitCrop = () => {
+    setState((s) => {
+      const block = s.data.pages[s.pageIndex].blocks[index];
+      if (block && block.type === "image") {
+        const props = block.props as ImageProps;
+        props.transform.x = pendingCrop.x;
+        props.transform.y = pendingCrop.y;
+        props.transform.zoom = pendingZoom;
+      }
+    });
+
+    setIsCropping(false);
+    setState((s) => (s.preventNewLine = false));
+    document.body.style.overflow = "auto";
+  };
+
   return (
-    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
-      <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 flex items-center justify-center backdrop-blur-xs">
-        {isCropping ? (
+    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start z-20">
+      {isCropping ? (
+        <>
+          <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+            <button
+              title="reset crop"
+              onClick={handleResetCrop}
+              className="h-full aspect-square flex items-center justify-center"
+            >
+              <ResetIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            </button>
+            <button
+              title="center crop"
+              onClick={handleCenterCrop}
+              className="h-full aspect-square flex items-center justify-center"
+            >
+              <EnterFullScreenIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            </button>
+          </div>
+          <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+            <button
+              title="apply crop"
+              onClick={commitCrop}
+              className="h-full aspect-square flex items-center justify-center"
+            >
+              <CheckIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+          {" "}
           <button
-            title="Upload"
-            onClick={() => setIsCropping(false)}
+            title="upload"
+            onClick={() => handleUpdateUrl()}
             className="h-full aspect-square flex items-center justify-center"
           >
-            <CheckIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
           </button>
-        ) : (
-          <>
-            {" "}
-            <button
-              title="Upload"
-              onClick={() => handleUpdateUrl()}
-              className="h-full aspect-square flex items-center justify-center"
-            >
-              <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
-            </button>
-            <button
-              title="Crop"
-              className="h-full aspect-square flex items-center justify-center"
-              onClick={() => {
-                setIsCropping(true);
-              }}
-            >
-              <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
-            </button>
-            <button
-              title="Delete"
-              onClick={() => removeBlock(index)}
-              className="h-full aspect-square flex items-center justify-center"
-            >
-              <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
-            </button>
-          </>
-        )}
-      </div>
+          <button
+            title="crop"
+            className="h-full aspect-square flex items-center justify-center"
+            onClick={() => {
+              setIsCropping(true);
+              setState((s) => (s.preventNewLine = true));
+
+              if (containerRef.current) {
+                containerRef.current.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                  inline: "center",
+                });
+              }
+              document.body.style.overflow = "hidden";
+            }}
+          >
+            <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+          </button>
+          <button
+            title="delete"
+            onClick={() => removeBlock(index)}
+            className="h-full aspect-square flex items-center justify-center"
+          >
+            <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

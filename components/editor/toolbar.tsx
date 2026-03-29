@@ -364,7 +364,7 @@ const PublishButton = ({
   return (
     <button
       className={cn(
-        "w-[100px] h-full text-zinc-200 rounded-[12px] flex items-center justify-center px-[12px] transition-colors duration-100",
+        "w-[100px] h-full text-zinc-200 rounded-[12px] active:opacity-80 flex items-center justify-center px-[12px] transition-colors duration-100",
         (isSyncing || isPublishing) && "cursor-wait text-zinc-200/50"
       )}
       style={{

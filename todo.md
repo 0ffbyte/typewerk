@@ -1,14 +1,14 @@
 # Quests
 
-- [ ] Image cropping ...
-
 - [ ] Undo / redo (main boss)
+
+- [x] Image cropping
 
 - [ ] Starter templates (accept / return)
 
 - [ ] AI rewrite feature (pro)
 
-- [ ] Toast notification system
+- [ ] Toast notification system ...
 
 - [ ] Rubber band selection (drag area selection)
 
