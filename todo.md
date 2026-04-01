@@ -1,16 +1,24 @@
 # Quests
 
+v 1.0.0
+
 - [ ] Undo / redo (main boss)
-
-- [x] Image cropping
-
-- [ ] Starter templates (accept / return)
 
 - [ ] AI rewrite feature (pro)
 
-- [ ] Toast notification system ...
+- [ ] Rubber band multi-block selection (drag area selection)
 
-- [ ] Rubber band selection (drag area selection)
+v0.8.0
+
+- [ ] Auth ...
+
+- [ ] Page creation flow & publishing
+
+- [ ] Toast notification system (zustand - motion)
+
+- [ ] Starter templates (accept / return)
+
+- [x] Image cropping
 
 # Bugs
 

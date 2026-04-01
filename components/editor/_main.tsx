@@ -19,7 +19,6 @@ import { useSelectionStore } from "@/store/selection-store";
 import { BlockRegistry } from "@/lib/block-registry";
 
 import { SiteObject } from "@/app/types";
-import { normalizeHtml } from "@/lib/utils";
 
 export default function Editor({
   initialState,
@@ -29,10 +28,13 @@ export default function Editor({
   siteId: string;
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
-  const state = useEditorStore();
   const { pageName, isEmpty } = usePage();
 
+  const state = useEditorStore();
+  const setState = useEditorStore((s) => s.setState);
+
   const setSelection = useSelectionStore((s) => s.setSelection);
+  const isMultiline = useSelectionStore((s) => s.isMultiSelection);
 
   // gets page data using page index
   const pageData = useMemo(() => {
@@ -47,7 +49,7 @@ export default function Editor({
 
   // setup global selection listener
   useEffect(() => {
-    const handler = () => {
+    const handleSelectionChange = () => {
       const selection = document.getSelection();
 
       if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
@@ -55,20 +57,86 @@ export default function Editor({
         return;
       }
 
+      if (!selection.isCollapsed) {
+        setState((s) => {
+          s.isEditable = false;
+        });
+      }
+
       const anchor = selection.anchorNode;
       const editorEl = (
         anchor instanceof Element ? anchor : anchor?.parentElement
       )?.closest("[data-editor-id]");
 
+      const allEditorElements = document.querySelectorAll(
+        "[data-class='editor-contenteditable']"
+      );
+
+      const selectedEditorElementsCount = Array.from(allEditorElements).filter(
+        (el) => selection.containsNode(el, true)
+      ).length;
+
+      const isMultiSelection = selectedEditorElementsCount > 1;
+      if (selectedEditorElementsCount > 1) {
+        console.log(
+          `Selection spans ${selectedEditorElementsCount} editor elements`
+        );
+      }
+
       const editorId = editorEl?.getAttribute("data-editor-id") ?? null;
 
-      setSelection(selection, editorId);
+      setSelection(selection, editorId, isMultiSelection);
     };
 
-    document.addEventListener("selectionchange", handler);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      setState((s) => {
+        s.isEditable = true;
+      });
 
+      const selection = document.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        console.log("no selection by handlerTwo");
+      } else if (e.key === "Backspace" && isMultiline) {
+        //e.preventDefault();
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        setState((s) => (s.selectedIndex = -1));
+
+        // Broadcast an input event to all elements with [data-editor-id] attribute
+        const allEditorElements = document.querySelectorAll(
+          "[data-class='editor-contenteditable']"
+        );
+
+        allEditorElements.forEach((el) => {
+          console.log("el:", el);
+          const inputEvent = new Event("input", { bubbles: true });
+          el.dispatchEvent(inputEvent);
+        });
+      } else if (e.key === "Backspace" && !isMultiline) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+
+        // Broadcast an input event to all elements with [data-editor-id] attribute
+        const allEditorElements = document.querySelectorAll(
+          "[data-class='editor-contenteditable']"
+        );
+
+        allEditorElements.forEach((el) => {
+          console.log("el:", el);
+          const inputEvent = new Event("input", { bubbles: true });
+          el.dispatchEvent(inputEvent);
+        });
+
+        // perform cleanup
+        state.runCleanup();
+      }
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("selectionchange", handler);
+      document.removeEventListener("selectionchange", handleSelectionChange);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -79,21 +147,7 @@ export default function Editor({
   }, [pageName, state.data.pages, state.setPageIndex]);
 
   useEffect(() => {
-    state.setState((s) => {
-      const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
-      if (blocks.length <= 1) return;
-
-      s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
-        if (
-          typeof block.props?.content !== "string" ||
-          s.selectedIndex === index
-        )
-          return true;
-        const length = normalizeHtml(block.props?.content).trim().length;
-        console.log("length:", length);
-        return length > 0;
-      });
-    });
+    state.runCleanup();
   }, [state.selectedIndex]);
 
   // syncs state with db
@@ -115,12 +169,12 @@ export default function Editor({
       </div>
     );
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[700px] lg:w-[700px] relative">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[720px] lg:w-[720px] relative">
       <Header />
 
       {false && (
         <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-          {JSON.stringify(state.selectedIndex, null, 2)}
+          {JSON.stringify(state.data.pages[state.pageIndex].blocks, null, 2)}
 
           <br />
         </pre>
@@ -140,7 +194,7 @@ export default function Editor({
 
               return (
                 <motion.div
-                  initial={{ opacity: 0, y: 32 }}
+                  initial={{ opacity: 0, y: 0 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
                     duration: 0.1,
@@ -168,7 +222,7 @@ export default function Editor({
             <div className="w-full h-fit space-y-4 flex flex-col items-start justify-start px-1 mt-[92px]">
               <p className="text-sm text-muted-foreground">Page Templates</p>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 md:gap-y-8 w-full">
                 <SiteCard
                   thumbnail="https://i.pinimg.com/1200x/6f/77/28/6f772804bad7c7a19f1cdfcf3dab5b3d.jpg"
                   title="Portfolio"

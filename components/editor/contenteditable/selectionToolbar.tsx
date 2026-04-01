@@ -61,6 +61,8 @@ const SelectionToolbar = ({
   const isActive = activeEditorId === blockId;
 
   const selectedIndex = useEditorStore((s) => s.selectedIndex);
+  const isMultiSelection = useSelectionStore((s) => s.isMultiSelection);
+  const setState = useEditorStore((s) => s.setState);
   const [blockType, setBlockType] = useState("text");
 
   const addBlock = useEditorStore((s) => s.addBlock);
@@ -318,7 +320,12 @@ const SelectionToolbar = ({
             const div = document.createElement("div");
             div.appendChild(extraction);
 
-            addBlock(value as BlockType, selectedIndex + 1, div.innerHTML);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            setState((s) => (s.isEditable = true));
+            addBlock(value as BlockType, selectedIndex + 1, div.innerText);
             div.remove();
 
             // emit input event
@@ -340,7 +347,7 @@ const SelectionToolbar = ({
         </Select>
       </div>
 
-      {allowFormatting && (
+      {allowFormatting && !isMultiSelection && (
         <>
           {foundTags.includes("ai-completion") ? (
             <>
@@ -389,6 +396,16 @@ const SelectionToolbar = ({
                 )}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => toggleFormat("bold")}
+                onMouseEnter={() => {
+                  setState((s) => {
+                    s.isEditable = true;
+                  });
+                }}
+                onMouseLeave={() => {
+                  setState((s) => {
+                    s.isEditable = false;
+                  });
+                }}
               >
                 <BoldIcon size={20} />
               </button>

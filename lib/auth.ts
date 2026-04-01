@@ -1,10 +1,14 @@
+"server-only";
+import { headers } from "next/headers";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db"; // your drizzle instance
+import { db } from "@/db";
+import * as schema from "@/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
+    schema,
   }),
   emailAndPassword: {
     enabled: true,
@@ -16,3 +20,12 @@ export const auth = betterAuth({
     },
   },
 });
+
+export const verifySession = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session || !session.user || !session.user.id)
+    throw new Error("Unauthorized");
+  return session;
+};

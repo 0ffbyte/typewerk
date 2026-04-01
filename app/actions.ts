@@ -2,13 +2,15 @@
 
 import { db } from "@/db";
 import { sites } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { SiteObject } from "./types";
 import { revalidateTag } from "next/cache";
+import { verifySession } from "@/lib/auth";
 
 export const CreateSiteAction = async (subdomain: string) => {
   try {
     console.log("creating site...");
+    const { user } = await verifySession();
 
     // Sanitize subdomain
     const sanitizedSubdomain = subdomain
@@ -51,6 +53,7 @@ export const CreateSiteAction = async (subdomain: string) => {
 
     // Create site
     await db.insert(sites).values({
+      userId: user.id,
       siteObject: starterTemplate,
       subdomain: sanitizedSubdomain,
     });
@@ -62,11 +65,12 @@ export const CreateSiteAction = async (subdomain: string) => {
 
 export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
   try {
-    const data = await db
+    const { user } = await verifySession();
+
+    await db
       .update(sites)
       .set({ siteObject })
-      .where(eq(sites.id, id))
-      .returning();
+      .where(and(eq(sites.id, id), eq(sites.userId, user.id)));
     console.log("page updated");
   } catch (error) {
     console.error("Failed to update site:", error);

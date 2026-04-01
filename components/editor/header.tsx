@@ -1,6 +1,7 @@
+import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editor-store";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
   const state = useEditorStore((state) => state);
@@ -8,6 +9,9 @@ export default function Header() {
   const addBlock = useEditorStore((state) => state.addBlock);
   const selectedIndex = useEditorStore((state) => state.selectedIndex);
   const setSelectedIndex = useEditorStore((state) => state.setSelectedIndex);
+  const preventNewLine = useEditorStore((state) => state.preventNewLine);
+
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
   const pageIndex = useEditorStore((state) => state.pageIndex);
 
@@ -71,6 +75,24 @@ export default function Header() {
     }
   };
 
+  const handleUpdateUrl = () => {
+    const newUrl = window.prompt("Enter image URL:", "");
+    if (newUrl !== null && newUrl.trim() !== "") {
+      setIsImageLoading(true);
+      const img = new window.Image();
+      img.onload = () => {
+        setState((s) => {
+          s.data.header.image = newUrl.trim();
+        });
+        setIsImageLoading(false);
+      };
+      img.onerror = () => {
+        window.alert("Failed to load image. Please check the URL.");
+      };
+      img.src = newUrl.trim();
+    }
+  };
+
   useEffect(() => {
     if (selectedIndex === -1) {
       subRef.current?.focus();
@@ -85,52 +107,70 @@ export default function Header() {
 
   return (
     <div className="flex flex-col mb-[92px] gap-[16px] w-full">
-      <div className="flex flex-col gap-0">
-        <textarea
-          ref={headingRef}
-          className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
-          placeholder="Heading"
-          spellCheck={false}
-          value={state.data.header.heading}
-          onFocus={() => setSelectedIndex(-1)}
-          onKeyDown={handleKeyDownHeading}
-          onChange={(e) => {
-            setState((s) => {
-              s.data.header.heading = e.target.value;
-            });
-            // Auto-resize logic
-            const ta = e.target as HTMLTextAreaElement;
-            ta.style.height = "auto";
-            ta.style.height = ta.scrollHeight + "px";
-          }}
-          style={{
-            height: "auto",
-          }}
-          rows={1}
-          maxLength={64}
+      <div
+        className={cn(
+          "flex flex-col gap-4 transition-all duration-75",
+          preventNewLine && "blur-xs opacity-80"
+        )}
+      >
+        <img
+          title="update image"
+          src={
+            state.data.header.image ||
+            "https://i.pinimg.com/736x/09/eb/c2/09ebc21f1af4b96e9f50619207646c71.jpg"
+          }
+          alt="header image"
+          className="w-[64px] h-[64px] rounded-lg object-cover border hover:cursor-pointer hover:opacity-80 hidden"
+          onClick={handleUpdateUrl}
         />
-        <textarea
-          ref={subRef}
-          className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
-          placeholder="Subheading"
-          spellCheck
-          value={state.data.header.subheading}
-          onKeyDown={handleKeyDownSubheading}
-          onChange={(e) => {
-            setState((s) => {
-              s.data.header.subheading = e.target.value;
-            });
-            // Auto-resize logic
-            const ta = e.target as HTMLTextAreaElement;
-            ta.style.height = "auto";
-            ta.style.height = ta.scrollHeight + "px";
-          }}
-          style={{
-            height: "auto",
-          }}
-          rows={1}
-          maxLength={64}
-        />
+
+        <div className="flex flex-col gap-0 rounded-lg">
+          <textarea
+            ref={headingRef}
+            className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
+            placeholder="Heading"
+            spellCheck={false}
+            value={state.data.header.heading}
+            onFocus={() => setSelectedIndex(-1)}
+            onKeyDown={handleKeyDownHeading}
+            onChange={(e) => {
+              setState((s) => {
+                s.data.header.heading = e.target.value;
+              });
+              // Auto-resize logic
+              const ta = e.target as HTMLTextAreaElement;
+              ta.style.height = "auto";
+              ta.style.height = ta.scrollHeight + "px";
+            }}
+            style={{
+              height: "auto",
+            }}
+            rows={1}
+            maxLength={64}
+          />
+          <textarea
+            ref={subRef}
+            className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
+            placeholder="Subheading"
+            spellCheck
+            value={state.data.header.subheading}
+            onKeyDown={handleKeyDownSubheading}
+            onChange={(e) => {
+              setState((s) => {
+                s.data.header.subheading = e.target.value;
+              });
+              // Auto-resize logic
+              const ta = e.target as HTMLTextAreaElement;
+              ta.style.height = "auto";
+              ta.style.height = ta.scrollHeight + "px";
+            }}
+            style={{
+              height: "auto",
+            }}
+            rows={1}
+            maxLength={64}
+          />
+        </div>
       </div>
     </div>
   );

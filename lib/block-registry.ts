@@ -65,7 +65,7 @@ export const BlockRegistry = {
     component: Image,
     renderedComponent: R_Image,
     defaultProps: {
-      url: "https://i.pinimg.com/736x/8c/45/e1/8c45e1466aaa934128a23bebfddae4d0.jpg",
+      url: "https://i.pinimg.com/1200x/b9/82/0f/b9820f69c29058a09ca984e6bf1876bb.jpg",
       transform: {
         x: 0,
         y: 0,

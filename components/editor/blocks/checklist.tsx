@@ -156,6 +156,7 @@ const ChecklistBlock = ({
           />
 
           <ContentEditable
+            blockIndex={index}
             id={item.id + "-content"}
             ref={(el: HTMLDivElement) => {
               if (el) itemRefs.current.set(idx, el);

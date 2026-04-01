@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useEditorStore } from "@/store/editor-store";
 
-const useFocused = (ref: any, index: number) => {
+// focuses el on selection
+const useFocus = (ref: any, index: number) => {
   const selectedIndex = useEditorStore((state) => state.selectedIndex);
 
   useEffect(() => {
@@ -25,4 +26,4 @@ const useFocused = (ref: any, index: number) => {
   return { isFocused: selectedIndex === index };
 };
 
-export default useFocused;
+export default useFocus;

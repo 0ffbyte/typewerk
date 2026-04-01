@@ -52,11 +52,12 @@ const SectionBlock = ({
     <div className="w-full" onKeyDown={handleKeyDown} id={slugify(content)}>
       <ContentEditable
         id={id}
+        blockIndex={index}
         ref={ref}
         value={content}
         onEdit={handleEdit}
         placeholder="Section"
-        maxLength={32}
+        maxLength={64}
         multiLine={false}
         allowFormatting={false}
         className="text-foreground dark:text-zinc-100"

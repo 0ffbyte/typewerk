@@ -10,6 +10,7 @@ export type EditorState = {
   selectedIndex: number;
   isSyncing: boolean;
   preventNewLine: boolean;
+  isEditable: boolean;
 };
 
 type Actions = {
@@ -22,6 +23,7 @@ type Actions = {
   reorderBlocks: (activeId: string, overId: string) => void;
   addPage: (name?: string) => void;
   removePage: (pageIndex: number) => void;
+  runCleanup: () => void;
 };
 
 export const useEditorStore = create<EditorState & Actions>()(
@@ -42,6 +44,7 @@ export const useEditorStore = create<EditorState & Actions>()(
     selectedIndex: 0,
     isSyncing: false,
     preventNewLine: false,
+    isEditable: true,
     setSelectedIndex: (index: number) =>
       set((s) => {
         s.selectedIndex = index;
@@ -104,6 +107,7 @@ export const useEditorStore = create<EditorState & Actions>()(
 
         // If we just emptied the page, seed a fresh text block
         if (blocks.length === 0) {
+          return;
           blocks.push({
             id: crypto.randomUUID(),
             type: "text",
@@ -177,8 +181,25 @@ export const useEditorStore = create<EditorState & Actions>()(
         if (s.pageIndex >= s.data.pages.length) {
           s.pageIndex = s.data.pages.length - 1;
         }
-        window.history.pushState(null, "", url.toString());
         s.selectedIndex = 0;
+        window.history.pushState(null, "", url.toString());
       }),
+    runCleanup: () => {
+      set((s) => {
+        const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
+        //if (blocks.length <= 1) return;
+
+        s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
+          if (
+            typeof block.props?.content !== "string" ||
+            s.selectedIndex === index
+          )
+            return true;
+          const length = normalizeHtml(block.props?.content).trim().length;
+          console.log("length:", length);
+          return length > 0;
+        });
+      });
+    },
   }))
 );

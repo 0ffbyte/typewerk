@@ -1,9 +1,9 @@
 import { DeleteSiteAction } from "@/app/actions";
-import { getSites } from "@/db/queries";
+import { getUserSites } from "@/db/queries";
 import Link from "next/link";
 
 export default async function UserSites() {
-  const sites = await getSites();
+  const sites = await getUserSites();
 
   if (sites.length === 0) return <p>No sites found</p>;
   return (

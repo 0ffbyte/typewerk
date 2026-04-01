@@ -1,10 +1,19 @@
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "./index";
 import { sites } from "./schema";
 import { unstable_cache } from "next/cache";
+import { verifySession } from "@/lib/auth";
 
-export const getSites = async () => {
-  const data = await db.select().from(sites);
+export const getUserSites = async () => {
+  const { user } = await verifySession();
+  const data = await db
+    .select({
+      id: sites.id,
+      subdomain: sites.subdomain,
+    })
+    .from(sites)
+    .where(eq(sites.userId, user.id))
+    .limit(10);
   return data;
 };
 

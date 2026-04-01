@@ -131,6 +131,7 @@ const CalloutBlock = ({
       </DropdownMenu>
       <div className="pt-[2px] w-full">
         <ContentEditable
+          blockIndex={index}
           id={id}
           className={cn(CALLOUT_TYPE_MAPPING[type].text)}
           placeholderClassName={"text-zinc-950/30"}

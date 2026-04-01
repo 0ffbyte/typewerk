@@ -14,12 +14,25 @@ import {
 } from "@radix-ui/react-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 import Cropper, { type Area } from "react-easy-crop";
-import { BlockDefinition } from "@/lib/block-registry";
 
 // define block props
 export type ImageProps = {
   url: string;
+  width: number;
+  height: number;
   transform: ImageTransform;
 };
 
@@ -34,16 +47,20 @@ const DEFAULT_TRANSFORM: ImageTransform = { x: 0, y: 0, zoom: 1 };
 // define block component
 const ImageBlock = ({
   url,
+  width = 100,
+  height = 100,
   transform = DEFAULT_TRANSFORM,
   index,
 }: ImageProps & BlockProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [isMouseOver, setIsMouseOver] = useState(false);
 
   const { isFocused } = useFocused(ref, index);
   const isMobile = useIsMobile();
-  const isToolbarVisible = isMobile ? isFocused : isMouseOver;
+  const isToolbarVisible = isMobile ? isFocused : isMouseOver || isFocused;
 
+  const [isLoading, setIsLoading] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
   const [pendingCrop, setPendingCrop] = useState({
     x: transform.x,
@@ -57,7 +74,7 @@ const ImageBlock = ({
       tabIndex={index}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
-      className="w-full h-full aspect-video border bg-zinc-200 relative outline-none rounded-lg group"
+      className="w-full h-full aspect-video border bg-zinc-200 relative outline-none rounded-lg group select-none"
       style={{
         overflow: isCropping ? "visible" : "clip",
       }}
@@ -74,19 +91,22 @@ const ImageBlock = ({
         />
       ) : (
         <img
+          ref={imageRef}
           draggable={false}
-          className="pointer-events-none select-none w-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          className="w-full pointer-events-none select-none absolute top-1/2 -left-1/2 translate-x-1/2 -translate-y-1/2"
           style={{
             transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
-            objectFit: "cover",
             transformOrigin: "center",
+            objectFit: "cover",
           }}
           src={url ?? ""}
         />
       )}
+
       {isToolbarVisible && (
         <Toolbar
           index={index}
+          url={url}
           containerRef={ref}
           isCropping={isCropping}
           pendingCrop={pendingCrop}
@@ -94,7 +114,14 @@ const ImageBlock = ({
           setIsCropping={setIsCropping}
           setPendingCrop={setPendingCrop}
           setPendingZoom={setPendingZoom}
+          setIsLoading={setIsLoading}
         />
+      )}
+
+      {isLoading && (
+        <div className="w-full h-full bg-zinc-100/80 backdrop-blur-md flex items-center justify-center z-30 cursor-wait">
+          <p>Loading Image...</p>
+        </div>
       )}
 
       {false && <Caption caption={"By Edward Snowden"} />}
@@ -121,23 +148,28 @@ const CropView = ({
   >;
   setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
 }) => {
+  const onCropComplete = (cropArea: Area, pxs: Area) => {
+    console.log("area", cropArea, "inPx", pxs);
+  };
+
   return (
     <Cropper
       image={url}
       crop={pendingCrop}
       zoom={pendingZoom}
-      objectFit="cover"
       cropSize={{
-        width: containerRef.current?.clientWidth ?? 720,
-        height: containerRef.current?.clientHeight ?? 420,
+        width: containerRef.current?.clientWidth ?? 0,
+        height: containerRef.current?.clientHeight ?? 0,
       }}
+      objectFit="cover"
       aspect={16 / 9}
       maxZoom={2}
       minZoom={0.2}
       cropShape="rect"
-      zoomSpeed={0.4}
+      zoomSpeed={0.1}
       style={{
         mediaStyle: {
+          width: "100%",
           objectFit: "cover",
         },
         cropAreaStyle: {
@@ -153,6 +185,7 @@ const CropView = ({
       }}
       onCropChange={setPendingCrop}
       onZoomChange={setPendingZoom}
+      onCropComplete={onCropComplete}
     />
   );
 };
@@ -167,6 +200,7 @@ const Caption = ({ caption }: { caption: string }) => {
 
 type ToolbarProps = {
   index: number;
+  url: string;
   containerRef: React.RefObject<HTMLDivElement | null>;
   isCropping: boolean;
   pendingCrop: { x: number; y: number };
@@ -176,10 +210,12 @@ type ToolbarProps = {
     React.SetStateAction<{ x: number; y: number }>
   >;
   setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const Toolbar = ({
   index,
+  url,
   containerRef,
   isCropping,
   pendingCrop,
@@ -187,6 +223,7 @@ const Toolbar = ({
   setIsCropping,
   setPendingCrop,
   setPendingZoom,
+  setIsLoading,
 }: ToolbarProps) => {
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
@@ -194,12 +231,23 @@ const Toolbar = ({
   const handleUpdateUrl = () => {
     const newUrl = window.prompt("Enter image URL:", "");
     if (newUrl !== null && newUrl.trim() !== "") {
-      setState((s) => {
-        const block = s.data.pages[s.pageIndex].blocks[index];
-        if (block && block.type === "image") {
-          block.props.url = newUrl.trim();
-        }
-      });
+      setIsLoading(true);
+      const img = new window.Image();
+      img.onload = () => {
+        setState((s) => {
+          const block = s.data.pages[s.pageIndex].blocks[index];
+          if (block && block.type === "image") {
+            block.props.url = newUrl.trim();
+            block.props.width = img.width;
+            block.props.height = img.height;
+          }
+        });
+        setIsLoading(false);
+      };
+      img.onerror = () => {
+        window.alert("Failed to load image. Please check the URL.");
+      };
+      img.src = newUrl.trim();
     }
   };
 
@@ -266,7 +314,7 @@ const Toolbar = ({
             onClick={() => handleUpdateUrl()}
             className="h-full aspect-square flex items-center justify-center"
           >
-            <UploadIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            <UploadIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
           </button>
           <button
             title="crop"
@@ -285,15 +333,43 @@ const Toolbar = ({
               document.body.style.overflow = "hidden";
             }}
           >
-            <CropIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+            <CropIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
           </button>
-          <button
-            title="delete"
-            onClick={() => removeBlock(index)}
-            className="h-full aspect-square flex items-center justify-center"
-          >
-            <TrashIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
-          </button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                title="delete"
+                className="h-full aspect-square flex items-center justify-center"
+              >
+                <TrashIcon className="text-rose-400 hover:text-rose-300 transition-colors duration-75" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Delete Image</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this image?
+                </DialogDescription>
+              </DialogHeader>
+              <div className="items-center gap-2 hidden">
+                <img
+                  src={url}
+                  className="w-full aspect-video object-cover rounded-md"
+                />
+              </div>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant={"destructive"}
+                    onClick={() => removeBlock(index)}
+                  >
+                    Delete
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>

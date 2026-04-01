@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useEditorStore } from "@/store/editor-store";
 
 const useBlockType = (blockId: string) => {

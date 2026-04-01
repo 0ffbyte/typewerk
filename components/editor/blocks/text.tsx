@@ -42,7 +42,13 @@ export default function TextBlock({
 
   return (
     <div className="w-full" onKeyDown={handleKeyDown}>
-      <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
+      <ContentEditable
+        blockIndex={index}
+        id={id}
+        ref={ref}
+        value={content}
+        onEdit={handleEdit}
+      />
     </div>
   );
 }

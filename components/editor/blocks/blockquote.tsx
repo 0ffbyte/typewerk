@@ -56,7 +56,13 @@ const BlockquoteBlock = ({
   return (
     <div className="pl-4 w-full" onKeyDown={handleKeyDown} onBlur={handleBlur}>
       <div className="absolute left-0 top-0 h-full w-[4px] bg-zinc-500 rounded-full" />
-      <ContentEditable id={id} ref={ref} value={content} onEdit={handleEdit} />
+      <ContentEditable
+        blockIndex={index}
+        id={id}
+        ref={ref}
+        value={content}
+        onEdit={handleEdit}
+      />
     </div>
   );
 };

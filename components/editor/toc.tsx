@@ -49,12 +49,12 @@ const TOC = () => {
 
   return (
     <div
-      className="max-w-[256px] w-full h-full fixed pt-[128] pl-[64] top-0 left-0"
+      className="max-w-[256px] w-full h-full fixed pt-[128] pl-0 top-0 right-0"
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
       {isCollapsed ? (
-        <div key="collapsed" className="flex flex-col gap-3 z-10">
+        <div key="collapsed" className="flex flex-col gap-6 z-10">
           {pages[pageIndex].blocks.map((block, idx) => {
             if (block.type !== "section") return null;
 
@@ -67,9 +67,11 @@ const TOC = () => {
                 key={block.id}
                 className="bg-border rounded-full transition-all duration-300"
                 style={{
-                  backgroundColor: isActive ? "var(--color-foreground)" : "",
-                  height: "4px",
-                  width: isActive ? "36px" : "24px",
+                  backgroundColor: isActive
+                    ? "var(--color-muted-foreground)"
+                    : "",
+                  height: "3px",
+                  width: isActive ? "28px" : "20px",
                 }}
                 title={props.content}
               />

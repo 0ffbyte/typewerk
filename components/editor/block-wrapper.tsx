@@ -18,15 +18,11 @@ type Props = {
 const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
-  const setSelectedIndex = useEditorStore((state) => state.setSelectedIndex);
-  const addBlock = useEditorStore((state) => state.addBlock);
-  const pageIndex = useEditorStore((state) => state.pageIndex);
-  const selectedIndex = useEditorStore((state) => state.selectedIndex);
-  const preventNewLine = useEditorStore((state) => state.preventNewLine);
-  const isSelected = selectedIndex === index;
+  const isSelected = state.selectedIndex === index;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // dnd-kit
   const {
     attributes,
     listeners,
@@ -47,27 +43,27 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
     if (e.altKey) {
       e.preventDefault();
       const key = e.key.toLowerCase();
-      const insertAt = selectedIndex + 1;
+      const insertAt = state.selectedIndex + 1;
       switch (key) {
         case "s":
-          addBlock("section", insertAt);
-          setSelectedIndex(insertAt);
+          state.addBlock("section", insertAt);
+          state.setSelectedIndex(insertAt);
           break;
         case "t":
-          addBlock("text", insertAt);
-          setSelectedIndex(insertAt);
+          state.addBlock("text", insertAt);
+          state.setSelectedIndex(insertAt);
           break;
         case "i":
-          addBlock("image", insertAt);
-          setSelectedIndex(insertAt);
+          state.addBlock("image", insertAt);
+          state.setSelectedIndex(insertAt);
           break;
         case "b":
-          addBlock("blockquote", insertAt);
-          setSelectedIndex(insertAt);
+          state.addBlock("blockquote", insertAt);
+          state.setSelectedIndex(insertAt);
           break;
         case "c":
-          addBlock("code", insertAt);
-          setSelectedIndex(insertAt);
+          state.addBlock("code", insertAt);
+          state.setSelectedIndex(insertAt);
           break;
         default:
           break;
@@ -79,32 +75,23 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
         case "ArrowUp":
           e.preventDefault();
           if (index >= 0) {
-            setSelectedIndex(index - 1);
+            state.setSelectedIndex(index - 1);
           }
           break;
         case "ArrowDown":
           e.preventDefault();
-          const totalBlocks = state.data.pages[pageIndex].blocks.length;
+          const totalBlocks = state.data.pages[state.pageIndex].blocks.length;
           if (index < totalBlocks - 1) {
-            setSelectedIndex(index + 1);
+            state.setSelectedIndex(index + 1);
           } else if (
-            state.data.pages[pageIndex].blocks[index].type !== "text"
+            state.data.pages[state.pageIndex].blocks[index].type !== "text"
           ) {
-            addBlock("text", index + 1);
+            state.addBlock("text", index + 1);
           }
           break;
         default:
           break;
       }
-    }
-
-    // clear editor shortcut
-    if (e.shiftKey && e.key === "1") {
-      e.preventDefault();
-      setSelectedIndex(-1);
-      setState((s) => {
-        s.data.pages[s.pageIndex].blocks = [];
-      });
     }
   };
 
@@ -113,10 +100,10 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
       ref={containerRef}
       aria-activedescendant={isSelected ? "" : undefined}
       onKeyDown={handleKeyDown}
-      onFocus={() => setSelectedIndex(index)}
+      onFocus={() => state.setSelectedIndex(index)}
       className={cn(
         "flex items-start justify-start relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent",
-        preventNewLine && !isSelected && "blur-xs opacity-80",
+        state.preventNewLine && !isSelected && "blur-xs opacity-80",
         "hover:border-border"
       )}
     >

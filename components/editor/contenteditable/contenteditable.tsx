@@ -15,9 +15,14 @@ import SlashMenu from "./slashMenu";
 import { useEditorStore } from "@/store/editor-store";
 
 import SelectionToolbar from "./selectionToolbar";
+import useInlineMenu from "@/hooks/use-inline-menu";
+
+import { motion } from "framer-motion";
+import { useSelectionStore } from "@/store/selection-store";
 
 type ContentEditableProps = {
   id: string;
+  blockIndex: number;
   value: string;
   ref?: any;
   placeholder?: string;
@@ -32,6 +37,7 @@ type ContentEditableProps = {
 
 const ContentEditable = ({
   id,
+  blockIndex,
   value,
   placeholder = "Type here or tap / for commands",
   maxLength = 1024,
@@ -46,12 +52,21 @@ const ContentEditable = ({
   const innerRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const preventNewLine = useEditorStore((state) => state.preventNewLine);
+  const isEditable = useEditorStore((state) => state.isEditable);
+  const state = useEditorStore((state) => state);
+
   const theme = useEditorStore((s) => s.data.theme);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
 
   const [isEmpty, setIsEmpty] = useState(true);
+
+  const { menu: emojiMenu } = useInlineMenu(innerRef, "@", {
+    height: 368,
+    width: 200,
+  });
 
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
@@ -86,7 +101,7 @@ const ContentEditable = ({
 
   const handleBeforeInput = (e: React.InputEvent<HTMLDivElement>) => {
     const currentText = innerRef.current?.textContent || "";
-    if (currentText.length >= maxLength) e.preventDefault();
+    if (currentText.length >= maxLength && !preventNewLine) e.preventDefault();
 
     return;
   };
@@ -163,8 +178,11 @@ const ContentEditable = ({
           e.preventDefault();
           return;
         }
-      }
-      if (e.key === "Enter") {
+      } else if (e.key === "Enter" && e.ctrlKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        state.addBlock("text", blockIndex + 1);
+      } else if (e.key === "Enter") {
         e.preventDefault();
         if (!multiLine || isEmpty) return;
 
@@ -187,26 +205,24 @@ const ContentEditable = ({
   return (
     <div ref={containerRef} className="relative w-full">
       <div
+        data-class="editor-contenteditable"
         data-editor-id={id}
         ref={mergeRefs(innerRef, ref)}
-        contentEditable
+        contentEditable={isEditable}
         suppressContentEditableWarning
         spellCheck={!syntaxHighlighting}
         aria-label="rich text editor"
         className={cn(
-          "outline-none select-text text-[16px] leading-[24px] sm:text-[20px] sm:leading-[32px] w-full sm:min-h-[32px] min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
+          "outline-none border border-transparent select-text text-[16px] leading-[24px] sm:text-[20px] sm:leading-[32px] w-full sm:min-h-[32px] min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
+          !isEditable && "border-red-500/0",
           className
         )}
-        style={
-          {
-            //scrollbarWidth: "none", // Firefox
-            //msOverflowStyle: "none", // IE 10+
-          }
-        }
-        onFocus={() => (isFocusedRef.current = true)}
+        onFocus={() => {
+          isFocusedRef.current = true;
+        }}
         onBlur={() => {
           isFocusedRef.current = false;
           emitSanitizedEdit();
@@ -217,6 +233,11 @@ const ContentEditable = ({
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
+        onClick={() => {
+          state.setState((s) => {
+            s.isEditable = true;
+          });
+        }}
       />
 
       {syntaxHighlighting && (
@@ -251,6 +272,32 @@ const ContentEditable = ({
       />
 
       <SlashMenu ref={innerRef} />
+
+      {emojiMenu && (
+        <motion.div
+          className="absolute flex flex-col p-[8px] w-[200px] max-h-[368px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
+          style={{
+            left: emojiMenu.x,
+            top: emojiMenu.y,
+            scrollbarWidth: "none",
+            willChange: "transform",
+          }}
+          layout="size"
+          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            type: "spring",
+            damping: 20,
+            stiffness: 200,
+            opacity: { duration: 0.1 },
+          }}
+        >
+          <p>
+            search:{" "}
+            <span className="text-muted-foreground">{emojiMenu.command}</span>
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 };

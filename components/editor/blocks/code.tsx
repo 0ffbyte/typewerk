@@ -78,15 +78,15 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     >
-      <div className="bg-zinc-900 flex items-center justify-center rounded-tl-lg">
+      <div className="bg-zinc-900 flex items-center justify-center rounded-tl-lg select-none">
         <CodeIcon className="text-muted-foreground" size={16} />
       </div>
 
-      <div className="bg-zinc-900 flex items-center pl-2 rounded-tr-lg">
+      <div className="bg-zinc-900 flex items-center pl-2 rounded-tr-lg select-none">
         <p className="text-muted-foreground text-sm">Code</p>
       </div>
 
-      <div className="w-full bg-zinc-900 py-2 rounded-bl-lg">
+      <div className="w-full bg-zinc-900 py-2 rounded-bl-lg select-none">
         {Array.from({ length: visibleGutterLines }, (_, i) => (
           <div
             key={i}
@@ -114,6 +114,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         >
           <ContentEditable
             id={id}
+            blockIndex={index}
             allowFormatting={false}
             syntaxHighlighting={true}
             placeholder="let hey = 'mom!';"
