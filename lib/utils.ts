@@ -83,6 +83,46 @@ export const getAttributeFromNode = (
   return null;
 };
 
+export const getFoundTags = (selection: Selection | null): string[] => {
+  if (!selection || selection.rangeCount === 0) return [];
+
+  const range = selection.getRangeAt(0);
+  const tags = new Set<string>();
+
+  // Walk ancestors of the common container
+  let node: Node | null =
+    range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+      ? range.commonAncestorContainer.parentNode
+      : range.commonAncestorContainer;
+
+  while (node && node.nodeType === Node.ELEMENT_NODE) {
+    tags.add((node as Element).tagName.toLowerCase());
+    node = node.parentNode;
+  }
+
+  // Walk all elements that intersect the range (catches inline spans mid-selection)
+  const root =
+    range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+      ? range.commonAncestorContainer.parentNode!
+      : range.commonAncestorContainer;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+    acceptNode(n) {
+      return range.intersectsNode(n)
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
+    },
+  });
+
+  let current = walker.currentNode as Element;
+  while (current) {
+    if (current.tagName) tags.add(current.tagName.toLowerCase());
+    current = walker.nextNode() as Element;
+  }
+
+  return Array.from(tags);
+};
+
 export const normalizeHtml = (html: string) => {
   return html
     .replace(/<br\s*\/?>/gi, "\n")

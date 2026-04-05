@@ -8,10 +8,11 @@ export default function useBackspace() {
   const selectedIndex = useEditorStore((s) => s.selectedIndex);
 
   const selection = useSelectionStore((s) => s.selection);
-  const isMultiSelection = useSelectionStore((s) => s.isMultiSelection);
-  const selectedEditorIds = useSelectionStore((s) => s.activeEditorIds);
-  const anchorIndex = useSelectionStore((s) => s.anchorIndex);
-  const tailIndex = useSelectionStore((s) => s.tailIndex);
+  const isMultiSelection = useSelectionStore((s) => s.meta.isMultiSelection);
+  const selectedEditorIds = useSelectionStore((s) => s.meta.activeEditorIds);
+  const anchorIndex = useSelectionStore((s) => s.meta.anchorIndex);
+  const tailIndex = useSelectionStore((s) => s.meta.tailIndex);
+  const clearSelection = useSelectionStore((s) => s.clearSelection);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,6 +59,7 @@ export default function useBackspace() {
           requestAnimationFrame(() => {
             // Perform cleanup
             runCleanup();
+            clearSelection();
             setState((s) => {
               s.isEditable = true;
               s.selectedIndex = isMultiSelection ? tailIndex : anchorIndex;
@@ -73,6 +75,7 @@ export default function useBackspace() {
           requestAnimationFrame(() => {
             // Perform cleanup
             runCleanup();
+            clearSelection();
             setState((s) => {
               s.isEditable = true;
             });

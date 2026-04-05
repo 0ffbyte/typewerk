@@ -1,18 +1,18 @@
 "use client";
-
-import { useEditorStore } from "@/store/editor-store";
+import { useEffect, useState } from "react";
 import { DndContext, type DragEndEvent, rectIntersection } from "@dnd-kit/core";
 
-import EditorCanvas from "./editor-canvas";
 import Header from "./header";
-import useSync from "@/hooks/use-sync";
-
-import { useEffect, useState } from "react";
+import EditorCanvas from "./editor-canvas";
+import SelectionToolbar from "./selection-toolbar";
 
 import type { SiteObject } from "@/app/types";
-import useEditorSelection from "@/hooks/useEditorSelection";
-import useBackspace from "@/hooks/useBackspace";
-import usePageTracking from "@/hooks/use-page-tracking";
+import { useEditorStore } from "@/store/editor-store";
+
+import useSync from "@/hooks/editor/use-sync";
+import useBackspace from "@/hooks/editor/useBackspace";
+import useSelectionTracking from "@/hooks/editor/useSelectionTracking";
+import usePageTracking from "@/hooks/editor/use-page-tracking";
 
 // editor-shell.tsx
 export default function EditorShell({
@@ -22,16 +22,16 @@ export default function EditorShell({
   siteId: string;
   initialState: SiteObject;
 }) {
+  const state = useEditorStore((s) => s);
   const initialize = useEditorStore((s) => s.initialize);
+  const [isInitialized, setIsInitialized] = useState(false);
   const reorderBlocks = useEditorStore((s) => s.reorderBlocks);
   const pageData = useEditorStore((s) => s.data.pages[s.pageIndex]);
-  const state = useEditorStore((s) => s);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  useEditorSelection();
   useBackspace();
   usePageTracking();
-  useSync(siteId, isInitialized);
+  useSelectionTracking();
+  //useSync(siteId, isInitialized);
 
   // initializes state
   useEffect(() => {
@@ -61,21 +61,56 @@ export default function EditorShell({
     );
 
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[700px] lg:w-[700px] relative select-none">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[650px] lg:w-[650px] select-none">
       <Header />
       <DndContext
         onDragEnd={handleDragEnd}
         collisionDetection={rectIntersection}
       >
         {<EditorCanvas blocks={pageData.blocks} />}
-
-        {false && (
-          <pre className="bg-zinc-100 rounded text-xs px-3 py-2 mb-2 max-w-2xl overflow-x-auto">
-            {JSON.stringify(state, null, 2)}
-            <br />
-          </pre>
-        )}
+        <SelectionToolbar />
       </DndContext>
+
+      {false && <Debugger />}
     </div>
   );
 }
+
+// DEBUGGER
+import { useSelectionStore } from "@/store/selection-store";
+const Debugger = () => {
+  const state = useEditorStore((s) => s);
+  const selection = useSelectionStore((s) => s);
+
+  const [currentData, setCurrentData] = useState<"selection" | "editor">(
+    "selection"
+  );
+  return (
+    <pre className="bg-black/10 text-xs fixed top-0 left-0 w-[400px] h-[600px] overflow-scroll">
+      <div className="flex gap-2 mb-2">
+        <button
+          onClick={() => setCurrentData("selection")}
+          className={`px-2 py-1 rounded bg-zinc-700 text-zinc-100 hover:bg-zinc-600 transition ${
+            currentData === "selection"
+              ? "font-bold border-b-2 border-blue-400"
+              : ""
+          }`}
+        >
+          selection
+        </button>
+        <button
+          onClick={() => setCurrentData("editor")}
+          className={`px-2 py-1 rounded bg-zinc-700 text-zinc-100 hover:bg-zinc-600 transition ${
+            currentData === "editor"
+              ? "font-bold border-b-2 border-blue-400"
+              : ""
+          }`}
+        >
+          editor
+        </button>
+      </div>
+      {JSON.stringify(currentData === "selection" ? selection : state, null, 2)}
+      <br />
+    </pre>
+  );
+};

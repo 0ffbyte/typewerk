@@ -397,8 +397,15 @@ const Toolbar = ({
   siteId: string;
   subdomain: string;
 }) => {
+  const preventNewLine = useEditorStore((s) => s.preventNewLine);
+
   return (
-    <div className="w-full fixed bottom-0 left-0 z-50 pb-[24px] pointer-events-none">
+    <div
+      className={cn(
+        "w-full fixed bottom-0 left-0 z-40 pb-[24px] pointer-events-none transition-all duration-200",
+        preventNewLine && "blur-xs opacity-80"
+      )}
+    >
       <div className="h-[44px] w-fit rounded-[16px] p-[4px] border border-border/20 flex items-center gap-[12px] bg-zinc-900/80 backdrop-blur-xs shadow-sm pointer-events-auto mx-auto">
         <PageDropdown />
         <ThemeDropdown />

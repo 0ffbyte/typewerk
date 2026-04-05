@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import useFocused from "@/hooks/use-focus";
+import useFocused from "@/hooks/editor/use-focus";
 import type { BlockProps } from "@/app/types";
 import {
   CropIcon,
@@ -190,7 +190,7 @@ const CropView = ({
           width: "100%",
           height: "100%",
           overflow: "visible",
-          zIndex: 10,
+          zIndex: 100,
         },
       }}
       onCropChange={setPendingCrop}
@@ -292,7 +292,7 @@ const Toolbar = ({
   };
 
   return (
-    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start z-20">
+    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start z-100">
       {isCropping ? (
         <>
           <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">

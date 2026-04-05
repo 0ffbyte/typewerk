@@ -1,40 +1,55 @@
 import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 
 interface SelectionState {
   selection: Selection | null;
-  isMultiSelection: boolean;
-  activeEditorIds: string[];
-  anchorIndex: number;
-  tailIndex: number;
-  tick: number; // increment this to force updates
-  setSelection: (
-    selection: Selection | null,
-    isMultiSelection: boolean,
-    activeEditorIds: string[],
-    anchorIndex?: number,
-    tailIndex?: number
-  ) => void;
+  meta: {
+    isSelecting: boolean;
+    isMultiSelection: boolean;
+    activeEditorIds: string[];
+    anchorIndex: number;
+    tailIndex: number;
+  };
+  position: {
+    x: number;
+    y: number;
+  };
 }
-export const useSelectionStore = create<SelectionState>((set) => ({
-  selection: null,
-  isMultiSelection: false,
-  activeEditorIds: [],
-  anchorIndex: 0,
-  tailIndex: 0,
-  tick: 0,
-  setSelection: (
-    selection,
-    isMultiSelection = false,
-    activeEditorIds,
-    anchorIndex = 0,
-    tailIndex = 0
-  ) =>
-    set((state) => ({
-      selection,
-      isMultiSelection,
-      activeEditorIds,
-      anchorIndex,
-      tailIndex,
-      tick: state.tick + 1,
-    })),
-}));
+
+interface Actions {
+  clearSelection: () => void;
+  setSelection: (updater: (draft: SelectionState) => void) => void;
+}
+
+type Store = SelectionState & Actions;
+
+export const useSelectionStore = create<Store>()(
+  immer<Store>((set) => ({
+    selection: null,
+    meta: {
+      isSelecting: false,
+      isMultiSelection: false,
+      activeEditorIds: [],
+      anchorIndex: 0,
+      tailIndex: 0,
+    },
+    position: {
+      x: 0,
+      y: 0,
+    },
+    clearSelection: () => {
+      set((s) => {
+        s.selection = null;
+        s.meta.isMultiSelection = false;
+        s.meta.isSelecting = false;
+        s.meta.activeEditorIds = [];
+        s.meta.anchorIndex = 0;
+        s.meta.tailIndex = 0;
+        s.position.x = 0;
+        s.position.y = 0;
+      });
+    },
+    setSelection: (updater: (draft: SelectionState) => void) =>
+      set((state) => updater(state as SelectionState)),
+  }))
+);

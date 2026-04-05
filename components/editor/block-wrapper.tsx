@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import type { BlockProps } from "@/app/types";
 import { DragHandleDots2Icon } from "@radix-ui/react-icons";
+import { useSelectionStore } from "@/store/selection-store";
 
 type Props = {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const isSelected = state.selectedIndex === index;
+  const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -106,6 +108,17 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
         state.preventNewLine && !isSelected && "blur-xs opacity-80",
         "hover:border-border"
       )}
+      onMouseDown={() => {
+        state.setState((s) => {
+          s.isEditable = true;
+        });
+      }}
+      onPointerLeave={() => {
+        if (!isSelecting) return;
+        state.setState((s) => {
+          s.isEditable = false;
+        });
+      }}
     >
       <div
         id="block-placeholder"

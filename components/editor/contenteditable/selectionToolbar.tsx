@@ -1,3 +1,5 @@
+/*
+
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -59,7 +61,7 @@ const SelectionToolbar = ({
   const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
   const [foundTags, setFoundTags] = useState<string[]>([]);
 
-  const { selection, tick, activeEditorIds } = useSelectionStore();
+  const { selection, activeEditorIds } = useSelectionStore();
   const isActive =
     activeEditorIds.includes(blockId) && activeEditorIds.length <= 1;
 
@@ -286,7 +288,7 @@ const SelectionToolbar = ({
       x,
       y,
     });
-  }, [tick, selection, isActive]);
+  }, [selection, isActive]);
 
   if (!toolbarPos) return null;
 
@@ -309,7 +311,7 @@ const SelectionToolbar = ({
         <CopyIcon size={20} />
       </button>
 
-      {/* Shadcn Select for Block Types */}
+    
       <div className="w-[100px]">
         <Select
           defaultValue={blockType}
@@ -442,3 +444,6 @@ const SelectionToolbar = ({
 };
 
 export default SelectionToolbar;
+
+
+*/

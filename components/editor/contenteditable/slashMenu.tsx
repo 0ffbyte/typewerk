@@ -208,7 +208,7 @@ const SlashMenu = ({
   return (
     <motion.div
       ref={menuRef}
-      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
+      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-50 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,

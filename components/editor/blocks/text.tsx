@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import type { BlockProps } from "@/app/types";
 import ContentEditable from "../contenteditable/contenteditable";
-import useFocused from "@/hooks/use-focus";
+import useFocused from "@/hooks/editor/use-focus";
 
 export type TextProps = {
   content: string;

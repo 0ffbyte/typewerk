@@ -4,7 +4,7 @@ import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 import ContentEditable from "../contenteditable/contenteditable";
 import { useEffect, useRef, useState } from "react";
-import useFocused from "@/hooks/use-focus";
+import useFocused from "@/hooks/editor/use-focus";
 
 import { CodeIcon } from "lucide-react";
 

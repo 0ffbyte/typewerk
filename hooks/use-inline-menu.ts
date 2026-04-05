@@ -203,8 +203,13 @@ const useInlineMenu = (
       selection.addRange(range);
 
       closeMenu();
-    } else if ((e.key === "ArrowUp" || e.key === "ArrowDown") && state !== null)
+    } else if (
+      (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") &&
+      state !== null
+    ) {
       e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   const handleClick = () => {

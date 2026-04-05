@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
 
 import Prism from "prismjs";
-import "@/lib/prism-themes/dracula.css"; // or your preferred theme
+import "@/lib/prism-themes/dracula.css";
 
-import { cn, moveCaretToEnd, THEME_MAPPING } from "@/lib/utils";
+import { cn, THEME_MAPPING } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
 
@@ -14,7 +14,6 @@ import SlashMenu from "./slashMenu";
 
 import { useEditorStore } from "@/store/editor-store";
 
-import SelectionToolbar from "./selectionToolbar";
 import useInlineMenu from "@/hooks/use-inline-menu";
 
 import { motion } from "framer-motion";
@@ -57,9 +56,8 @@ const ContentEditable = ({
   const state = useEditorStore((state) => state);
   const theme = useEditorStore((s) => s.data.theme);
 
-  const isMultiline = useSelectionStore((s) => s.isMultiSelection);
-  const selection = useSelectionStore((s) => s.selection);
-  const anchorIndex = useSelectionStore((s) => s.anchorIndex);
+  const isMultiline = useSelectionStore((s) => s.meta.isMultiSelection);
+  const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
@@ -208,21 +206,7 @@ const ContentEditable = ({
   );
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full"
-      onMouseDown={() => {
-        state.setState((s) => {
-          s.isEditable = true;
-        });
-      }}
-      onMouseLeave={() => {
-        if (!selection || selection.rangeCount === 0) return;
-        state.setState((s) => {
-          s.isEditable = false;
-        });
-      }}
-    >
+    <div ref={containerRef} className="relative w-full" draggable={false}>
       <div
         data-class="editor-contenteditable"
         data-editor-id={id}
@@ -233,14 +217,18 @@ const ContentEditable = ({
         spellCheck={!syntaxHighlighting}
         aria-label="rich text editor"
         className={cn(
-          "outline-none border border-transparent select-text text-[16px] leading-[24px] sm:text-[20px] sm:leading-[32px] w-full sm:min-h-[32px] min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
+          "outline-none border border-transparent select-text text-[16px] leading-[28px] sm:text-[1rem] sm:leading-[28px] w-full sm:min-h-[28px] min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
-          !isEditable && "border-red-500/0",
-          isMultiline && "border-purple-500/0",
+          !isEditable && "border-red-500",
+          isMultiline && "border-purple-500",
           className
         )}
+        style={{
+          fontSmooth: "always",
+          fontKerning: "normal",
+        }}
         onFocus={() => {
           isFocusedRef.current = true;
         }}
@@ -279,13 +267,6 @@ const ContentEditable = ({
           {placeholder}
         </div>
       )}
-
-      <SelectionToolbar
-        ref={innerRef}
-        containerRef={containerRef}
-        blockId={id}
-        allowFormatting={allowFormatting}
-      />
 
       <SlashMenu ref={innerRef} />
 
