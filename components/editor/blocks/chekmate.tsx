@@ -4,7 +4,7 @@ import { useRef } from "react";
 import ContentEditable from "../contenteditable/contenteditable";
 import { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
-import useFocused from "@/hooks/use-focused";
+import useFocused from "@/hooks/use-focus";
 
 export type CheckmateProps = {
   content: string;

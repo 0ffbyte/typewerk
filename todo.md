@@ -6,11 +6,9 @@ v 1.0.0
 
 - [ ] AI rewrite feature (pro)
 
-- [ ] Rubber band multi-block selection (drag area selection)
-
 v0.8.0
 
-- [ ] Auth ...
+- [x] Auth ...
 
 - [ ] Page creation flow & publishing
 
@@ -18,7 +16,9 @@ v0.8.0
 
 - [ ] Starter templates (accept / return)
 
-- [x] Image cropping
+- [ ] Multi-block selection (native select) ...
+
+- [x] Image cropping (uses multiplier(m) based on container size)
 
 # Bugs
 

@@ -6,7 +6,7 @@ import mergeRefs from "merge-refs";
 import Prism from "prismjs";
 import "@/lib/prism-themes/dracula.css"; // or your preferred theme
 
-import { cn, THEME_MAPPING } from "@/lib/utils";
+import { cn, moveCaretToEnd, THEME_MAPPING } from "@/lib/utils";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
 
@@ -55,8 +55,11 @@ const ContentEditable = ({
   const preventNewLine = useEditorStore((state) => state.preventNewLine);
   const isEditable = useEditorStore((state) => state.isEditable);
   const state = useEditorStore((state) => state);
-
   const theme = useEditorStore((s) => s.data.theme);
+
+  const isMultiline = useSelectionStore((s) => s.isMultiSelection);
+  const selection = useSelectionStore((s) => s.selection);
+  const anchorIndex = useSelectionStore((s) => s.anchorIndex);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
@@ -197,16 +200,33 @@ const ContentEditable = ({
         selection.removeAllRanges();
         selection.addRange(range);
         emitSanitizedEdit();
+      } else if (e.key === "Backspace" && isMultiline) {
+        e.preventDefault();
       }
     },
-    [isEmpty, allowFormatting, multiLine]
+    [isEmpty, allowFormatting, multiLine, isMultiline]
   );
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div
+      ref={containerRef}
+      className="relative w-full"
+      onMouseDown={() => {
+        state.setState((s) => {
+          s.isEditable = true;
+        });
+      }}
+      onMouseLeave={() => {
+        if (!selection || selection.rangeCount === 0) return;
+        state.setState((s) => {
+          s.isEditable = false;
+        });
+      }}
+    >
       <div
         data-class="editor-contenteditable"
         data-editor-id={id}
+        data-block-index={blockIndex}
         ref={mergeRefs(innerRef, ref)}
         contentEditable={isEditable}
         suppressContentEditableWarning
@@ -218,6 +238,7 @@ const ContentEditable = ({
           syntaxHighlighting &&
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
           !isEditable && "border-red-500/0",
+          isMultiline && "border-purple-500/0",
           className
         )}
         onFocus={() => {
@@ -233,11 +254,6 @@ const ContentEditable = ({
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
-        onClick={() => {
-          state.setState((s) => {
-            s.isEditable = true;
-          });
-        }}
       />
 
       {syntaxHighlighting && (

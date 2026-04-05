@@ -2,25 +2,39 @@ import { create } from "zustand";
 
 interface SelectionState {
   selection: Selection | null;
-  activeEditorId: string | null;
-  tick: number; // increment this to force updates
   isMultiSelection: boolean;
+  activeEditorIds: string[];
+  anchorIndex: number;
+  tailIndex: number;
+  tick: number; // increment this to force updates
   setSelection: (
     selection: Selection | null,
-    elementId: string | null,
-    isMultiSelection?: boolean
+    isMultiSelection: boolean,
+    activeEditorIds: string[],
+    anchorIndex?: number,
+    tailIndex?: number
   ) => void;
 }
 export const useSelectionStore = create<SelectionState>((set) => ({
   selection: null,
-  activeEditorId: null,
   isMultiSelection: false,
+  activeEditorIds: [],
+  anchorIndex: 0,
+  tailIndex: 0,
   tick: 0,
-  setSelection: (selection, activeEditorId, isMultiSelection = false) =>
+  setSelection: (
+    selection,
+    isMultiSelection = false,
+    activeEditorIds,
+    anchorIndex = 0,
+    tailIndex = 0
+  ) =>
     set((state) => ({
       selection,
-      activeEditorId,
       isMultiSelection,
+      activeEditorIds,
+      anchorIndex,
+      tailIndex,
       tick: state.tick + 1,
     })),
 }));

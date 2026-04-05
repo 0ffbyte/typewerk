@@ -31,6 +31,8 @@ import {
 import { useEditorStore } from "@/store/editor-store";
 import { BlockType } from "@/lib/block-registry";
 
+const USE_AI = false;
+
 type ToolbarPos = { x: number; y: number };
 
 const BLOCK_ICON_MAPPING: Record<string, React.ReactNode> = {
@@ -57,8 +59,9 @@ const SelectionToolbar = ({
   const [toolbarPos, setToolbarPos] = useState<ToolbarPos | null>(null);
   const [foundTags, setFoundTags] = useState<string[]>([]);
 
-  const { selection, tick, activeEditorId } = useSelectionStore();
-  const isActive = activeEditorId === blockId;
+  const { selection, tick, activeEditorIds } = useSelectionStore();
+  const isActive =
+    activeEditorIds.includes(blockId) && activeEditorIds.length <= 1;
 
   const selectedIndex = useEditorStore((s) => s.selectedIndex);
   const isMultiSelection = useSelectionStore((s) => s.isMultiSelection);
@@ -248,7 +251,7 @@ const SelectionToolbar = ({
     setFoundTags(foundTags);
 
     const menuWidth = 354;
-    const menuHeight = 48;
+    const menuHeight = 54;
 
     // Initial x, y centered above selection anchor
     let x = rect.left - containerRect.left + rect.width / 2;
@@ -324,11 +327,10 @@ const SelectionToolbar = ({
             selection.removeAllRanges();
             selection.addRange(range);
 
-            setState((s) => (s.isEditable = true));
             addBlock(value as BlockType, selectedIndex + 1, div.innerText);
             div.remove();
 
-            // emit input event
+            //emmit input event
             const inputEvent = new Event("input", { bubbles: true });
             ref.current?.dispatchEvent(inputEvent);
           }}
@@ -377,17 +379,19 @@ const SelectionToolbar = ({
             <>
               <div className="h-[32px] w-px bg-zinc-500" />
 
-              <button
-                title="Rewrite"
-                className={cn(
-                  "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
-                  foundTags.includes("ai-completion") && "text-blue-500"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => rewriteSelection()}
-              >
-                <WandSparklesIcon size={20} />
-              </button>
+              {USE_AI && (
+                <button
+                  title="Rewrite"
+                  className={cn(
+                    "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-[12px]",
+                    foundTags.includes("ai-completion") && "text-blue-500"
+                  )}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => rewriteSelection()}
+                >
+                  <WandSparklesIcon size={20} />
+                </button>
+              )}
 
               <button
                 className={cn(
@@ -396,16 +400,6 @@ const SelectionToolbar = ({
                 )}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => toggleFormat("bold")}
-                onMouseEnter={() => {
-                  setState((s) => {
-                    s.isEditable = true;
-                  });
-                }}
-                onMouseLeave={() => {
-                  setState((s) => {
-                    s.isEditable = false;
-                  });
-                }}
               >
                 <BoldIcon size={20} />
               </button>

@@ -4,7 +4,7 @@ import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 import ContentEditable from "../contenteditable/contenteditable";
 import { useRef } from "react";
-import useFocused from "@/hooks/use-focused";
+import useFocused from "@/hooks/use-focus";
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -113,7 +113,7 @@ const CalloutBlock = ({
     >
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
-          className="h-full flex items-center justify-center p-2 rounded-sm group-hover:bg-zinc-900/5 transition-colors duration-100 outline-none"
+          className="h-full flex items-center justify-center p-2 rounded-sm group-hover:bg-zinc-900/5 transition-colors duration-100 outline-none select-none"
           title={type}
         >
           {CALLOUT_TYPE_MAPPING[type as CalloutTypes].icon}

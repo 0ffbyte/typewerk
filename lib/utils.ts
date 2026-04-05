@@ -56,13 +56,7 @@ export function moveCaretToEnd(el: HTMLDivElement) {
 export const getLineCount = (html: string) => {
   if (!html) return 1;
 
-  const normalized = html
-    // treat <br> as newline
-    .replace(/<br\s*\/?>/gi, "\n")
-    // treat common block-closing tags as line breaks
-    .replace(/<\/(div|p|li|h[1-6]|pre)>/gi, "\n")
-    // strip remaining tags
-    .replace(/<[^>]+>/g, "");
+  const normalized = normalizeHtml(html);
 
   const lines = normalized.split("\n");
   const count =
@@ -72,11 +66,39 @@ export const getLineCount = (html: string) => {
   return count;
 };
 
+export const getAttributeFromNode = (
+  node: Node | null,
+  attribute: string
+): string | null => {
+  if (!node) return null;
+  // Only Element nodes can have attributes
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    return (node as Element).getAttribute(attribute);
+  }
+  // For text or other node types, try to get parent element's attribute if possible
+  const parent = (node as ChildNode).parentElement;
+  if (parent) {
+    return parent.getAttribute(attribute);
+  }
+  return null;
+};
+
 export const normalizeHtml = (html: string) => {
   return html
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(div|p|li|h[1-6]|pre)>/gi, "\n")
     .replace(/<[^>]+>/g, "");
+};
+
+export const navigateToPage = (pageName: string) => {
+  const url = new URL(window.location.href);
+  if (pageName === "home") url.searchParams.delete("p");
+  else {
+    url.searchParams.set("p", pageName);
+    url.hash = ""; // remove any anchor #sections
+  }
+
+  window.history.pushState(null, "", url.toString());
 };
 
 export const THEME_MAPPING = {

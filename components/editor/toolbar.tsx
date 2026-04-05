@@ -3,12 +3,10 @@
 // Store and hooks
 import { useEffect, useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import usePage from "@/hooks/use-page";
 import { useTheme } from "next-themes";
 
 // Utils
-import { cn, slugify } from "@/lib/utils";
-import { THEME_MAPPING } from "@/lib/utils";
+import { cn, slugify, navigateToPage, THEME_MAPPING } from "@/lib/utils";
 
 // UI components
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -33,7 +31,8 @@ import { Accent } from "@/app/types";
 const PageDropdown = () => {
   const setState = useEditorStore((s) => s.setState);
   const pages = useEditorStore((s) => s.data.pages);
-  const { pageIndex, pageName, navigateToPage } = usePage();
+  const pageIndex = useEditorStore((s) => s.pageIndex);
+  const pageName = pages[pageIndex]?.name ?? "Page";
 
   const addPage = useEditorStore((s) => s.addPage);
   const removePage = useEditorStore((s) => s.removePage);
@@ -369,7 +368,8 @@ const PublishButton = ({
       )}
       style={{
         boxShadow: "0px 1px 2px 0px rgba(255, 255, 255, 0.6) inset",
-        backgroundColor: THEME_MAPPING.accent[theme?.accent || "blue"],
+        backgroundColor:
+          THEME_MAPPING.accent[theme?.accent || "var(--color-blue-500)"],
       }}
       onClick={handleClick}
       disabled={isSyncing || isPublishing}

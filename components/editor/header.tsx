@@ -4,17 +4,9 @@ import { useEditorStore } from "@/store/editor-store";
 import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
-  const state = useEditorStore((state) => state);
-  const setState = useEditorStore((state) => state.setState);
-  const addBlock = useEditorStore((state) => state.addBlock);
-  const selectedIndex = useEditorStore((state) => state.selectedIndex);
-  const setSelectedIndex = useEditorStore((state) => state.setSelectedIndex);
-  const preventNewLine = useEditorStore((state) => state.preventNewLine);
+  const s = useEditorStore((state) => state);
 
   const [isImageLoading, setIsImageLoading] = useState(false);
-
-  const pageIndex = useEditorStore((state) => state.pageIndex);
-
   const headingRef = useRef<HTMLTextAreaElement>(null);
   const subRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,11 +26,11 @@ export default function Header() {
       case "Enter":
         e.preventDefault();
         if (
-          state.data.pages[pageIndex].blocks.length === 0 ||
-          state.data.pages[pageIndex].blocks[0].type !== "text"
+          s.data.pages[s.pageIndex].blocks.length === 0 ||
+          s.data.pages[s.pageIndex].blocks[0].type !== "text"
         )
-          addBlock("text", 0);
-        else setSelectedIndex(0);
+          s.addBlock("text", 0);
+        else s.setSelectedIndex(0);
         break;
 
       case "ArrowUp":
@@ -48,15 +40,15 @@ export default function Header() {
 
       case "ArrowDown":
         if (
-          state.data.pages[pageIndex].blocks.length === 0 ||
-          state.data.pages[pageIndex].blocks[0].type !== "text"
+          s.data.pages[s.pageIndex].blocks.length === 0 ||
+          s.data.pages[s.pageIndex].blocks[0].type !== "text"
         )
-          addBlock("text", 0);
-        else setSelectedIndex(0);
+          s.addBlock("text", 0);
+        else s.setSelectedIndex(0);
         break;
 
       case "Backspace":
-        if (state.data.header.subheading.length === 0) {
+        if (s.data.header.subheading.length === 0) {
           e.preventDefault();
 
           if (!headingRef.current) return;
@@ -67,7 +59,7 @@ export default function Header() {
         break;
       case "ArrowDown":
         if (e.ctrlKey) {
-          setSelectedIndex(0);
+          s.setSelectedIndex(0);
         }
         break;
       default:
@@ -81,7 +73,7 @@ export default function Header() {
       setIsImageLoading(true);
       const img = new window.Image();
       img.onload = () => {
-        setState((s) => {
+        s.setState((s) => {
           s.data.header.image = newUrl.trim();
         });
         setIsImageLoading(false);
@@ -94,7 +86,7 @@ export default function Header() {
   };
 
   useEffect(() => {
-    if (selectedIndex === -1) {
+    if (s.selectedIndex === -1) {
       subRef.current?.focus();
       // For textarea: move cursor to end and trigger auto-resize
       if (subRef.current) {
@@ -103,20 +95,20 @@ export default function Header() {
         textarea.setSelectionRange(value.length, value.length);
       }
     }
-  }, [selectedIndex]);
+  }, [s.selectedIndex]);
 
   return (
     <div className="flex flex-col mb-[92px] gap-[16px] w-full">
       <div
         className={cn(
           "flex flex-col gap-4 transition-all duration-75",
-          preventNewLine && "blur-xs opacity-80"
+          s.preventNewLine && "blur-xs opacity-80"
         )}
       >
         <img
           title="update image"
           src={
-            state.data.header.image ||
+            s.data.header.image ||
             "https://i.pinimg.com/736x/09/eb/c2/09ebc21f1af4b96e9f50619207646c71.jpg"
           }
           alt="header image"
@@ -127,14 +119,13 @@ export default function Header() {
         <div className="flex flex-col gap-0 rounded-lg">
           <textarea
             ref={headingRef}
-            className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
+            className="font-sans capitalize font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
             placeholder="Heading"
             spellCheck={false}
-            value={state.data.header.heading}
-            onFocus={() => setSelectedIndex(-1)}
+            value={s.data.header.heading}
             onKeyDown={handleKeyDownHeading}
             onChange={(e) => {
-              setState((s) => {
+              s.setState((s) => {
                 s.data.header.heading = e.target.value;
               });
               // Auto-resize logic
@@ -150,13 +141,13 @@ export default function Header() {
           />
           <textarea
             ref={subRef}
-            className="font-sans font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
+            className="font-sans capitalize font-medium text-[20px] leading-[28px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
             placeholder="Subheading"
             spellCheck
-            value={state.data.header.subheading}
+            value={s.data.header.subheading}
             onKeyDown={handleKeyDownSubheading}
             onChange={(e) => {
-              setState((s) => {
+              s.setState((s) => {
                 s.data.header.subheading = e.target.value;
               });
               // Auto-resize logic

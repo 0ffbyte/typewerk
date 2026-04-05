@@ -4,7 +4,7 @@ import type { BlockProps } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 import ContentEditable from "../contenteditable/contenteditable";
 import { useEffect, useRef, useState } from "react";
-import useFocused from "@/hooks/use-focused";
+import useFocused from "@/hooks/use-focus";
 
 import { CodeIcon } from "lucide-react";
 
@@ -74,7 +74,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="w-full grid grid-cols-[36px_1fr] grid-rows-[36px_1fr] rounded-lg border overflow-clip"
+      className="w-full grid grid-cols-[36px_1fr] grid-rows-[36px_1fr] rounded-lg border overflow-clip select-none"
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     >
@@ -101,7 +101,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         ))}
       </div>
 
-      <div className="w-full bg-zinc-900 h-full flex flex-col items-stretch justify-start min-h-[20px] px-2 pt-2 rounded-br-lg">
+      <div className="w-full bg-zinc-900 h-full flex flex-col items-stretch justify-start min-h-[20px] px-2 pt-2 rounded-br-lg select-none">
         <div
           className={
             isTruncatable && !expanded ? "overflow-hidden min-w-0" : "min-w-0"

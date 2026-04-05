@@ -132,7 +132,7 @@ const ChecklistBlock = ({
   return (
     <div
       ref={containerRef}
-      className="w-full space-y-1"
+      className="w-full space-y-1 select-none"
       onKeyDown={handleKeyDown}
     >
       {items.map((item, idx) => (

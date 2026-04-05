@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import useFocused from "@/hooks/use-focused";
+import useFocused from "@/hooks/use-focus";
 
 import type { BlockProps } from "@/app/types";
 import { slugify } from "@/lib/utils";

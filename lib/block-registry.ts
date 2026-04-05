@@ -14,8 +14,8 @@ import R_Section from "@/components/renderer/section";
 import R_Image from "@/components/renderer/image";
 
 import {
+  CheckCircle2,
   AlertTriangleIcon,
-  CheckCircleIcon,
   ChessKnightIcon,
   CodeIcon,
   Heading1Icon,
@@ -124,7 +124,7 @@ export const BlockRegistry = {
       items: [{ id: "checklist-item-1", content: "", checked: false }],
     },
     displayName: "Checklist",
-    icon: CheckCircleIcon,
+    icon: CheckCircle2,
   } as BlockDefinition<ChecklistProps>,
 };
 

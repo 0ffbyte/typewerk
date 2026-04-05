@@ -58,44 +58,21 @@ export const useEditorStore = create<EditorState & Actions>()(
         const def = BlockRegistry[type];
         let props = { ...def.defaultProps, ...(content && { content }) };
 
-        const blockLength = s.data.pages[s.pageIndex].blocks.length;
-        const firstBlock = s.data.pages[s.pageIndex].blocks[0] ?? null;
-
-        if (type === "checklist" && content) {
-          const items = normalizeHtml(content)
-            ?.split("\n")
-            .map((content) => {
-              return { id: crypto.randomUUID(), content, checked: false };
-            });
-
-          props = { items };
-        }
-
         s.data.pages[s.pageIndex].blocks.splice(index, 0, {
           id: crypto.randomUUID(),
           type,
           props,
         });
-
-        if (type === "image") {
-          const afterIndex = index + 1;
-          const textDef = BlockRegistry["text"];
-          s.data.pages[s.pageIndex].blocks.splice(afterIndex, 0, {
-            id: crypto.randomUUID(),
-            type: "text",
-            props: textDef.defaultProps,
-          });
-
-          s.selectedIndex = afterIndex;
-        } else {
-          s.selectedIndex = index;
-        }
+        s.isEditable = true;
+        s.selectedIndex = index;
       }),
     removeBlock: (index: number) =>
       set((s) => {
         const blocks = s.data.pages[s.pageIndex].blocks;
         const block = blocks[index];
         const onlyOne = blocks.length === 1;
+
+        if (!block) return;
 
         // Guard: never remove the last text block, only set selectedIndex to -1
         if (onlyOne && block.type === "text") {
@@ -107,7 +84,6 @@ export const useEditorStore = create<EditorState & Actions>()(
 
         // If we just emptied the page, seed a fresh text block
         if (blocks.length === 0) {
-          return;
           blocks.push({
             id: crypto.randomUUID(),
             type: "text",
@@ -187,18 +163,26 @@ export const useEditorStore = create<EditorState & Actions>()(
     runCleanup: () => {
       set((s) => {
         const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
-        //if (blocks.length <= 1) return;
+        if (blocks.length <= 1 && blocks[0]?.type === "text") return;
 
+        // Keep track of filtered count before selectedIndex
+        let removedBeforeSelected = 0;
         s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
           if (
             typeof block.props?.content !== "string" ||
             s.selectedIndex === index
-          )
+          ) {
             return true;
+          }
           const length = normalizeHtml(block.props?.content).trim().length;
-          console.log("length:", length);
-          return length > 0;
+          if (length === 0) {
+            if (index < s.selectedIndex) removedBeforeSelected += 1;
+            return false;
+          }
+          return true;
         });
+        s.selectedIndex -= removedBeforeSelected;
+        if (s.selectedIndex < 0) s.selectedIndex = 0;
       });
     },
   }))

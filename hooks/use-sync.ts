@@ -3,12 +3,8 @@ import { UpdateSiteAction } from "@/app/actions";
 import type { SiteObject } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 
-const useSync = (
-  siteId: string,
-  data: SiteObject,
-  isInitialized: boolean,
-  debounce = 2000
-) => {
+const useSync = (siteId: string, isInitialized: boolean, debounce = 2000) => {
+  const data = useEditorStore((s) => s.data);
   const setState = useEditorStore((s) => s.setState);
   const prevState = useRef<SiteObject>(data);
 

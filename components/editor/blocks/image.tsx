@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
-import useFocused from "@/hooks/use-focused";
+import useFocused from "@/hooks/use-focus";
 import type { BlockProps } from "@/app/types";
 import {
   CropIcon,
@@ -68,6 +68,13 @@ const ImageBlock = ({
   });
   const [pendingZoom, setPendingZoom] = useState(transform.zoom);
 
+  // calculate dynamic transform
+  const baseW = 720;
+  const multiplier = useMemo(() => {
+    const currentH = ref.current?.clientWidth!;
+    return Number((currentH / baseW).toFixed(1));
+  }, [ref.current?.clientWidth]);
+
   return (
     <div
       ref={ref}
@@ -95,7 +102,9 @@ const ImageBlock = ({
           draggable={false}
           className="w-full pointer-events-none select-none absolute top-1/2 -left-1/2 translate-x-1/2 -translate-y-1/2"
           style={{
-            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+            transform: `translate(${transform.x * multiplier}px, ${
+              transform.y * multiplier
+            }px) scale(${transform.zoom})`,
             transformOrigin: "center",
             objectFit: "cover",
           }}
@@ -124,7 +133,7 @@ const ImageBlock = ({
         </div>
       )}
 
-      {false && <Caption caption={"By Edward Snowden"} />}
+      {false && <Caption caption={`m: ${multiplier}`} />}
     </div>
   );
 };
@@ -169,7 +178,8 @@ const CropView = ({
       zoomSpeed={0.1}
       style={{
         mediaStyle: {
-          width: "100%",
+          width: "100% !important",
+          height: "100% !important",
           objectFit: "cover",
         },
         cropAreaStyle: {
@@ -240,8 +250,13 @@ const Toolbar = ({
             block.props.url = newUrl.trim();
             block.props.width = img.width;
             block.props.height = img.height;
+            block.props.transform.x = 0;
+            block.props.transform.y = 0;
+            block.props.transform.zoom = 1;
           }
         });
+        setPendingCrop({ x: 0, y: 0 });
+        setPendingZoom(1);
         setIsLoading(false);
       };
       img.onerror = () => {
