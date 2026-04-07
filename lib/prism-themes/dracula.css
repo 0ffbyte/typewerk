@@ -5,7 +5,7 @@
 
 code[class*="language-"],
 pre[class*="language-"] {
-  color: #a9b1d6;
+  color: #343b59;
 }
 
 pre[class*="language-"]::-moz-selection,
@@ -13,7 +13,7 @@ pre[class*="language-"] ::-moz-selection,
 code[class*="language-"]::-moz-selection,
 code[class*="language-"] ::-moz-selection {
   text-shadow: none;
-  background: #6f7bb640;
+  background: #fafbff40;
 }
 
 pre[class*="language-"]::selection,
@@ -21,13 +21,13 @@ pre[class*="language-"] ::selection,
 code[class*="language-"]::selection,
 code[class*="language-"] ::selection {
   text-shadow: none;
-  background: #6f7bb640;
+  background: #fafbff40;
 }
 
 :not(pre) > code[class*="language-"],
 pre[class*="language-"] {
   color: white;
-  background: #1a1b26;
+  background: #e1e2e7;
 }
 
 :not(pre) > code[class*="language-"] {
@@ -37,72 +37,72 @@ pre[class*="language-"] {
 }
 
 .token.comment {
-  color: #565f89;
+  color: #848cb5;
   font-style: italic;
 }
 
 .token.keyword {
-  color: #9d7cd8;
+  color: #7847bd;
 }
 
 .token.operator {
-  color: #89ddff;
+  color: #006a83;
 }
 
 .token.punctuation {
-  color: #bb9af7;
+  color: #9854f1;
 }
 
 .token.builtin {
-  color: #f7768e;
+  color: #f52a65;
 }
 
 .token.number {
-  color: #ff9e64;
+  color: #188092;
 }
 
 .token.constant {
-  color: #ff9e64;
+  color: #b15c00;
 }
 
 .token.string {
-  color: #9ece6a;
+  color: #587539;
 }
 
 .token.symbol {
-  color: #2ac3de;
+  color: #188092;
 }
 
 .token.attr-name {
-  color: rgb(241, 250, 140);
+  color: #b15c00;
 }
 
 .token.selector {
-  color: #9ece6a;
+  color: #587539;
 }
 
 .token.hexcode {
-  color: #9aa5ce;
+  color: #565a6e;
 }
 
 .token.function {
-  color: #7aa2f7;
+  color: #2e7de9;
 }
 
 .token.tag {
-  color: #9ece6a;
+  color: #587539;
 }
 
 .token.variable {
-  color: #c0caf5;
+  color: #3760bf;
 }
 
 .token.char {
-  color: #bb9af7;
+  color: #587539;
 }
 
 .token.property {
-  color: #2ac3de;
+  color: #188092;
 }
 
 .token.inserted {
@@ -114,11 +114,11 @@ pre[class*="language-"] {
 }
 
 .token.changed {
-  color: #6183bb;
+  color: #34548a;
 }
 
 .token.regex {
-  color: #b4f9f8;
+  color: #3e6968;
 }
 
 .token.important,
@@ -131,8 +131,8 @@ pre[class*="language-"] {
 }
 
 :root {
-  --am-prism-line-numbers-color: #565f8977;
-  --am-prism-border-color: #565f8922;
-  --am-prism-copy-color: #a9b1d6;
-  --am-prism-copy-bg: #565f8933;
+  --am-prism-line-numbers-color: #848cb577;
+  --am-prism-border-color: #848cb522;
+  --am-prism-copy-color: #848cb5;
+  --am-prism-copy-bg: #848cb522;
 }

@@ -18,7 +18,6 @@ type Props = {
 
 const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const state = useEditorStore((state) => state);
-  const setState = useEditorStore((state) => state.setState);
   const isSelected = state.selectedIndex === index;
   const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
 
@@ -36,7 +35,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
 
   const draggableStyle: React.CSSProperties = {
     transform: transform ? CSS.Translate.toString(transform) : undefined,
-    zIndex: isDragging ? 999 : undefined,
+    zIndex: isDragging ? 99 : undefined,
     transition: "transform 0.2s ease-out",
   };
 
@@ -104,11 +103,13 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
       onKeyDown={handleKeyDown}
       onFocus={() => state.setSelectedIndex(index)}
       className={cn(
-        "flex items-start justify-start relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent",
-        state.preventNewLine && !isSelected && "blur-xs opacity-80",
+        "flex items-start justify-start relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent pointer-events-auto",
+        state.preventNewLine &&
+          !isSelected &&
+          "blur-xs opacity-80 pointer-events-none",
         "hover:border-border"
       )}
-      onMouseDown={() => {
+      onPointerDown={() => {
         state.setState((s) => {
           s.isEditable = true;
         });
@@ -159,7 +160,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
                 rotate: isDragging ? "-1deg" : undefined,
               }}
             >
-              <DragHandleDots2Icon className="h-6 w-6 text-zinc-400" />
+              <DragHandleDots2Icon className="h-6 w-6 text-muted-foreground" />
             </button>
           </div>
         </div>
@@ -167,7 +168,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
           className="w-full h-full transition-all duration-200"
           style={{
             rotate: isDragging ? "1deg" : undefined,
-            opacity: isDragging ? 0.8 : 1,
+            opacity: isDragging ? 0.5 : 1,
           }}
         >
           {children}

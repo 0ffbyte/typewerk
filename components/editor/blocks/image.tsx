@@ -47,8 +47,6 @@ const DEFAULT_TRANSFORM: ImageTransform = { x: 0, y: 0, zoom: 1 };
 // define block component
 const ImageBlock = ({
   url,
-  width = 100,
-  height = 100,
   transform = DEFAULT_TRANSFORM,
   index,
 }: ImageProps & BlockProps) => {
@@ -69,10 +67,10 @@ const ImageBlock = ({
   const [pendingZoom, setPendingZoom] = useState(transform.zoom);
 
   // calculate dynamic transform
-  const baseW = 720;
+  const baseW = 670;
   const multiplier = useMemo(() => {
     const currentH = ref.current?.clientWidth!;
-    return Number((currentH / baseW).toFixed(1));
+    return Number((currentH / baseW).toFixed(2));
   }, [ref.current?.clientWidth]);
 
   return (
@@ -81,7 +79,7 @@ const ImageBlock = ({
       tabIndex={index}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
-      className="w-full h-full aspect-video border bg-zinc-200 relative outline-none rounded-lg group select-none"
+      className="w-full h-full aspect-video border bg-zinc-100 dark:bg-zinc-900 relative outline-none rounded-lg group select-none"
       style={{
         overflow: isCropping ? "visible" : "clip",
       }}
@@ -292,32 +290,32 @@ const Toolbar = ({
   };
 
   return (
-    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start z-100">
+    <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
       {isCropping ? (
         <>
-          <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
             <button
               title="reset crop"
               onClick={handleResetCrop}
               className="h-full aspect-square flex items-center justify-center"
             >
-              <ResetIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+              <ResetIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
             </button>
             <button
               title="center crop"
               onClick={handleCenterCrop}
               className="h-full aspect-square flex items-center justify-center"
             >
-              <EnterFullScreenIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+              <EnterFullScreenIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
             </button>
           </div>
-          <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
             <button
               title="apply crop"
               onClick={commitCrop}
               className="h-full aspect-square flex items-center justify-center"
             >
-              <CheckIcon className="text-zinc-200 hover:text-zinc-400 transition-colors duration-75" />
+              <CheckIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
             </button>
           </div>
         </>

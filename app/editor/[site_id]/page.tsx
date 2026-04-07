@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ subdomain: string }>;
+  params: Promise<{ site_id: string }>;
 }) {
-  const { subdomain } = await params;
-  const site = await getSite(subdomain);
+  const { site_id } = await params;
+  const site = await getSite(site_id);
   if (!site) return notFound();
 
   const { siteObject, id } = site;
@@ -24,7 +24,7 @@ export default async function Page({
         <TOC />
       </div>
       <EditorShell initialState={sanitizedSite} siteId={id} />
-      <Toolbar siteId={id} subdomain={subdomain} />
+      <Toolbar siteId={id} />
     </div>
   );
 }

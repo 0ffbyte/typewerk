@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
-import { normalizeHtml } from "@/lib/utils";
+import { normalizeHtml, playRandomSfx } from "@/lib/utils";
 
 export type EditorState = {
   data: SiteObject;
@@ -53,7 +53,7 @@ export const useEditorStore = create<EditorState & Actions>()(
       set((s) => {
         s.pageIndex = index;
       }),
-    addBlock: (type: BlockType, index: number, content?: string) =>
+    addBlock: (type: BlockType, index: number, content?: string) => {
       set((s) => {
         const def = BlockRegistry[type];
         let props = { ...def.defaultProps, ...(content && { content }) };
@@ -65,7 +65,9 @@ export const useEditorStore = create<EditorState & Actions>()(
         });
         s.isEditable = true;
         s.selectedIndex = index;
-      }),
+      });
+      //playRandomSfx();
+    },
     removeBlock: (index: number) =>
       set((s) => {
         const blocks = s.data.pages[s.pageIndex].blocks;

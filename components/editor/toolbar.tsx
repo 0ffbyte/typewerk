@@ -325,13 +325,7 @@ const ThemeDropdown = () => {
   );
 };
 
-const PublishButton = ({
-  siteId,
-  subdomain,
-}: {
-  siteId: string;
-  subdomain: string;
-}) => {
+const PublishButton = ({ siteId }: { siteId: string }) => {
   const theme = useEditorStore((s) => s.data.theme);
   const isSyncing = useEditorStore((s) => s.isSyncing);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -348,9 +342,9 @@ const PublishButton = ({
     if (isSyncing || isPublishing) return;
 
     if (isUptoDate) {
-      const url = `${window.location.origin}/${subdomain}`;
-      await navigator.clipboard.writeText(url);
       return;
+      //const url = `${window.location.origin}/${subdomain}`;
+      //await navigator.clipboard.writeText(url);
     }
 
     setIsPublishing(true);
@@ -390,13 +384,7 @@ const PublishButton = ({
   );
 };
 
-const Toolbar = ({
-  siteId,
-  subdomain,
-}: {
-  siteId: string;
-  subdomain: string;
-}) => {
+const Toolbar = ({ siteId }: { siteId: string }) => {
   const preventNewLine = useEditorStore((s) => s.preventNewLine);
 
   return (
@@ -410,7 +398,7 @@ const Toolbar = ({
         <PageDropdown />
         <ThemeDropdown />
         <div className="w-px h-full bg-white/5" />
-        <PublishButton siteId={siteId} subdomain={subdomain} />
+        <PublishButton siteId={siteId} />
       </div>
     </div>
   );

@@ -1,22 +1,20 @@
 "use client";
 
+import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
 
 import Prism from "prismjs";
 import "@/lib/prism-themes/dracula.css";
 
+import { SANITIZE_CONFIG } from "@/lib/sanitize";
 import { cn, THEME_MAPPING } from "@/lib/utils";
 import sanitize from "sanitize-html";
-import { SANITIZE_CONFIG } from "@/lib/sanitize";
 
+import useInlineMenu from "@/hooks/use-inline-menu";
 import SlashMenu from "./slashMenu";
 
 import { useEditorStore } from "@/store/editor-store";
-
-import useInlineMenu from "@/hooks/use-inline-menu";
-
-import { motion } from "framer-motion";
 import { useSelectionStore } from "@/store/selection-store";
 
 type ContentEditableProps = {
@@ -57,7 +55,6 @@ const ContentEditable = ({
   const theme = useEditorStore((s) => s.data.theme);
 
   const isMultiline = useSelectionStore((s) => s.meta.isMultiSelection);
-  const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
 
   const isFocusedRef = useRef(false);
   const isComposingRef = useRef(false);
@@ -217,12 +214,12 @@ const ContentEditable = ({
         spellCheck={!syntaxHighlighting}
         aria-label="rich text editor"
         className={cn(
-          "outline-none border border-transparent select-text text-[16px] leading-[28px] sm:text-[1rem] sm:leading-[28px] w-full sm:min-h-[28px] min-h-[24px] text-zinc-600 dark:text-zinc-400 z-40 whitespace-pre-wrap",
+          "outline-none text-muted-foreground border border-transparent select-text text-[16px] leading-[24px] sm:text-[18px] sm:leading-[28px] w-full sm:min-h-[28px] min-h-[24px] z-40 whitespace-pre-wrap",
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
-            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
-          !isEditable && "border-red-500",
-          isMultiline && "border-purple-500",
+            "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-[24px] min-h-[24px]",
+          !isEditable && "border-red-500/0",
+          isMultiline && "border-purple-500/0",
           className
         )}
         style={{
@@ -255,9 +252,9 @@ const ContentEditable = ({
       {isEmpty && (
         <div
           className={cn(
-            "pointer-events-none absolute left-0 top-0 text-[16px] leading-[24px] sm:text-[20px] sm:leading-[32px] w-full sm:min-h-[32px] min-h-[24px]",
+            "pointer-events-none absolute left-0 top-0 text-[16px] leading-[28px] sm:text-[18px] sm:leading-[28px] w-full sm:min-h-[28px] min-h-[24px]",
             syntaxHighlighting &&
-              "caret-blue-500 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-auto",
+              "caret-blue-500 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-[24px] min-h-[24px]",
             className,
             "text-muted-foreground/50",
             placeholderClassName
@@ -340,7 +337,7 @@ const SyntaxHighlighterOverlay = ({
         aria-hidden="true"
         spellCheck={false}
         className={cn(
-          "text-zinc-200 font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-[14px] leading-auto w-full min-h-[24px] whitespace-pre",
+          "text-foreground font-mono pointer-events-none select-none overflow-x-auto absolute top-0 left-0 outline-none text-[14px] leading-[24px] w-full min-h-[24px] whitespace-pre",
           className
         )}
         style={

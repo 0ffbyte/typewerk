@@ -1,32 +1,50 @@
-import { pgTable } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
+import { pgTable } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { Page, SiteObject } from "@/app/types";
+import { SiteObject } from "@/app/types";
+import { check } from "drizzle-orm/pg-core";
 
-export const sites = pgTable("sites", {
-  id: t
-    .text("id")
-    .primaryKey()
-    .$default(() => sql`gen_random_uuid()`),
-  userId: t
-    .text("user_id")
-    .notNull()
-    .references(() => user.id),
-  subdomain: t.varchar("subdomain", { length: 256 }).unique().notNull(),
-  siteObject: t.jsonb("site_object").$type<SiteObject>().notNull(),
-  createdAt: t.timestamp("created_at").defaultNow().notNull(),
-  updatedAt: t
-    .timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const statusEnum = t.pgEnum("status", [
+  "published",
+  "draft",
+  "archived",
+]);
 
+export const sites = pgTable(
+  "sites",
+  {
+    id: t
+      .text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: t
+      .text("user_id")
+      .notNull()
+      .references(() => user.id),
+    siteObject: t.jsonb("site_object").$type<SiteObject>().notNull(),
+    subdomain: t.varchar("subdomain", { length: 63 }).unique(),
+    status: statusEnum("status").notNull().default("draft"),
+    createdAt: t.timestamp("created_at").defaultNow().notNull(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "published_requires_subdomain",
+      sql`${t.status} != 'published' OR ${t.subdomain} IS NOT NULL`
+    ),
+  ]
+);
+
+/*
 export const articles = pgTable("articles", {
   id: t
     .text("id")
     .primaryKey()
-    .$default(() => sql`gen_random_uuid()`),
+    .default(sql`gen_random_uuid()`),
   siteId: t
     .text("site_id")
     .notNull()
@@ -41,6 +59,7 @@ export const articles = pgTable("articles", {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+*/
 
 /** Auth Schema */
 export const user = pgTable("user", {

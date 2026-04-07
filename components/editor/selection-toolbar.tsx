@@ -1,18 +1,31 @@
+"use client";
 // selection toolbar 2.0
 import { useCallback, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { useSelectionStore } from "@/store/selection-store";
+import { useEditorStore } from "@/store/editor-store";
 
 import { cn, unwrapSafe, getFoundTags } from "@/lib/utils";
-import { BoldIcon, ItalicIcon, LinkIcon, UnderlineIcon } from "lucide-react";
+import {
+  FontBoldIcon,
+  FontItalicIcon,
+  UnderlineIcon,
+  Link2Icon as LinkIcon,
+  MagicWandIcon,
+  StarFilledIcon,
+  CopyIcon,
+} from "@radix-ui/react-icons";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const SelectionToolbar = () => {
-  const selection = useSelectionStore((s) => s.selection);
-  const position = useSelectionStore((s) => s.position);
-  const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
-  const isMultiSelection = useSelectionStore((s) => s.meta.isMultiSelection);
-  const anchorIndex = useSelectionStore((s) => s.meta.anchorIndex);
+  const setState = useEditorStore((s) => s.setState);
+  const {
+    selection,
+    position,
+    meta: { isSelecting, isMultiSelection, anchorIndex },
+  } = useSelectionStore();
 
+  const isMobile = useIsMobile();
   const [tick, setTick] = useState(0);
 
   // Derive foundTags from selection
@@ -81,7 +94,7 @@ const SelectionToolbar = () => {
     [foundTags]
   );
 
-  if (!selection || isSelecting) return null;
+  if (!selection || isSelecting || isMobile || isMultiSelection) return null;
 
   return (
     <motion.div
@@ -94,14 +107,18 @@ const SelectionToolbar = () => {
         damping: 24,
         mass: 0.8,
       }}
-      className="absolute z-50 rounded-lg shadow-md bg-zinc-800 text-xs p-1 h-[38px] flex items-center justify-center gap-0.5 backdrop-blur-xs text-zinc-200 select-none"
+      className="absolute z-50 rounded-lg shadow-lg border border-border/20 bg-zinc-900/80 text-xs p-1 h-[36px] flex items-center justify-center gap-0.5 backdrop-blur-xs text-zinc-400 select-none"
       style={{
-        left: position.x - 76,
-        top: position.y - 48,
+        left: position.x - 108,
+        top: position.y - 44,
         transformOrigin: "center",
         transform: "translate(100%, -100%)",
         pointerEvents: "auto",
         willChange: "transform",
+      }}
+      onPointerEnter={() => {
+        if (isMultiSelection) return;
+        setState((s) => (s.isEditable = true));
       }}
     >
       {isMultiSelection ? (
@@ -109,54 +126,80 @@ const SelectionToolbar = () => {
       ) : (
         <>
           <button
+            title="copy"
             className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-sm",
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              navigator.clipboard.writeText(selection?.toString() ?? "");
+            }}
+          >
+            <CopyIcon />
+          </button>
+
+          <button
+            className={cn(
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
               foundTags.includes("b") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => toggleFormat("bold")}
           >
-            <BoldIcon size={14} />
+            <FontBoldIcon />
           </button>
 
           <button
             className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-sm",
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
               foundTags.includes("i") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => toggleFormat("italic")}
           >
-            <ItalicIcon size={14} />
+            <FontItalicIcon />
           </button>
 
           <button
             className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-sm",
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
               foundTags.includes("u") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => toggleFormat("underline")}
           >
-            <UnderlineIcon size={14} />
+            <UnderlineIcon />
           </button>
-
-          <div className="w-px h-4 bg-zinc-600/60 mx-0.5" />
 
           <button
             className={cn(
-              "hover:bg-zinc-50/10 transition-colors h-full aspect-square flex items-center justify-center rounded-sm",
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
               foundTags.includes("a") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => toggleFormat("createLink")}
           >
-            <LinkIcon size={14} />
+            <LinkIcon />
+          </button>
+
+          <div className="w-px h-4 bg-zinc-400/30 mx-0.5" />
+          <button
+            className={cn(
+              "hover:bg-rose-50/10 h-full w-full flex items-center px-2 gap-1 justify-center rounded-sm text-sm text-zinc-400 hover:text-zinc-300"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() =>
+              alert(
+                `AI features not yet implemented. \nSelection: "${selection?.toString()}"`
+              )
+            }
+          >
+            Ask AI
           </button>
         </>
       )}
 
-      <div className="absolute left-1/2 -bottom-[6px] -translate-x-1/2 h-3 w-3 bg-zinc-800 rotate-45 rounded-br-[4px]" />
+      <div className="absolute left-1/2 -bottom-[6px] -translate-x-1/2 h-3 w-3 bg-zinc-800 rotate-45 rounded-br-[4px] hidden" />
     </motion.div>
   );
 };

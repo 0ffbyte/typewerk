@@ -17,7 +17,7 @@ export default async function UserSites() {
               <p className="underline">view</p>
             </Link>
 
-            <Link href={`/editor/${site.subdomain}`}>
+            <Link href={`/editor/${site.id}`}>
               <p className="underline text-blue-500">edit</p>
             </Link>
 

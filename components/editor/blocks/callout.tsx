@@ -35,25 +35,25 @@ export const CALLOUT_TYPE_MAPPING: Record<
 > = {
   tip: {
     background: "bg-sky-200",
-    text: "text-sky-800",
+    text: "text-sky-700",
     border: "border-sky-300",
     icon: <LightbulbIcon size={20} />,
   },
   success: {
     background: "bg-teal-200",
-    text: "text-teal-800",
+    text: "text-teal-700",
     border: "border-teal-300",
     icon: <CheckCircleIcon size={20} />,
   },
   warning: {
     background: "bg-yellow-200",
-    text: "text-yellow-800",
+    text: "text-yellow-700",
     border: "border-yellow-300",
     icon: <AlertCircleIcon size={20} />,
   },
   error: {
     background: "bg-rose-200",
-    text: "text-rose-800",
+    text: "text-rose-700",
     border: "border-rose-300",
     icon: <AlertTriangleIcon size={20} />,
   },
@@ -129,7 +129,7 @@ const CalloutBlock = ({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <div className="pt-[2px] w-full">
+      <div className="pt-[3px] w-full">
         <ContentEditable
           blockIndex={index}
           id={id}

@@ -31,7 +31,7 @@ export default function EditorShell({
   useBackspace();
   usePageTracking();
   useSelectionTracking();
-  //useSync(siteId, isInitialized);
+  useSync(siteId, isInitialized);
 
   // initializes state
   useEffect(() => {
@@ -61,16 +61,17 @@ export default function EditorShell({
     );
 
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[650px] lg:w-[650px] select-none">
+    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[680px] lg:w-[680px] select-none">
       <Header />
       <DndContext
         onDragEnd={handleDragEnd}
         collisionDetection={rectIntersection}
       >
-        {<EditorCanvas blocks={pageData.blocks} />}
+        <EditorCanvas blocks={pageData.blocks} />
         <SelectionToolbar />
       </DndContext>
 
+      <Foreword blockLength={pageData.blocks.length} />
       {false && <Debugger />}
     </div>
   );
@@ -82,9 +83,12 @@ const Debugger = () => {
   const state = useEditorStore((s) => s);
   const selection = useSelectionStore((s) => s);
 
-  const [currentData, setCurrentData] = useState<"selection" | "editor">(
-    "selection"
-  );
+  const [currentData, setCurrentData] = useState<
+    "selection" | "editor" | "hidden"
+  >("selection");
+
+  if (currentData === "hidden") return null;
+
   return (
     <pre className="bg-black/10 text-xs fixed top-0 left-0 w-[400px] h-[600px] overflow-scroll">
       <div className="flex gap-2 mb-2">
@@ -108,9 +112,33 @@ const Debugger = () => {
         >
           editor
         </button>
+        <button
+          onClick={() => setCurrentData("hidden")}
+          className="px-2 py-1 rounded bg-zinc-700 text-zinc-100 hover:bg-zinc-600 transition"
+        >
+          hide
+        </button>
       </div>
       {JSON.stringify(currentData === "selection" ? selection : state, null, 2)}
       <br />
     </pre>
+  );
+};
+
+const Foreword = ({ blockLength }: { blockLength: number }) => {
+  const addBlock = useEditorStore((s) => s.addBlock);
+  const setSelectedIndex = useEditorStore((s) => s.setSelectedIndex);
+
+  return (
+    <div
+      title="write"
+      id="foreword"
+      className="w-full min-h-[512px] h-full flex flex-1 cursor-text rounded-[8px] hover:bg-zinc-200/0 transition-colors duration-200"
+      onClick={() => {
+        const insertAt = blockLength;
+        addBlock("text", insertAt);
+        setSelectedIndex(insertAt);
+      }}
+    />
   );
 };

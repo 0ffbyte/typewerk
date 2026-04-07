@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/editor-store";
+import { set } from "better-auth";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -31,6 +32,7 @@ export default function Header() {
         )
           s.addBlock("text", 0);
         else s.setSelectedIndex(0);
+
         break;
 
       case "ArrowUp":
@@ -119,7 +121,7 @@ export default function Header() {
         <div className="flex flex-col gap-0 rounded-lg">
           <textarea
             ref={headingRef}
-            className="font-sans capitalize text-[16px] leading-[24px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
+            className="font-sans capitalize text-[18px] leading-[24px] w-full outline-none placeholder:text-muted-foreground/50 resize-none overflow-hidden"
             placeholder="Heading"
             spellCheck={false}
             value={s.data.header.heading}
@@ -141,7 +143,7 @@ export default function Header() {
           />
           <textarea
             ref={subRef}
-            className="font-sans capitalize text-[16px] leading-[24px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
+            className="font-sans capitalize text-[18px] leading-[24px] w-full outline-none placeholder:text-muted-foreground/50 text-muted-foreground resize-none overflow-hidden"
             placeholder="Subheading"
             spellCheck
             value={s.data.header.subheading}

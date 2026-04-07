@@ -74,25 +74,17 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="w-full grid grid-cols-[36px_1fr] grid-rows-[36px_1fr] rounded-lg border overflow-clip select-none"
+      className="w-full grid grid-cols-[36px_1fr] grid-rows-[1fr] rounded-lg border overflow-clip select-none p-1 bg-zinc-100 dark:bg-zinc-900"
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
     >
-      <div className="bg-zinc-900 flex items-center justify-center rounded-tl-lg select-none">
-        <CodeIcon className="text-muted-foreground" size={16} />
-      </div>
-
-      <div className="bg-zinc-900 flex items-center pl-2 rounded-tr-lg select-none">
-        <p className="text-muted-foreground text-sm">Code</p>
-      </div>
-
-      <div className="w-full bg-zinc-900 py-2 rounded-bl-lg select-none">
+      <div className="w-full py-[8px] select-none border-green-500">
         {Array.from({ length: visibleGutterLines }, (_, i) => (
           <div
             key={i}
             className="text-sm text-muted-foreground font-mono pointer-events-none flex items-center justify-center"
             style={{
-              height: `${CODE_LINE_HEIGHT_PX}px`,
+              height: `${24}px`,
               width: "36px",
             }}
           >
@@ -101,7 +93,7 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
         ))}
       </div>
 
-      <div className="w-full bg-zinc-900 h-full flex flex-col items-stretch justify-start min-h-[20px] px-2 pt-2 rounded-br-lg select-none">
+      <div className="w-full h-full flex flex-col items-stretch justify-start min-h-[20px] px-2 pt-2 select-none border-red-500">
         <div
           className={
             isTruncatable && !expanded ? "overflow-hidden min-w-0" : "min-w-0"

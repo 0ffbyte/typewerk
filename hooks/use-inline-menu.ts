@@ -144,6 +144,7 @@ const useInlineMenu = (
         tempSpan.textContent = triggerToken;
         tempSpan.style.backgroundColor = "var(--color-blue-100)";
         tempSpan.style.borderRadius = "4px";
+        tempSpan.style.padding = "2px 2px";
         tempSpan.style.color = "var(--color-blue-500)";
         tempSpan.id = "slash-commander";
         range.insertNode(tempSpan);

@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Geist, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/_providers/theme-provider";
 import Script from "next/script";
+
+import localFont from "next/font/local";
+
+/*
+const geistSans = localFont({
+  src: "../public/fonts/sohne.otf",
+  variable: "--font-geist-sans",
+  display: "swap",
+});
+*/
 
 const geistSans = Inter({
   variable: "--font-geist-sans",

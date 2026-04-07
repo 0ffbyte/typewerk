@@ -64,20 +64,32 @@ export default function useSelectionTracking() {
       });
     };
 
-    const handlePointerUp = () => {
+    const handleSelectionStart = () => {
       setSelection((s) => {
         s.meta.isSelecting = true;
       });
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const SELECTION = document.getSelection();
+        if (SELECTION && SELECTION.rangeCount > 0) {
+          SELECTION.removeAllRanges();
+          clearSelection();
+        }
+      }
+    };
+
+    document.addEventListener("selectstart", handleSelectionStart);
     document.addEventListener("pointerup", handleSelectionChange);
     document.addEventListener("keyup", handleSelectionChange);
-    document.addEventListener("selectstart", handlePointerUp);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      document.removeEventListener("selectstart", handleSelectionStart);
       document.removeEventListener("pointerup", handleSelectionChange);
       document.removeEventListener("keyup", handleSelectionChange);
-      document.removeEventListener("selectstart", handlePointerUp);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 }

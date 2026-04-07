@@ -65,7 +65,7 @@ export const BlockRegistry = {
     component: Image,
     renderedComponent: R_Image,
     defaultProps: {
-      url: "https://i.pinimg.com/1200x/b9/82/0f/b9820f69c29058a09ca984e6bf1876bb.jpg",
+      url: "https://i.pinimg.com/originals/d1/bc/be/d1bcbe5854709126d6ce90dbdf28bac1.gif",
       transform: {
         x: 0,
         y: 0,
@@ -100,7 +100,7 @@ export const BlockRegistry = {
     renderedComponent: Text,
     defaultProps: {
       content: "",
-      type: "tip",
+      type: "warning",
     },
     sanitize: true,
     displayName: "Callout",

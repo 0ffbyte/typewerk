@@ -31,7 +31,7 @@ export default function EditorCanvas({ blocks }: { blocks: BaseBlock[] }) {
           >
             <Spacer id={block.id} index={index} />
             {block.type === "section" && index >= 1 && (
-              <div className="h-[64px] hover:bg-rose-400/10 w-full rounded-lg transition-colors duration-100 cursor-not-allowed select-none" />
+              <div className="h-[48px] hover:bg-rose-400/10 w-full rounded-lg transition-colors duration-100 cursor-not-allowed select-none" />
             )}
 
             <BlockHandle index={index} id={block.id}>

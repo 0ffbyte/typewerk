@@ -154,3 +154,34 @@ export const THEME_MAPPING = {
     mono: "font-mono",
   },
 };
+
+/**
+ * Randomly selects an SFX and plays it.
+ * Assumes that sfx files are located under `/sfx/` and have `.mp3` extension.
+ */
+export function playRandomSfx() {
+  const SFX = [
+    "bass-boost-discord-call",
+    "faaaa",
+    "fart-with-reverb",
+    "qbd-lb-b",
+    "stynqw-lrybwk",
+    "ttmnyk-ly",
+  ];
+
+  const extension = "mp3";
+
+  const randIndex = Math.floor(Math.random() * SFX.length);
+  const sfxName = SFX[randIndex];
+  // Extend the Window interface to include __currentSfxAudio
+  interface WindowWithSfxAudio extends Window {
+    __currentSfxAudio?: HTMLAudioElement;
+  }
+  const win = window as WindowWithSfxAudio;
+  if (win.__currentSfxAudio instanceof Audio) {
+    win.__currentSfxAudio.pause();
+    win.__currentSfxAudio.currentTime = 0;
+  }
+  win.__currentSfxAudio = new Audio(`/sfx/${sfxName}.${extension}`);
+  win.__currentSfxAudio.play();
+}

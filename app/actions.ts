@@ -27,8 +27,8 @@ export const CreateSiteAction = async (subdomain: string) => {
     const starterTemplate: SiteObject = {
       header: {
         image: "",
-        heading: "Hello, World",
-        subheading: "Welcome to your new site",
+        heading: `${user.name ?? "My Site"}`,
+        subheading: "Branding Agency",
       },
       pages: [
         {
@@ -37,9 +37,17 @@ export const CreateSiteAction = async (subdomain: string) => {
           blocks: [
             {
               id: crypto.randomUUID(),
+              type: "section",
+              props: {
+                content: "Information",
+              },
+            },
+            {
+              id: crypto.randomUUID(),
               type: "text",
               props: {
-                content: "Hello, World",
+                content:
+                  "We are a multidisciplinary branding agency specialized in strategy, branding, imagery, spatial and digital. We offer brand services for any pivotal moment in your business evolution. Guided by the ethos of Creative Intelligence, we likely have what it takes to tackle your challenge in an integrated way for maximum impact.",
               },
             },
           ],
@@ -55,7 +63,7 @@ export const CreateSiteAction = async (subdomain: string) => {
     await db.insert(sites).values({
       userId: user.id,
       siteObject: starterTemplate,
-      subdomain: sanitizedSubdomain,
+      status: "draft",
     });
   } catch (error) {
     console.error("Failed to create site:", error);

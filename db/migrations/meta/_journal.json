@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1769974381485,
-      "tag": "0000_mixed_microbe",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1774980730259,
-      "tag": "0001_loose_skullbuster",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1774996158701,
-      "tag": "0002_slimy_nocturne",
+      "when": 1775498893125,
+      "tag": "0000_dazzling_wrecking_crew",
       "breakpoints": true
     }
   ]
