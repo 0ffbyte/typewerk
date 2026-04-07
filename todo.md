@@ -14,9 +14,9 @@ v0.8.0
 
 - [ ] Toast notification system (zustand - motion)
 
-- [ ] Starter templates (accept / return)
+- [ ] Starter templates (accept / return) ...
 
-- [ ] Multi-block selection (native select) ...
+- [x] Multi-block selection (native select)
 
 - [x] Image cropping (uses multiplier(m) based on container size)
 
