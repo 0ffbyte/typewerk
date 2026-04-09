@@ -103,11 +103,10 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
       onKeyDown={handleKeyDown}
       onFocus={() => state.setSelectedIndex(index)}
       className={cn(
-        "flex items-start justify-start relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent pointer-events-auto",
+        "flex items-start justify-start hover:border-border relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent pointer-events-auto",
         state.preventNewLine &&
           !isSelected &&
-          "blur-xs opacity-80 pointer-events-none",
-        "hover:border-border"
+          "blur-xs opacity-80 pointer-events-none"
       )}
       onPointerDown={() => {
         state.setState((s) => {

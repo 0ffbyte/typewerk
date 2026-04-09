@@ -36,7 +36,7 @@ export function SignOut() {
     setLoading(true);
     try {
       await authClient.signOut();
-      window.location.reload();
+      window.location.href = "/";
     } catch (e) {
       console.log(e);
       setLoading(false);

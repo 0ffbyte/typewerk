@@ -22,23 +22,35 @@ export const slugify = (text: string): string => {
 };
 
 export function unwrapSafe(element: Element): Node[] {
+  // Get the parent node of the given element
   const parent = element.parentNode;
+  // If the element has no parent, return an empty array since we can't unwrap
   if (!parent) return [];
 
+  // Create an array to keep track of the moved child nodes
   const moved: Node[] = [];
+  // Reference node to help with insertBefore (inserts before the element itself)
   const reference = element;
 
+  // Start with the first child of the element to be unwrapped
   let child = element.firstChild;
 
+  // Iterate over all child nodes of the element
   while (child) {
+    // Save next sibling because we're going to move 'child' out of element
     const next = child.nextSibling;
+    // Add the current child to the moved array
     moved.push(child);
+    // Insert the child node into the parent node, before the reference element
     parent.insertBefore(child, reference);
+    // Move to the next child
     child = next;
   }
 
+  // Remove the original (now empty) element from its parent
   parent.removeChild(element);
 
+  // Return the array of moved child nodes
   return moved;
 }
 
@@ -161,7 +173,7 @@ export const THEME_MAPPING = {
  */
 export function playRandomSfx() {
   const SFX = [
-    "bass-boost-discord-call",
+    //"bass-boost-discord-call",
     "faaaa",
     "fart-with-reverb",
     "qbd-lb-b",
@@ -183,5 +195,6 @@ export function playRandomSfx() {
     win.__currentSfxAudio.currentTime = 0;
   }
   win.__currentSfxAudio = new Audio(`/sfx/${sfxName}.${extension}`);
+  win.__currentSfxAudio.volume = 0.5;
   win.__currentSfxAudio.play();
 }

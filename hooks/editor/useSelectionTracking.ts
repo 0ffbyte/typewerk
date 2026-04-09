@@ -38,7 +38,7 @@ export default function useSelectionTracking() {
 
         const isMultiSelection = spannedContentEditors.length > 1;
         const activeEditorIds = spannedContentEditors.map((el: Element) =>
-          el.getAttribute("data-editor-id")
+          el.getAttribute("id")
         ) as string[];
 
         // calc position using selection bounding rect

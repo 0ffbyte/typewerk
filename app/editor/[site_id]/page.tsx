@@ -19,10 +19,8 @@ export default async function Page({
   const { siteObject, id } = site;
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] min-h-screen w-full items-start justify-start font-sans px-2 scroll-smooth md:px-[64px] py-[64] md:py-[96]">
-      <div className="hidden lg:block w-full h-full border-green-500">
-        <TOC />
-      </div>
+    <div className="flex min-h-screen w-fit mx-auto">
+      <TOC />
       <EditorShell initialState={sanitizedSite} siteId={id} />
       <Toolbar siteId={id} />
     </div>

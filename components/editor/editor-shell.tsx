@@ -61,7 +61,10 @@ export default function EditorShell({
     );
 
   return (
-    <div className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[680px] lg:w-[680px] select-none">
+    <div
+      id="root"
+      className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[680px] lg:w-[680px] pt-[92px] select-none"
+    >
       <Header />
       <DndContext
         onDragEnd={handleDragEnd}
@@ -72,7 +75,7 @@ export default function EditorShell({
       </DndContext>
 
       <Foreword blockLength={pageData.blocks.length} />
-      {false && <Debugger />}
+      {true && <Debugger />}
     </div>
   );
 }

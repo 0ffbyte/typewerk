@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/_providers/theme-provider";
 import Script from "next/script";
 
 import localFont from "next/font/local";
+import Sonner from "@/components/sonner";
 
 /*
 const geistSans = localFont({
@@ -55,6 +56,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Sonner />
         </ThemeProvider>
       </body>
     </html>

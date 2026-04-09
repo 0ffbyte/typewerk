@@ -74,7 +74,7 @@ const useInlineMenu = (
     }
 
     const tar = document.getElementById("slash-commander")!;
-    const { x, y } = calculateMenuPosition(tar, ref.current);
+    const { x, y } = calculateMenuPosition(tar);
 
     setState((s) => ({
       ...s!,
@@ -95,23 +95,16 @@ const useInlineMenu = (
     }
   };
 
-  const calculateMenuPosition = (
-    target: HTMLElement,
-    container: HTMLElement
-  ) => {
+  const calculateMenuPosition = (target: HTMLElement) => {
     // calculate position with collision detection
     let rect = target.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
 
     const menuWidth = menuDimensions.width;
-    const menuHeight = menuDimensions.height;
     const MARGIN = 8;
-    let x = rect.right - containerRect.left; // defaults
-    let y = rect.bottom - containerRect.top + MARGIN; // defaults
+    let x = rect.right; // defaults
+    let y = rect.bottom + window.scrollY + MARGIN; // defaults
 
     if (x + menuWidth > window.innerWidth) x = x - menuWidth;
-    /*if (rect.top + menuHeight + 100 > window.innerHeight)
-        y = rect.top - containerRect.top - menuHeight - 12;*/
 
     return { x, y };
   };
@@ -142,10 +135,10 @@ const useInlineMenu = (
         // create a psudo element
         const tempSpan = document.createElement("span");
         tempSpan.textContent = triggerToken;
-        tempSpan.style.backgroundColor = "var(--color-blue-100)";
+        tempSpan.style.backgroundColor = "var(--color-blue-200)";
         tempSpan.style.borderRadius = "4px";
         tempSpan.style.padding = "2px 2px";
-        tempSpan.style.color = "var(--color-blue-500)";
+        tempSpan.style.color = "var(--color-blue-700)";
         tempSpan.id = "slash-commander";
         range.insertNode(tempSpan);
 
@@ -158,7 +151,7 @@ const useInlineMenu = (
         const inputEvent = new Event("input", { bubbles: true });
         container.dispatchEvent(inputEvent);
 
-        const { x, y } = calculateMenuPosition(tempSpan, container);
+        const { x, y } = calculateMenuPosition(tempSpan);
 
         setState({
           command: "",

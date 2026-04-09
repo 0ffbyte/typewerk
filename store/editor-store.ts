@@ -4,7 +4,7 @@ import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
 import { normalizeHtml, playRandomSfx } from "@/lib/utils";
 
-export type EditorState = {
+type EditorState = {
   data: SiteObject;
   pageIndex: number;
   selectedIndex: number;
@@ -66,7 +66,7 @@ export const useEditorStore = create<EditorState & Actions>()(
         s.isEditable = true;
         s.selectedIndex = index;
       });
-      //playRandomSfx();
+      playRandomSfx();
     },
     removeBlock: (index: number) =>
       set((s) => {

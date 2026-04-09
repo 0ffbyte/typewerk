@@ -1,8 +1,6 @@
 import { useEditorStore } from "@/store/editor-store";
 import { useSearchParams } from "next/navigation";
-
 import { useShallow } from "zustand/shallow";
-
 import { useEffect } from "react";
 
 const usePageTracking = () => {

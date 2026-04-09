@@ -1,21 +1,17 @@
 "use client";
-
-import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import mergeRefs from "merge-refs";
-
-import Prism from "prismjs";
 import "@/lib/prism-themes/dracula.css";
-
-import { SANITIZE_CONFIG } from "@/lib/sanitize";
-import { cn, THEME_MAPPING } from "@/lib/utils";
-import sanitize from "sanitize-html";
-
-import useInlineMenu from "@/hooks/use-inline-menu";
-import SlashMenu from "./slashMenu";
 
 import { useEditorStore } from "@/store/editor-store";
 import { useSelectionStore } from "@/store/selection-store";
+
+import Prism from "prismjs";
+import sanitize from "sanitize-html";
+import { SANITIZE_CONFIG } from "@/lib/sanitize";
+import { cn, THEME_MAPPING } from "@/lib/utils";
+
+import SlashMenu from "./slashMenu";
 
 type ContentEditableProps = {
   id: string;
@@ -60,12 +56,6 @@ const ContentEditable = ({
   const isComposingRef = useRef(false);
 
   const [isEmpty, setIsEmpty] = useState(true);
-
-  const { menu: emojiMenu } = useInlineMenu(innerRef, "@", {
-    height: 368,
-    width: 200,
-  });
-
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
     const el = innerRef.current;
@@ -205,9 +195,10 @@ const ContentEditable = ({
   return (
     <div ref={containerRef} className="relative w-full" draggable={false}>
       <div
+        id={id}
         data-class="editor-contenteditable"
-        data-editor-id={id}
         data-block-index={blockIndex}
+        data-allow-formatting={allowFormatting}
         ref={mergeRefs(innerRef, ref)}
         contentEditable={isEditable}
         suppressContentEditableWarning
@@ -266,32 +257,6 @@ const ContentEditable = ({
       )}
 
       <SlashMenu ref={innerRef} />
-
-      {emojiMenu && (
-        <motion.div
-          className="absolute flex flex-col p-[8px] w-[200px] max-h-[368px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-40 select-none"
-          style={{
-            left: emojiMenu.x,
-            top: emojiMenu.y,
-            scrollbarWidth: "none",
-            willChange: "transform",
-          }}
-          layout="size"
-          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            type: "spring",
-            damping: 20,
-            stiffness: 200,
-            opacity: { duration: 0.1 },
-          }}
-        >
-          <p>
-            search:{" "}
-            <span className="text-muted-foreground">{emojiMenu.command}</span>
-          </p>
-        </motion.div>
-      )}
     </div>
   );
 };

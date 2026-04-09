@@ -3,7 +3,7 @@ import { useEditorStore } from "@/store/editor-store";
 import { useEffect, useMemo } from "react";
 import { SectionProps } from "@/components/editor/blocks/section";
 import { useState } from "react";
-import { slugify } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 
 const TOC = () => {
   const pages = useEditorStore((s) => s.data.pages);
@@ -32,7 +32,7 @@ const TOC = () => {
         });
       },
       {
-        rootMargin: "-20% 0px -40% 0px",
+        rootMargin: "-10% 0px -40% 0px",
         threshold: 0,
       }
     );
@@ -49,7 +49,7 @@ const TOC = () => {
 
   return (
     <div
-      className="max-w-[256px] w-full h-full fixed pt-[128] pl-0 top-0 right-0"
+      className="max-w-[300px] w-full fixed pt-[92px] pl-12 pb-12 top-0 right-0"
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
@@ -61,7 +61,7 @@ const TOC = () => {
             const props = block.props as SectionProps;
             const title = props.content;
             if (!title) return null;
-            const isActive = activeId === slugify(props.content);
+            const isActive = activeId === slugify(title);
             return (
               <div
                 key={block.id}
@@ -80,15 +80,17 @@ const TOC = () => {
         </div>
       ) : (
         <div key="expanded" className="flex flex-col gap-2">
-          <p className="text-muted-foreground">Page Index</p>
+          <p className="text-muted-foreground font-sans">On this page</p>
           {pages[pageIndex].blocks.map((block) => {
             if (block.type !== "section") return null;
             const props = block.props as SectionProps;
             const title = props.content;
             if (!title) return null;
+            const isActive = activeId === slugify(title);
             return (
               <p
                 key={block.id}
+                className={cn("font-sans", isActive && "underline")}
                 onClick={(e) => {
                   e.preventDefault();
                   const id = slugify(title);

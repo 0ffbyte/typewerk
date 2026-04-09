@@ -17,6 +17,7 @@ import {
 
 import { useEditorStore } from "@/store/editor-store";
 import useInlineMenu from "@/hooks/use-inline-menu";
+import { createPortal } from "react-dom";
 
 type Command = {
   name: string;
@@ -205,7 +206,7 @@ const SlashMenu = ({
   // Track cumulative index across groups for keyboard highlight mapping
   let groupOffset = 0;
 
-  return (
+  return createPortal(
     <motion.div
       ref={menuRef}
       className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-50 select-none"
@@ -313,7 +314,8 @@ const SlashMenu = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </motion.div>,
+    document.getElementById("root")!
   );
 };
 
