@@ -135,10 +135,10 @@ const useInlineMenu = (
         // create a psudo element
         const tempSpan = document.createElement("span");
         tempSpan.textContent = triggerToken;
-        tempSpan.style.backgroundColor = "var(--color-blue-200)";
+        tempSpan.style.backgroundColor = "var(--color-teal-200)";
         tempSpan.style.borderRadius = "4px";
-        tempSpan.style.padding = "2px 2px";
-        tempSpan.style.color = "var(--color-blue-700)";
+        tempSpan.style.padding = "2px 4px";
+        tempSpan.style.color = "var(--color-teal-700)";
         tempSpan.id = "slash-commander";
         range.insertNode(tempSpan);
 

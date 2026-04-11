@@ -14,7 +14,6 @@ export default function TextBlock({
   index,
   id,
 }: TextProps & BlockProps) {
-  const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -23,8 +22,10 @@ export default function TextBlock({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Backspace") {
-      console.log("backspace");
-      if (ref.current?.textContent?.length === 0) {
+      if (
+        ref.current?.textContent?.length === 0 &&
+        ref.current?.innerHTML?.length <= 4
+      ) {
         e.preventDefault();
         removeBlock(index);
       }
@@ -34,8 +35,9 @@ export default function TextBlock({
   const handleEdit = (v: string) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "text") {
-        block.props.content = v;
+      if (block?.type === "text") {
+        const props = block.props as TextProps;
+        props.content = v;
       }
     });
   };

@@ -42,7 +42,7 @@ const SlashMenu = ({
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { menu: slashMenu, closeMenu } = useInlineMenu(ref, "/", {
-    width: 212,
+    width: 192,
     height: 248,
   });
 
@@ -142,10 +142,17 @@ const SlashMenu = ({
     const el = itemRefs.current[activeIndex];
     const container = menuRef.current;
     if (el && container) {
-      container.scrollTo({
-        top: el.offsetTop - container.offsetTop - container.clientHeight / 4,
-        behavior: "smooth",
-      });
+      const { offsetTop, offsetHeight } = el;
+      const { scrollTop, clientHeight } = container;
+
+      if (offsetTop < scrollTop) {
+        container.scrollTo({ top: offsetTop - 8, behavior: "smooth" });
+      } else if (offsetTop + offsetHeight > scrollTop + clientHeight) {
+        container.scrollTo({
+          top: offsetTop + offsetHeight - clientHeight + 8,
+          behavior: "smooth",
+        });
+      }
     }
   }, [activeIndex]);
 
@@ -209,7 +216,7 @@ const SlashMenu = ({
   return createPortal(
     <motion.div
       ref={menuRef}
-      className="absolute flex flex-col p-[4px] w-[212px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-50 select-none"
+      className="absolute flex flex-col p-[4px] w-[192px] max-h-[248px] overflow-y-auto overscroll-contain rounded-lg shadow-2xl bg-zinc-900/80 text-zinc-200 backdrop-blur-xs z-50 select-none"
       style={{
         left: slashMenu.x,
         top: slashMenu.y,
@@ -217,13 +224,11 @@ const SlashMenu = ({
         willChange: "transform",
       }}
       layout="size"
-      initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ opacity: 0, y: -24, x: -24, scale: 0.8, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, x: 0, scale: 1, filter: "blur(0px)" }}
       transition={{
-        type: "spring",
-        damping: 20,
-        stiffness: 200,
-        opacity: { duration: 0.1 },
+        ease: "easeOut",
+        duration: 0.1,
       }}
     >
       <AnimatePresence mode="wait">

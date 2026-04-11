@@ -62,7 +62,7 @@ mark {
   --radius: 14px;
   --background: var(--color-zinc-50);
   --foreground: var(--color-zinc-800);
-  --card: oklch(1 0 0);
+  --card: var(--color-zinc-200);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);

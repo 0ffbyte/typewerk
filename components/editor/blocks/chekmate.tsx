@@ -42,7 +42,7 @@ const CheckmateBlock = ({
         onEdit={(v) =>
           setState((s) => {
             const block = s.data.pages[s.pageIndex].blocks[index];
-            if (block.type === "checkmate") {
+            if (block?.type === "checkmate") {
               block.props.content = v;
             }
           })

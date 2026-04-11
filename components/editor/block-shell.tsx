@@ -16,7 +16,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
+const BlockShell = ({ children, index, id }: Props & BlockProps) => {
   const state = useEditorStore((state) => state);
   const isSelected = state.selectedIndex === index;
   const isSelecting = useSelectionStore((s) => s.meta.isSelecting);
@@ -36,77 +36,20 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   const draggableStyle: React.CSSProperties = {
     transform: transform ? CSS.Translate.toString(transform) : undefined,
     zIndex: isDragging ? 99 : undefined,
-    transition: "transform 0.2s ease-out",
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // shortcut for adding blocks
-    if (e.altKey) {
-      e.preventDefault();
-      const key = e.key.toLowerCase();
-      const insertAt = state.selectedIndex + 1;
-      switch (key) {
-        case "s":
-          state.addBlock("section", insertAt);
-          state.setSelectedIndex(insertAt);
-          break;
-        case "t":
-          state.addBlock("text", insertAt);
-          state.setSelectedIndex(insertAt);
-          break;
-        case "i":
-          state.addBlock("image", insertAt);
-          state.setSelectedIndex(insertAt);
-          break;
-        case "b":
-          state.addBlock("blockquote", insertAt);
-          state.setSelectedIndex(insertAt);
-          break;
-        case "c":
-          state.addBlock("code", insertAt);
-          state.setSelectedIndex(insertAt);
-          break;
-        default:
-          break;
-      }
-    }
-    // handle block traversal
-    else if (e.ctrlKey) {
-      switch (e.key) {
-        case "ArrowUp":
-          e.preventDefault();
-          if (index >= 0) {
-            state.setSelectedIndex(index - 1);
-          }
-          break;
-        case "ArrowDown":
-          e.preventDefault();
-          const totalBlocks = state.data.pages[state.pageIndex].blocks.length;
-          if (index < totalBlocks - 1) {
-            state.setSelectedIndex(index + 1);
-          } else if (
-            state.data.pages[state.pageIndex].blocks[index].type !== "text"
-          ) {
-            state.addBlock("text", index + 1);
-          }
-          break;
-        default:
-          break;
-      }
-    }
+    transition: "transform 0.3s ease-out",
   };
 
   return (
     <div
+      key={id}
       ref={containerRef}
       aria-activedescendant={isSelected ? "" : undefined}
-      onKeyDown={handleKeyDown}
       onFocus={() => state.setSelectedIndex(index)}
       className={cn(
-        "flex items-start justify-start hover:border-border relative w-full outline-none group p-[4px] transition-all duration-200 border-b border-transparent pointer-events-auto",
+        "flex items-start justify-start hover:border-border relative w-full outline-none group p-[4px] transition-all duration-300 border-b border-transparent pointer-events-auto",
         state.preventNewLine &&
           !isSelected &&
-          "blur-xs opacity-80 pointer-events-none"
+          "blur-xs opacity-80 scale-99 pointer-events-none"
       )}
       onPointerDown={() => {
         state.setState((s) => {
@@ -177,7 +120,7 @@ const BlockWrapper = ({ children, index, id }: Props & BlockProps) => {
   );
 };
 
-export default BlockWrapper;
+export default BlockShell;
 
 /**
  * Plus

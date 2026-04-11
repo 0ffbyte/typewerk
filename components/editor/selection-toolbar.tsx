@@ -30,7 +30,13 @@ const SelectionToolbar = () => {
   const {
     selection,
     position,
-    meta: { isSelecting, isMultiSelection, anchorIndex, activeEditorIds },
+    meta: {
+      isSelecting,
+      isMultiSelection,
+      anchorIndex,
+      tailIndex,
+      activeEditorIds,
+    },
   } = useSelectionStore();
   const ref = useRef<HTMLDivElement>(null);
   const setSonner = useAppStore((s) => s.setSonner);
@@ -54,7 +60,7 @@ const SelectionToolbar = () => {
   }, [activeEditorIds]);
 
   const anchorBlockType = useMemo(() => {
-    return blocks[anchorIndex]?.type;
+    return blocks[anchorIndex]?.type || blocks[tailIndex]?.type;
   }, [anchorIndex]);
 
   const toggleFormat = useCallback(
@@ -118,13 +124,7 @@ const SelectionToolbar = () => {
     [foundTags]
   );
 
-  if (
-    !selection ||
-    isSelecting ||
-    isMobile ||
-    isMultiSelection ||
-    !activeEditorIds.length
-  )
+  if (!selection || isSelecting || isMobile || !activeEditorIds.length)
     return null;
 
   return (
@@ -153,96 +153,90 @@ const SelectionToolbar = () => {
         setState((s) => (s.isEditable = true));
       }}
     >
-      {isMultiSelection ? (
-        <p>Multi</p>
-      ) : (
+      <button
+        title="copy"
+        className={cn(
+          "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm"
+        )}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => {
+          navigator.clipboard.writeText(selection?.toString() ?? "");
+          setSonner({
+            title: "Copied",
+            message: "Text copied to clipboard",
+          });
+        }}
+      >
+        <CopyIcon />
+      </button>
+
+      <SelectionSelectSwap
+        selection={selection}
+        anchorBlockType={anchorBlockType}
+      />
+      {allowFormatting && !isMultiSelection && (
         <>
           <button
-            title="copy"
             className={cn(
-              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm"
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
+              foundTags.includes("b") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => {
-              navigator.clipboard.writeText(selection?.toString() ?? "");
-              setSonner({
-                title: "Copied",
-                message: "Text copied to clipboard",
-              });
-            }}
+            onClick={() => toggleFormat("bold")}
           >
-            <CopyIcon />
+            <FontBoldIcon />
           </button>
-
-          <SelectionSelectSwap
-            selection={selection}
-            anchorBlockType={anchorBlockType}
-          />
-          {allowFormatting && (
-            <>
-              <button
-                className={cn(
-                  "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
-                  foundTags.includes("b") && "text-blue-400"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("bold")}
-              >
-                <FontBoldIcon />
-              </button>
-
-              <button
-                className={cn(
-                  "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
-                  foundTags.includes("i") && "text-blue-400"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("italic")}
-              >
-                <FontItalicIcon />
-              </button>
-
-              <button
-                className={cn(
-                  "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
-                  foundTags.includes("u") && "text-blue-400"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("underline")}
-              >
-                <UnderlineIcon />
-              </button>
-
-              <button
-                className={cn(
-                  "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
-                  foundTags.includes("a") && "text-blue-400"
-                )}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => toggleFormat("createLink")}
-              >
-                <LinkIcon />
-              </button>
-            </>
-          )}
-
-          <div className="w-px h-4 bg-zinc-400/30 mx-0.5" />
 
           <button
             className={cn(
-              "hover:bg-rose-50/10 h-full flex items-center w-18 px-2 gap-1 justify-center rounded-sm text-sm text-zinc-400 hover:text-zinc-300"
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
+              foundTags.includes("i") && "text-blue-400"
             )}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() =>
-              alert(
-                `AI features not yet implemented. \nSelection: "${selection?.toString()}"`
-              )
-            }
+            onClick={() => toggleFormat("italic")}
           >
-            Ask AI
+            <FontItalicIcon />
+          </button>
+
+          <button
+            className={cn(
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
+              foundTags.includes("u") && "text-blue-400"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => toggleFormat("underline")}
+          >
+            <UnderlineIcon />
+          </button>
+
+          <button
+            className={cn(
+              "hover:text-zinc-300 h-full aspect-square flex items-center justify-center rounded-sm",
+              foundTags.includes("a") && "text-blue-400"
+            )}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => toggleFormat("createLink")}
+          >
+            <LinkIcon />
           </button>
         </>
       )}
+
+      <div className="w-px h-4 bg-zinc-400/30 mx-0.5" />
+
+      <button
+        className={cn(
+          "hover:bg-rose-50/10 h-full flex items-center w-18 px-2 gap-1 justify-center rounded-sm text-sm text-zinc-400 hover:text-zinc-300"
+        )}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() =>
+          alert(
+            `AI features not yet implemented. \nSelection: "${selection?.toString()}"`
+          )
+        }
+      >
+        Ask AI
+      </button>
 
       <div className="absolute left-1/2 -bottom-[6px] -translate-x-1/2 h-3 w-3 bg-zinc-800 rotate-45 rounded-br-[4px] hidden" />
     </motion.div>

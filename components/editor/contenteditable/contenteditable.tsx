@@ -166,10 +166,6 @@ const ContentEditable = ({
           e.preventDefault();
           return;
         }
-      } else if (e.key === "Enter" && e.ctrlKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        state.addBlock("text", blockIndex + 1);
       } else if (e.key === "Enter") {
         e.preventDefault();
         if (!multiLine || isEmpty) return;
@@ -209,8 +205,8 @@ const ContentEditable = ({
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-[24px] min-h-[24px]",
-          !isEditable && "border-red-500/0",
-          isMultiline && "border-purple-500/0",
+          isMultiline && "border-purple-500",
+          !isEditable && "border-red-500",
           className
         )}
         style={{

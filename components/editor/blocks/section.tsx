@@ -42,7 +42,7 @@ const SectionBlock = ({
   const handleEdit = (v: string) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "section") {
+      if (block?.type === "section") {
         block.props.content = v;
       }
     });

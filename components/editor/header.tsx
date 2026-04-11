@@ -103,8 +103,8 @@ export default function Header() {
     <div className="flex flex-col mb-[92px] gap-[16px] w-full">
       <div
         className={cn(
-          "flex flex-col gap-4 transition-all duration-75",
-          s.preventNewLine && "blur-xs opacity-80"
+          "flex flex-col gap-4 transition-all duration-300",
+          s.preventNewLine && "blur-xs opacity-80 scale-99"
         )}
       >
         <img

@@ -86,7 +86,7 @@ const CalloutBlock = ({
   const handleEdit = (v: string) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "callout") {
+      if (block?.type === "callout") {
         block.props.content = v;
       }
     });
@@ -134,7 +134,7 @@ const CalloutBlock = ({
           blockIndex={index}
           id={id}
           className={cn(CALLOUT_TYPE_MAPPING[type].text)}
-          placeholderClassName={"text-zinc-950/30"}
+          placeholderClassName={cn(`${CALLOUT_TYPE_MAPPING[type].text}/50`)}
           placeholder="Type callout here"
           ref={ref}
           value={content}

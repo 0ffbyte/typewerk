@@ -24,42 +24,50 @@ export default function useBackspace() {
 
         if (isMultiSelection) {
           e.preventDefault();
-          document.querySelectorAll("[data-editor-id]").forEach((el) => {
-            const editorId = el.getAttribute("data-editor-id") ?? "";
-            if (!SEIDS.includes(editorId) || !selection.containsNode(el, true))
-              return;
+          console.log("multi selection");
+          document
+            .querySelectorAll("[data-class='editor-contenteditable']")
+            .forEach((el) => {
+              const editorId = el.getAttribute("id") ?? "";
+              console.log("editorId", editorId);
+              if (
+                !SEIDS.includes(editorId) ||
+                !selection.containsNode(el, true)
+              )
+                return;
 
-            // Clamp the range to only the portion inside this element
-            const elRange = document.createRange();
-            elRange.selectNodeContents(el);
+              console.log("deleting content...");
 
-            const start =
-              range.compareBoundaryPoints(Range.START_TO_START, elRange) > 0
-                ? range
-                : elRange;
+              // Clamp the range to only the portion inside this element
+              const elRange = document.createRange();
+              elRange.selectNodeContents(el);
 
-            const end =
-              range.compareBoundaryPoints(Range.END_TO_END, elRange) < 0
-                ? range
-                : elRange;
+              const start =
+                range.compareBoundaryPoints(Range.START_TO_START, elRange) > 0
+                  ? range
+                  : elRange;
 
-            const clampedRange = document.createRange();
-            clampedRange.setStart(start.startContainer, start.startOffset);
-            clampedRange.setEnd(end.endContainer, end.endOffset);
+              const end =
+                range.compareBoundaryPoints(Range.END_TO_END, elRange) < 0
+                  ? range
+                  : elRange;
 
-            clampedRange.deleteContents();
+              const clampedRange = document.createRange();
+              clampedRange.setStart(start.startContainer, start.startOffset);
+              clampedRange.setEnd(end.endContainer, end.endOffset);
 
-            const inputEvent = new Event("input", { bubbles: true });
-            el.dispatchEvent(inputEvent);
-          });
+              clampedRange.deleteContents();
 
-          // Collapse the native browser selection
-          document.getSelection()?.removeAllRanges();
+              const inputEvent = new Event("input", { bubbles: true });
+              el.dispatchEvent(inputEvent);
+            });
 
           requestAnimationFrame(() => {
+            // Collapse the native browser selection
+            document.getSelection()?.removeAllRanges();
+
             // Perform cleanup
             runCleanup();
-            clearSelection();
             setState((s) => {
               s.isEditable = true;
               s.selectedIndex = isMultiSelection ? tailIndex : anchorIndex;
@@ -101,5 +109,5 @@ export default function useBackspace() {
     // handles key down events
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedEditorIds]);
+  }, [selectedEditorIds, isMultiSelection]);
 }

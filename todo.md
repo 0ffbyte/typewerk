@@ -8,13 +8,13 @@ v 1.0.0
 
 v0.8.0
 
-- [x] Auth ...
-
 - [ ] Page creation flow & publishing
 
-- [ ] Toast notification system (zustand - motion)
+- [ ] Figure out versioning (main boss) ...
 
-- [ ] Starter templates (accept / return) ...
+- [x] Auth
+
+- [x] Toast notification system (zustand - motion)
 
 - [x] Multi-block selection (native select)
 

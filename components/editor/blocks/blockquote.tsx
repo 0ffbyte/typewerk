@@ -38,7 +38,7 @@ const BlockquoteBlock = ({
   const handleEdit = (v: string) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "blockquote") {
+      if (block?.type === "blockquote") {
         block.props.content = v;
       }
     });

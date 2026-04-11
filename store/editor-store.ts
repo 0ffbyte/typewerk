@@ -27,7 +27,7 @@ type Actions = {
 };
 
 export const useEditorStore = create<EditorState & Actions>()(
-  immer<EditorState & Actions>((set) => ({
+  immer<EditorState & Actions>((set, get) => ({
     data: {
       header: {
         image: "",

@@ -13,6 +13,7 @@ import useSync from "@/hooks/editor/use-sync";
 import useBackspace from "@/hooks/editor/useBackspace";
 import useSelectionTracking from "@/hooks/editor/useSelectionTracking";
 import usePageTracking from "@/hooks/editor/use-page-tracking";
+import useShorcuts from "@/hooks/editor/use-shortcuts";
 
 // editor-shell.tsx
 export default function EditorShell({
@@ -28,10 +29,11 @@ export default function EditorShell({
   const reorderBlocks = useEditorStore((s) => s.reorderBlocks);
   const pageData = useEditorStore((s) => s.data.pages[s.pageIndex]);
 
+  useShorcuts();
   useBackspace();
   usePageTracking();
   useSelectionTracking();
-  useSync(siteId, isInitialized);
+  //useSync(siteId, isInitialized);
 
   // initializes state
   useEffect(() => {
@@ -41,13 +43,12 @@ export default function EditorShell({
 
   // clean up
   useEffect(() => {
-    state.runCleanup();
+    // state.runCleanup();
   }, [state.selectedIndex]);
 
   /** event handlers */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       reorderBlocks(active.id as string, over.id as string);
     }
@@ -55,7 +56,7 @@ export default function EditorShell({
 
   if (!isInitialized)
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="min-w-screen min-h-screen flex flex-col items-center justify-center">
         Initialzing editor...
       </div>
     );
@@ -82,6 +83,7 @@ export default function EditorShell({
 
 // DEBUGGER
 import { useSelectionStore } from "@/store/selection-store";
+import { AnimatePresence } from "motion/react";
 const Debugger = () => {
   const state = useEditorStore((s) => s);
   const selection = useSelectionStore((s) => s);

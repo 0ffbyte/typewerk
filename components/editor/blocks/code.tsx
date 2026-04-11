@@ -6,8 +6,6 @@ import ContentEditable from "../contenteditable/contenteditable";
 import { useEffect, useRef, useState } from "react";
 import useFocused from "@/hooks/editor/use-focus";
 
-import { CodeIcon } from "lucide-react";
-
 import { getLineCount } from "@/lib/utils";
 
 const MAX_COLLAPSED_LINES = 14;
@@ -21,7 +19,6 @@ export type CodeProps = {
 
 // define block component
 const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
-  const state = useEditorStore((state) => state);
   const setState = useEditorStore((state) => state.setState);
   const removeBlock = useEditorStore((state) => state.removeBlock);
   const ref = useRef<HTMLDivElement>(null);
@@ -53,30 +50,16 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
   const handleEdit = (v: string) => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block.type === "code") {
+      if (block?.type === "code") {
         block.props.content = v;
       }
     });
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
-  };
-
-  const handleBlur = () => {
-    const textContent = ref.current?.textContent;
-    if (
-      textContent?.length === 0 &&
-      state.data.pages[state.pageIndex].blocks.length > 1
-    )
-      removeBlock(index);
   };
 
   return (
     <div
       className="w-full grid grid-cols-[36px_1fr] grid-rows-[1fr] rounded-lg border overflow-clip select-none p-1 bg-zinc-100 dark:bg-zinc-900"
       onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
     >
       <div className="w-full py-[8px] select-none border-green-500">
         {Array.from({ length: visibleGutterLines }, (_, i) => (
