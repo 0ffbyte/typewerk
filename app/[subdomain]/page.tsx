@@ -14,7 +14,11 @@ export default async function Page({
   const site = await getSiteCached(subdomain);
   if (!site) return notFound();
 
-  const { siteObject } = site;
+  const siteObject = {
+    header: site.header,
+    pages: site.pages,
+    theme: site.theme,
+  };
 
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (

@@ -41,6 +41,7 @@ const useInlineMenu = (
   const setEditorState = useEditorStore((s) => s.setState);
 
   const closeMenu = useCallback(() => {
+    console.log("closing menu");
     setState(null);
     setEditorState((s) => (s.preventNewLine = false));
 
@@ -135,10 +136,10 @@ const useInlineMenu = (
         // create a psudo element
         const tempSpan = document.createElement("span");
         tempSpan.textContent = triggerToken;
-        tempSpan.style.backgroundColor = "var(--color-teal-200)";
+        tempSpan.style.backgroundColor = "var(--color-yellow-200)";
         tempSpan.style.borderRadius = "4px";
         tempSpan.style.padding = "2px 4px";
-        tempSpan.style.color = "var(--color-teal-700)";
+        tempSpan.style.color = "var(--color-yellow-700)";
         tempSpan.id = "slash-commander";
         range.insertNode(tempSpan);
 
@@ -148,8 +149,8 @@ const useInlineMenu = (
         selection.addRange(range);
 
         // Emit an empty event (trigger an input event with empty value for handlers)
-        const inputEvent = new Event("input", { bubbles: true });
-        container.dispatchEvent(inputEvent);
+        //const inputEvent = new Event("input", { bubbles: true });
+        //container.dispatchEvent(inputEvent);
 
         const { x, y } = calculateMenuPosition(tempSpan);
 
@@ -215,12 +216,13 @@ const useInlineMenu = (
   };
 
   const handleBlur = () => {
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       if (state) {
         closeMenu();
       }
-    });
+    }, 100);
   };
+
   const handleFocus = () => {
     const targetEl = document.getElementById("slash-commander");
     if (!targetEl) closeMenu();
@@ -235,7 +237,7 @@ const useInlineMenu = (
     element.addEventListener("keydown", handleKeyDown);
     element.addEventListener("click", handleClick);
     element.addEventListener("blur", handleBlur);
-    element.addEventListener("focus", handleFocus);
+    //element.addEventListener("focus", handleFocus);
 
     return () => {
       element.removeEventListener("input", handleInput);
@@ -243,7 +245,7 @@ const useInlineMenu = (
       element.removeEventListener("keydown", handleKeyDown);
       element.removeEventListener("click", handleClick);
       element.removeEventListener("blur", handleBlur);
-      element.removeEventListener("focus", handleFocus);
+      //element.removeEventListener("focus", handleFocus);
     };
   }, [handleInput, handleKeyDown]); // Event listeners & handlers
 

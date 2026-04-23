@@ -1,7 +1,7 @@
 import * as t from "drizzle-orm/pg-core";
-import { pgTable } from "drizzle-orm/pg-core";
+import { pgTable, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { SiteObject } from "@/app/types";
+import { Header, Page, Theme } from "@/app/types";
 import { check } from "drizzle-orm/pg-core";
 
 export const statusEnum = t.pgEnum("status", [
@@ -21,7 +21,9 @@ export const sites = pgTable(
       .text("user_id")
       .notNull()
       .references(() => user.id),
-    siteObject: t.jsonb("site_object").$type<SiteObject>().notNull(),
+    theme: t.jsonb("theme").$type<Theme>().notNull(),
+    header: t.jsonb("header").$type<Header>().notNull(),
+    pages: t.jsonb("pages").$type<Page[]>().notNull(),
     subdomain: t.varchar("subdomain", { length: 63 }).unique(),
     status: statusEnum("status").notNull().default("draft"),
     createdAt: t.timestamp("created_at").defaultNow().notNull(),
@@ -36,30 +38,9 @@ export const sites = pgTable(
       "published_requires_subdomain",
       sql`${t.status} != 'published' OR ${t.subdomain} IS NOT NULL`
     ),
+    index("sites_pages_length_idx").on(sql`jsonb_array_length(${t.pages})`),
   ]
 );
-
-/*
-export const articles = pgTable("articles", {
-  id: t
-    .text("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  siteId: t
-    .text("site_id")
-    .notNull()
-    .references(() => sites.id),
-  slug: t.varchar("slug", { length: 256 }).notNull(),
-  content: t.jsonb("content").$type<Page>().notNull(),
-  published: t.boolean("published").default(false).notNull(),
-  createdAt: t.timestamp("created_at").defaultNow().notNull(),
-  updatedAt: t
-    .timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
-*/
 
 /** Auth Schema */
 export const user = pgTable("user", {

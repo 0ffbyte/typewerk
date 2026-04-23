@@ -62,7 +62,10 @@ export const CreateSiteAction = async (subdomain: string) => {
     // Create site
     await db.insert(sites).values({
       userId: user.id,
-      siteObject: starterTemplate,
+      subdomain: sanitizedSubdomain,
+      header: starterTemplate.header,
+      theme: starterTemplate.theme,
+      pages: starterTemplate.pages,
       status: "draft",
     });
   } catch (error) {
@@ -71,6 +74,19 @@ export const CreateSiteAction = async (subdomain: string) => {
   }
 };
 
+export const DeleteSiteAction = async (formdata: FormData) => {
+  try {
+    const id = formdata.get("id") as string;
+    console.log("id:", id);
+    if (!id) throw new Error("No id provided");
+    await db.delete(sites).where(eq(sites.id, id));
+  } catch (error) {
+    console.error("Failed to delete site:", error);
+    throw new Error("Failed to delete site");
+  }
+};
+
+/*
 export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
   try {
     const { user } = await verifySession();
@@ -85,6 +101,7 @@ export const UpdateSiteAction = async (id: string, siteObject: SiteObject) => {
     throw new Error("Failed to update site");
   }
 };
+*/
 
 export const RevalidateSiteAction = async (id: string) => {
   try {
@@ -100,17 +117,5 @@ export const RevalidateSiteAction = async (id: string) => {
   } catch (error) {
     console.error("Failed to revalidate site:", error);
     throw new Error("Failed to revalidate site");
-  }
-};
-
-export const DeleteSiteAction = async (formdata: FormData) => {
-  try {
-    const id = formdata.get("id") as string;
-    console.log("id:", id);
-    if (!id) throw new Error("No id provided");
-    await db.delete(sites).where(eq(sites.id, id));
-  } catch (error) {
-    console.error("Failed to delete site:", error);
-    throw new Error("Failed to delete site");
   }
 };

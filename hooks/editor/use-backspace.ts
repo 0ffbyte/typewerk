@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useSelectionStore } from "@/store/selection-store";
 import { useEditorStore } from "@/store/editor-store";
+import { deleteCrossEditorSelection } from "@/lib/utils";
 
 export default function useBackspace() {
   const setState = useEditorStore((s) => s.setState);
@@ -9,7 +10,7 @@ export default function useBackspace() {
 
   const selection = useSelectionStore((s) => s.selection);
   const isMultiSelection = useSelectionStore((s) => s.meta.isMultiSelection);
-  const selectedEditorIds = useSelectionStore((s) => s.meta.activeEditorIds);
+  const activeEditorIds = useSelectionStore((s) => s.meta.activeEditorIds);
   const anchorIndex = useSelectionStore((s) => s.meta.anchorIndex);
   const tailIndex = useSelectionStore((s) => s.meta.tailIndex);
   const clearSelection = useSelectionStore((s) => s.clearSelection);
@@ -19,49 +20,10 @@ export default function useBackspace() {
       if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
         return;
       } else if (e.key === "Backspace") {
-        const range = selection.getRangeAt(0);
-        const SEIDS = selectedEditorIds;
-
         if (isMultiSelection) {
           e.preventDefault();
           console.log("multi selection");
-          document
-            .querySelectorAll("[data-class='editor-contenteditable']")
-            .forEach((el) => {
-              const editorId = el.getAttribute("id") ?? "";
-              console.log("editorId", editorId);
-              if (
-                !SEIDS.includes(editorId) ||
-                !selection.containsNode(el, true)
-              )
-                return;
-
-              console.log("deleting content...");
-
-              // Clamp the range to only the portion inside this element
-              const elRange = document.createRange();
-              elRange.selectNodeContents(el);
-
-              const start =
-                range.compareBoundaryPoints(Range.START_TO_START, elRange) > 0
-                  ? range
-                  : elRange;
-
-              const end =
-                range.compareBoundaryPoints(Range.END_TO_END, elRange) < 0
-                  ? range
-                  : elRange;
-
-              const clampedRange = document.createRange();
-              clampedRange.setStart(start.startContainer, start.startOffset);
-              clampedRange.setEnd(end.endContainer, end.endOffset);
-
-              clampedRange.deleteContents();
-
-              const inputEvent = new Event("input", { bubbles: true });
-              el.dispatchEvent(inputEvent);
-            });
-
+          deleteCrossEditorSelection(selection, activeEditorIds);
           requestAnimationFrame(() => {
             // Collapse the native browser selection
             document.getSelection()?.removeAllRanges();
@@ -109,5 +71,5 @@ export default function useBackspace() {
     // handles key down events
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedEditorIds, isMultiSelection]);
+  }, [activeEditorIds, isMultiSelection]);
 }

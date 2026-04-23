@@ -34,9 +34,9 @@ const BlockShell = ({ children, index, id }: Props & BlockProps) => {
   } = useDraggable({ id: id });
 
   const draggableStyle: React.CSSProperties = {
-    transform: transform ? CSS.Translate.toString(transform) : undefined,
     zIndex: isDragging ? 99 : undefined,
-    transition: "transform 0.3s ease-out",
+    transform: transform ? CSS.Translate.toString(transform) : undefined,
+    transition: transform ? "transform 0.2s ease-out" : "transform 0s",
   };
 
   return (
@@ -46,7 +46,7 @@ const BlockShell = ({ children, index, id }: Props & BlockProps) => {
       aria-activedescendant={isSelected ? "" : undefined}
       onFocus={() => state.setSelectedIndex(index)}
       className={cn(
-        "flex items-start justify-start hover:border-border relative w-full outline-none group p-[4px] transition-all duration-300 border-b border-transparent pointer-events-auto",
+        "flex items-start justify-start hover:border-border border-dotted relative w-full outline-none group p-[4px] transition-all duration-100 border-b border-transparent pointer-events-auto",
         state.preventNewLine &&
           !isSelected &&
           "blur-xs opacity-80 scale-99 pointer-events-none"
@@ -68,7 +68,7 @@ const BlockShell = ({ children, index, id }: Props & BlockProps) => {
         aria-hidden="true"
         className={cn(
           "w-full h-full absolute top-0 left-0 transition-colors duration-200 rounded-[8]",
-          isDragging && "bg-zinc-500/10"
+          isDragging && "bg-card/40"
         )}
       />
 
@@ -78,9 +78,9 @@ const BlockShell = ({ children, index, id }: Props & BlockProps) => {
       >
         <div
           ref={setNodeRef}
-          aria-hidden="true"
+          aria-hidden
           className={cn(
-            "h-[32px] w-full absolute left-0 top-0 flex-1 z-99 pointer-events-none"
+            "h-[40px] w-full absolute left-0 top-0 flex-1 z-99 pointer-events-none"
           )}
         />
         <div className="w-[92px] h-full absolute -left-[92px] top-0 flex items-start justify-end group pr-[8px]">
@@ -102,7 +102,7 @@ const BlockShell = ({ children, index, id }: Props & BlockProps) => {
                 rotate: isDragging ? "-1deg" : undefined,
               }}
             >
-              <DragHandleDots2Icon className="h-6 w-6 text-muted-foreground" />
+              <DragHandleDots2Icon className="h-6 w-6 text-muted-foreground/40" />
             </button>
           </div>
         </div>

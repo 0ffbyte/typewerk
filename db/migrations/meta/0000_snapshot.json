@@ -1,5 +1,5 @@
 {
-  "id": "76ad422b-2e4d-4899-a100-d68604a2ef49",
+  "id": "337c6487-f9bf-4319-b605-13db192b7a84",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -209,8 +209,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "site_object": {
-          "name": "site_object",
+        "theme": {
+          "name": "theme",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "header": {
+          "name": "header",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pages": {
+          "name": "pages",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
@@ -223,7 +235,7 @@
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "site_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -244,7 +256,23 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "sites_pages_length_idx": {
+          "name": "sites_pages_length_idx",
+          "columns": [
+            {
+              "expression": "jsonb_array_length(\"pages\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "sites_user_id_user_id_fk": {
           "name": "sites_user_id_user_id_fk",
@@ -393,8 +421,8 @@
     }
   },
   "enums": {
-    "public.status": {
-      "name": "status",
+    "public.site_status": {
+      "name": "site_status",
       "schema": "public",
       "values": [
         "published",

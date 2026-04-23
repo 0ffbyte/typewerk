@@ -2,7 +2,7 @@
 
 v 1.0.0
 
-- [ ] Undo / redo (main boss)
+- [x] Undo / redo (main boss)
 
 - [ ] AI rewrite feature (pro)
 
@@ -24,7 +24,7 @@ v0.8.0
 
 - [x] selected indexes not updating correctly
 
-- [ ] proper dragging/sorting animations (dnd-kit + motion integration)
+- [x] proper dragging/sorting smoothness
 
 ## Done
 

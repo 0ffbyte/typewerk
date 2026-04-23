@@ -49,7 +49,7 @@ const TOC = () => {
 
   return (
     <div
-      className="max-w-[300px] w-full fixed pt-[92px] pl-12 pb-12 top-0 right-0"
+      className="max-w-[300px] w-full fixed pt-[92px] mr-[128px] pb-12 top-0 right-0"
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >

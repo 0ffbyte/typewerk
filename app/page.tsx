@@ -1,5 +1,6 @@
 import { SignIn } from "@/components/auth-buttons";
 import NavBar from "@/components/nav-bar";
+import NewSite from "@/components/new-site";
 import UserSites from "@/components/user-sites";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -16,7 +17,7 @@ export default async function Home() {
         {session ? (
           <>
             <div className="mt-4 text-xl font-semibold">Morning, {"User"}</div>
-
+            <NewSite />
             <UserSites />
           </>
         ) : (

@@ -157,6 +157,7 @@ const ChecklistBlock = ({
 
           <ContentEditable
             blockIndex={index}
+            className={cn(item.checked && "line-through")}
             id={item.id + "-content"}
             ref={(el: HTMLDivElement) => {
               if (el) itemRefs.current.set(idx, el);

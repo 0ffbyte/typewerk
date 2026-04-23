@@ -24,7 +24,7 @@ const Spacer = ({ id, index }: Props) => {
     >
       <div
         className={cn(
-          "w-full h-[4] transition-colors duration-200 rounded-full"
+          "w-full h-[4px] transition-colors duration-200 rounded-full"
         )}
         style={{
           backgroundColor: isOver

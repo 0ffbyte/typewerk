@@ -13,21 +13,16 @@ export const SANITIZE_CONFIG: sanitize.IOptions = {
     a: ["href", "target", "rel"],
     span: ["id"],
   },
-  allowedTags: [
-    "br",
-    "div",
-    "p",
-    "span",
-    "i",
-    "em",
-    "u",
-    "mark",
-    "a",
-    "b",
-    "strong",
-  ],
+  allowedTags: ["br", "p", "i", "em", "u", "mark", "a", "b", "strong"],
   exclusiveFilter: (frame) => {
-    if (frame.tag === "span") return false; // causes sanitize-html to drop the tag and promote its children
+    // Remove any <span id="slash-commander"> entirely (drop the tag and its contents)
+    if (
+      frame.tag === "span" &&
+      frame.attribs &&
+      frame.attribs.id === "slash-commander"
+    ) {
+      return true; // returning true causes sanitize-html to DROP the tag and its children
+    }
     return false;
   },
 };

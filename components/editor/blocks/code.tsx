@@ -24,16 +24,16 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
 
+  const { isFocused } = useFocused(ref, index);
+
   const lineCount = getLineCount(content);
-  const isTruncatable = lineCount > MAX_COLLAPSED_LINES;
+  const isTruncatable = lineCount > MAX_COLLAPSED_LINES && !isFocused;
   const visibleGutterLines =
     isTruncatable && !expanded ? MAX_COLLAPSED_LINES : lineCount;
 
   useEffect(() => {
     if (lineCount <= MAX_COLLAPSED_LINES) setExpanded(false);
   }, [lineCount]);
-
-  useFocused(ref, index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Backspace") {
@@ -58,14 +58,14 @@ const CodeBlock = ({ content, index, id }: CodeProps & BlockProps) => {
 
   return (
     <div
-      className="w-full grid grid-cols-[36px_1fr] grid-rows-[1fr] rounded-lg border overflow-clip select-none p-1 bg-zinc-100 dark:bg-zinc-900"
+      className="w-full grid grid-cols-[36px_1fr] grid-rows-[1fr] rounded-lg border overflow-clip select-none p-1 bg-card inset-shadow-sheen"
       onKeyDown={handleKeyDown}
     >
       <div className="w-full py-[8px] select-none border-green-500">
         {Array.from({ length: visibleGutterLines }, (_, i) => (
           <div
             key={i}
-            className="text-sm text-muted-foreground font-mono pointer-events-none flex items-center justify-center"
+            className="text-sm text-muted-foreground/40 font-mono pointer-events-none flex items-center justify-center"
             style={{
               height: `${24}px`,
               width: "36px",

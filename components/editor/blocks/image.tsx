@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useEditorStore } from "@/store/editor-store";
 import useFocused from "@/hooks/editor/use-focus";
 import type { BlockProps } from "@/app/types";
@@ -11,6 +12,9 @@ import {
   CheckIcon,
   ResetIcon,
   EnterFullScreenIcon,
+  PlusIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
 } from "@radix-ui/react-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -27,14 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import Cropper, { type Area } from "react-easy-crop";
-
-// define block props
-export type ImageProps = {
-  url: string;
-  width: number;
-  height: number;
-  transform: ImageTransform;
-};
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type ImageTransform = {
   x: number;
@@ -42,29 +39,79 @@ type ImageTransform = {
   zoom: number;
 };
 
+type Image = {
+  url: string;
+  transform: ImageTransform;
+};
+
+export type ImageProps = { images: Image[] };
+
 const DEFAULT_TRANSFORM: ImageTransform = { x: 0, y: 0, zoom: 1 };
 
 // define block component
-const ImageBlock = ({
-  url,
-  transform = DEFAULT_TRANSFORM,
-  index,
-}: ImageProps & BlockProps) => {
+const ImageBlock = ({ images, index }: ImageProps & BlockProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [isMouseOver, setIsMouseOver] = useState(false);
+
+  const setState = useEditorStore((state) => state.setState);
 
   const { isFocused } = useFocused(ref, index);
   const isMobile = useIsMobile();
-  const isToolbarVisible = isMobile ? isFocused : isMouseOver || isFocused;
+  const isToolbarVisible = isMobile ? isFocused : isMouseOver;
 
+  const [activeSlide, setActiveSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
-  const [pendingCrop, setPendingCrop] = useState({
-    x: transform.x,
-    y: transform.y,
+  const [pendingTransform, setPendingTransform] = useState<ImageTransform>({
+    x: 0,
+    y: 0,
+    zoom: 1,
   });
-  const [pendingZoom, setPendingZoom] = useState(transform.zoom);
+
+  const safeImages = images?.length ? images : [];
+  const current = safeImages[activeSlide];
+
+  // ── navigation ──
+  const goTo = (i: number) => {
+    const clamped = Math.max(0, Math.min(safeImages.length - 1, i));
+    setActiveSlide(clamped);
+    // sync pending crop state to the new slide
+    const img = safeImages[clamped];
+    setPendingTransform({
+      x: img?.transform.x ?? 0,
+      y: img?.transform.y ?? 0,
+      zoom: img?.transform.zoom ?? 1,
+    });
+    // native scroll
+    trackRef.current?.children[clamped]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  };
+
+  const handleAddImage = () => {
+    const url = window.prompt("Enter image URL:", "");
+    if (!url?.trim()) return;
+    const img = new window.Image();
+    img.onload = () => {
+      setState((s) => {
+        const block = s.data.pages[s.pageIndex].blocks[index];
+        if (block?.type === "image") {
+          const props = block.props as ImageProps;
+          props.images.push({
+            url: url.trim(),
+            transform: { ...DEFAULT_TRANSFORM },
+          });
+        }
+      });
+      console.log("images:", safeImages.length);
+      setActiveSlide(safeImages.length); // will be length after push
+    };
+    img.onerror = () => window.alert("Failed to load image. Check the URL.");
+    img.src = url.trim();
+  };
 
   // calculate dynamic transform
   const baseW = 670;
@@ -79,48 +126,143 @@ const ImageBlock = ({
       tabIndex={index}
       onMouseOver={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
-      className="w-full h-full aspect-video border bg-zinc-100 dark:bg-zinc-900 relative outline-none rounded-lg group select-none"
+      className="w-full h-full aspect-video border bg-card relative outline-none rounded-lg group select-none"
       style={{
         overflow: isCropping ? "visible" : "clip",
       }}
     >
-      {isCropping ? (
-        <CropView
-          url={url}
-          containerRef={ref}
-          transform={transform}
-          pendingCrop={pendingCrop}
-          pendingZoom={pendingZoom}
-          setPendingCrop={setPendingCrop}
-          setPendingZoom={setPendingZoom}
-        />
-      ) : (
-        <img
-          ref={imageRef}
-          draggable={false}
-          className="w-full pointer-events-none select-none absolute top-1/2 -left-1/2 translate-x-1/2 -translate-y-1/2"
-          style={{
-            transform: `translate(${transform.x * multiplier}px, ${
-              transform.y * multiplier
-            }px) scale(${transform.zoom})`,
-            transformOrigin: "center",
-            objectFit: "cover",
-          }}
-          src={url ?? ""}
-        />
+      {/* ── sheen layer ── */}
+      <div
+        aria-hidden
+        className="absolute inset-0 left-0 top-0 w-full h-full inset-shadow-sheen rounded-lg z-10 pointer-events-none"
+      />
+
+      {/* ── scroll track ── */}
+      <div
+        ref={trackRef}
+        className="flex w-full h-full overflow-x-hidden snap-x snap-mandatory scroll-smooth"
+        style={{ scrollbarWidth: "none" }}
+        onScroll={(e) => {
+          // keep activeSlide in sync when user physically scrolls (touch)
+          const el = e.currentTarget;
+          const idx = Math.round(el.scrollLeft / el.clientWidth);
+          if (idx !== activeSlide) setActiveSlide(idx);
+        }}
+      >
+        {safeImages.length === 0 && (
+          <div className="flex-none w-full h-full flex items-center justify-center text-zinc-500 text-sm">
+            No images — tap{" "}
+            <span className="mx-2">
+              <UploadIcon />
+            </span>{" "}
+            to upload one
+          </div>
+        )}
+
+        {safeImages.map((img, i) => (
+          <div key={i} className="flex-none w-full h-full snap-center">
+            {i === activeSlide && isCropping ? (
+              <CropView
+                url={img.url}
+                containerRef={ref}
+                pendingTransform={pendingTransform}
+                setPendingTransform={setPendingTransform}
+                transform={img.transform}
+              />
+            ) : (
+              <div className="border-blue-500 flex items-center justify-center overflow-clip aspect-video w-full h-full relative">
+                {true && (
+                  <img
+                    draggable={false}
+                    className="opacity-100 w-full pointer-events-none select-none overflow-clip absolute top-1/2 -left-1/2 translate-x-1/2 -translate-y-1/2"
+                    style={{
+                      transform: `translate(${
+                        img.transform.x * multiplier
+                      }px, ${img.transform.y * multiplier}px) scale(${
+                        img.transform.zoom
+                      })`,
+                      transformOrigin: "center",
+                      objectFit: "cover",
+                    }}
+                    src={img.url}
+                  />
+                )}
+
+                <p className="text-xs font-sans text-muted-foreground"></p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* ── dots ── */}
+      {safeImages.length > 1 && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20 items-center">
+          {safeImages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={cn(
+                "h-2 rounded-full transition-all duration-200",
+                i === activeSlide
+                  ? "w-4 bg-zinc-900/50"
+                  : "w-2 bg-zinc-900/50 hover:bg-zinc-900/50"
+              )}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ── nav arrows ── */}
+      {safeImages.length > 1 && isToolbarVisible && !isCropping && (
+        <>
+          <div
+            onClick={() => goTo(activeSlide + 1)}
+            className="w-[30%] h-full absolute right-0 top-0 bg-red-500/0 flex items-center justify-end px-2 bg-linear-to-l from-black/0 to-transparent transition-colors duration-300 hover:from-black/10 hover:to-transparent"
+          >
+            <button
+              disabled={activeSlide === safeImages.length - 1}
+              className="hidden"
+            >
+              <ChevronRight />
+            </button>
+          </div>
+          <div
+            onClick={() => goTo(activeSlide - 1)}
+            className="w-[30%] h-full absolute left-0 top-0 flex items-center justify-start px-2 bg-linear-to-r from-black/0 to-transparent transition-colors duration-300 hover:from-black/10 hover:to-transparent"
+          >
+            <button
+              disabled={activeSlide === 0}
+              className="disabled:opacity-50"
+            >
+              <ChevronLeft className="hidden" />
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* ── add button ── */}
+      {isToolbarVisible && !isCropping && safeImages.length >= 1 && (
+        <button
+          title="Add image"
+          onClick={handleAddImage}
+          className="absolute top-2 left-2 z-20 h-8 px-2.5 rounded-md bg-zinc-900/70 border border-white/10 backdrop-blur-sm flex items-center gap-1.5 text-zinc-400 hover:text-zinc-100 text-xs transition-colors"
+        >
+          <PlusIcon />
+          Add
+        </button>
       )}
 
       {isToolbarVisible && (
         <Toolbar
           index={index}
-          url={url}
+          url={current?.url}
+          slideIndex={activeSlide}
           containerRef={ref}
           isCropping={isCropping}
-          pendingCrop={pendingCrop}
-          pendingZoom={pendingZoom}
+          pendingTransform={pendingTransform}
+          setPendingTransform={setPendingTransform}
           setIsCropping={setIsCropping}
-          setPendingCrop={setPendingCrop}
-          setPendingZoom={setPendingZoom}
           setIsLoading={setIsLoading}
         />
       )}
@@ -140,20 +282,16 @@ const CropView = ({
   url,
   containerRef,
   transform,
-  pendingCrop,
-  pendingZoom,
-  setPendingCrop,
-  setPendingZoom,
+  pendingTransform,
+  setPendingTransform,
 }: {
   url: string;
   containerRef: React.RefObject<HTMLDivElement | null>;
   transform?: ImageTransform;
-  pendingCrop: { x: number; y: number };
-  pendingZoom: number;
-  setPendingCrop: React.Dispatch<
-    React.SetStateAction<{ x: number; y: number }>
+  pendingTransform: ImageTransform;
+  setPendingTransform: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number; zoom: number }>
   >;
-  setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const onCropComplete = (cropArea: Area, pxs: Area) => {
     console.log("area", cropArea, "inPx", pxs);
@@ -162,8 +300,11 @@ const CropView = ({
   return (
     <Cropper
       image={url}
-      crop={pendingCrop}
-      zoom={pendingZoom}
+      crop={{
+        x: pendingTransform.x,
+        y: pendingTransform.y,
+      }}
+      zoom={pendingTransform.zoom}
       cropSize={{
         width: containerRef.current?.clientWidth ?? 0,
         height: containerRef.current?.clientHeight ?? 0,
@@ -191,8 +332,12 @@ const CropView = ({
           zIndex: 100,
         },
       }}
-      onCropChange={setPendingCrop}
-      onZoomChange={setPendingZoom}
+      onCropChange={(crop) =>
+        setPendingTransform((prev) => ({ ...prev, x: crop.x, y: crop.y }))
+      }
+      onZoomChange={(zoom) =>
+        setPendingTransform((prev) => ({ ...prev, zoom }))
+      }
       onCropComplete={onCropComplete}
     />
   );
@@ -208,29 +353,25 @@ const Caption = ({ caption }: { caption: string }) => {
 
 type ToolbarProps = {
   index: number;
+  slideIndex: number;
   url: string;
   containerRef: React.RefObject<HTMLDivElement | null>;
   isCropping: boolean;
-  pendingCrop: { x: number; y: number };
-  pendingZoom: number;
+  pendingTransform: ImageTransform;
+  setPendingTransform: React.Dispatch<React.SetStateAction<ImageTransform>>;
   setIsCropping: React.Dispatch<React.SetStateAction<boolean>>;
-  setPendingCrop: React.Dispatch<
-    React.SetStateAction<{ x: number; y: number }>
-  >;
-  setPendingZoom: React.Dispatch<React.SetStateAction<number>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const Toolbar = ({
   index,
   url,
+  slideIndex,
   containerRef,
   isCropping,
-  pendingCrop,
-  pendingZoom,
   setIsCropping,
-  setPendingCrop,
-  setPendingZoom,
+  pendingTransform,
+  setPendingTransform,
   setIsLoading,
 }: ToolbarProps) => {
   const setState = useEditorStore((state) => state.setState);
@@ -238,52 +379,44 @@ const Toolbar = ({
 
   const handleUpdateUrl = () => {
     const newUrl = window.prompt("Enter image URL:", "");
-    if (newUrl !== null && newUrl.trim() !== "") {
-      setIsLoading(true);
-      const img = new window.Image();
-      img.onload = () => {
-        setState((s) => {
-          const block = s.data.pages[s.pageIndex].blocks[index];
-          if (block && block.type === "image") {
-            block.props.url = newUrl.trim();
-            block.props.width = img.width;
-            block.props.height = img.height;
-            block.props.transform.x = 0;
-            block.props.transform.y = 0;
-            block.props.transform.zoom = 1;
-          }
-        });
-        setPendingCrop({ x: 0, y: 0 });
-        setPendingZoom(1);
-        setIsLoading(false);
-      };
-      img.onerror = () => {
-        window.alert("Failed to load image. Please check the URL.");
-      };
-      img.src = newUrl.trim();
-    }
+    if (!newUrl?.trim()) return;
+    const img = new window.Image();
+    img.onload = () => {
+      setState((s) => {
+        const block = s.data.pages[s.pageIndex].blocks[index];
+        if (block?.type === "image") {
+          block.props.images[slideIndex] = {
+            url: newUrl.trim(),
+            transform: { ...DEFAULT_TRANSFORM },
+          };
+        }
+      });
+      setPendingTransform({ x: 0, y: 0, zoom: 1 });
+      setIsLoading(false);
+    };
+    img.onerror = () => window.alert("Failed to load image. Check the URL.");
+    img.src = newUrl.trim();
   };
 
   const handleResetCrop = () => {
-    setPendingCrop({ x: 0, y: 0 });
-    setPendingZoom(1);
+    setPendingTransform({ x: 0, y: 0, zoom: 1 });
   };
 
   const handleCenterCrop = () => {
-    setPendingCrop({ x: 0, y: 0 });
+    setPendingTransform((prev) => ({ ...prev, x: 0, y: 0 }));
   };
 
   const commitCrop = () => {
     setState((s) => {
       const block = s.data.pages[s.pageIndex].blocks[index];
-      if (block && block.type === "image") {
-        const props = block.props as ImageProps;
-        props.transform.x = pendingCrop.x;
-        props.transform.y = pendingCrop.y;
-        props.transform.zoom = pendingZoom;
+      if (block?.type === "image") {
+        block.props.images[slideIndex].transform = {
+          x: pendingTransform.x,
+          y: pendingTransform.y,
+          zoom: pendingTransform.zoom,
+        };
       }
     });
-
     setIsCropping(false);
     setState((s) => (s.preventNewLine = false));
     document.body.style.overflow = "auto";
@@ -293,7 +426,7 @@ const Toolbar = ({
     <div className="absolute top-1 right-1 gap-1 flex items-center justify-start">
       {isCropping ? (
         <>
-          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/70 border border-border/10 flex items-center justify-center backdrop-blur-xs">
             <button
               title="reset crop"
               onClick={handleResetCrop}
@@ -309,7 +442,7 @@ const Toolbar = ({
               <EnterFullScreenIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
             </button>
           </div>
-          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+          <div className="z-100 h-[32px] aspect-square rounded-md bg-zinc-900/70 border border-border/10 flex items-center justify-center backdrop-blur-xs">
             <button
               title="apply crop"
               onClick={commitCrop}
@@ -320,7 +453,7 @@ const Toolbar = ({
           </div>
         </>
       ) : (
-        <div className="h-[32px] aspect-square rounded-md bg-zinc-900/80 border border-border/10 flex items-center justify-center backdrop-blur-xs">
+        <div className="h-[32px] aspect-square rounded-md bg-zinc-900/70 border border-border/10 flex items-center justify-center backdrop-blur-xs">
           {" "}
           <button
             title="upload"
@@ -330,6 +463,7 @@ const Toolbar = ({
             <UploadIcon className="text-zinc-400 hover:text-zinc-300 transition-colors duration-75" />
           </button>
           <button
+            disabled={!url}
             title="crop"
             className="h-full aspect-square flex items-center justify-center"
             onClick={() => {
@@ -364,7 +498,7 @@ const Toolbar = ({
                   Are you sure you want to delete this image?
                 </DialogDescription>
               </DialogHeader>
-              <div className="items-center gap-2 hidden">
+              <div className="items-center gap-2">
                 <img
                   src={url}
                   className="w-full aspect-video object-cover rounded-md"

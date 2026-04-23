@@ -2,14 +2,15 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { BlockRegistry, BlockType } from "@/lib/block-registry";
 import type { SiteObject } from "@/app/types";
-import { normalizeHtml, playRandomSfx } from "@/lib/utils";
+import { normalizeHtml } from "@/lib/utils";
 
 type EditorState = {
   data: SiteObject;
   pageIndex: number;
   selectedIndex: number;
-  isSyncing: boolean;
   preventNewLine: boolean;
+  isInitialized: boolean;
+  isSyncing: boolean;
   isEditable: boolean;
 };
 
@@ -26,166 +27,196 @@ type Actions = {
   runCleanup: () => void;
 };
 
+import { temporal } from "zundo";
+
 export const useEditorStore = create<EditorState & Actions>()(
-  immer<EditorState & Actions>((set, get) => ({
-    data: {
-      header: {
-        image: "",
-        heading: "",
-        subheading: "",
+  temporal(
+    immer<EditorState & Actions>((set, get) => ({
+      data: {
+        header: {
+          image: "",
+          heading: "",
+          subheading: "",
+        },
+        pages: [],
+        theme: {
+          accent: "blue",
+          typography: "sans",
+        },
       },
-      pages: [],
-      theme: {
-        accent: "blue",
-        typography: "sans",
-      },
-    },
-    pageIndex: 0,
-    selectedIndex: 0,
-    isSyncing: false,
-    preventNewLine: false,
-    isEditable: true,
-    setSelectedIndex: (index: number) =>
-      set((s) => {
-        s.selectedIndex = index;
-      }),
-    setPageIndex: (index: number) =>
-      set((s) => {
-        s.pageIndex = index;
-      }),
-    addBlock: (type: BlockType, index: number, content?: string) => {
-      set((s) => {
-        const def = BlockRegistry[type];
-        let props = { ...def.defaultProps, ...(content && { content }) };
+      pageIndex: 0,
+      selectedIndex: 0,
+      preventNewLine: false,
+      isSyncing: false,
+      isEditable: true,
+      isInitialized: false,
+      setSelectedIndex: (index: number) =>
+        set((s) => {
+          const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
+          // Clamp the index between -1 (for no selection) and blocks.length - 1
+          const clampedIndex = Math.max(-1, Math.min(index, blocks.length - 1));
+          s.selectedIndex = clampedIndex;
+        }),
+      setPageIndex: (index: number) =>
+        set((s) => {
+          s.pageIndex = index;
+        }),
+      addBlock: (type: BlockType, index: number, content?: string) => {
+        set((s) => {
+          const def = BlockRegistry[type];
+          let props = { ...def.defaultProps, ...(content && { content }) };
 
-        s.data.pages[s.pageIndex].blocks.splice(index, 0, {
-          id: crypto.randomUUID(),
-          type,
-          props,
-        });
-        s.isEditable = true;
-        s.selectedIndex = index;
-      });
-      playRandomSfx();
-    },
-    removeBlock: (index: number) =>
-      set((s) => {
-        const blocks = s.data.pages[s.pageIndex].blocks;
-        const block = blocks[index];
-        const onlyOne = blocks.length === 1;
-
-        if (!block) return;
-
-        // Guard: never remove the last text block, only set selectedIndex to -1
-        if (onlyOne && block.type === "text") {
-          s.selectedIndex = -1;
-          return;
-        }
-
-        blocks.splice(index, 1);
-
-        // If we just emptied the page, seed a fresh text block
-        if (blocks.length === 0) {
-          blocks.push({
+          s.data.pages[s.pageIndex].blocks.splice(index, 0, {
             id: crypto.randomUUID(),
-            type: "text",
-            props: { content: "" },
+            type,
+            props,
           });
-          s.selectedIndex = 0;
-          return;
-        }
+          s.isEditable = true;
+          s.selectedIndex = index;
+        });
+        //playRandomSfx();
+      },
+      removeBlock: (index: number) =>
+        set((s) => {
+          const blocks = s.data.pages[s.pageIndex].blocks;
+          const block = blocks[index];
+          const onlyOne = blocks.length === 1;
 
-        // Select the block before the deleted one, clamped to 0
-        s.selectedIndex = Math.max(-1, index - 1);
-      }),
-    setState: (updater: (draft: EditorState) => void) =>
-      set((state) => {
-        updater(state);
-      }),
-    initialize: (data: SiteObject) =>
-      set((state) => {
-        state.data = data;
-      }),
-    reorderBlocks: (activeId: string, overId: string) =>
-      set((s) => {
-        const blocks = s.data.pages[s.pageIndex].blocks;
-        if (!blocks) return;
+          if (!block) return;
 
-        const activeIndex = blocks.findIndex((block) => block.id === activeId);
-        let overIndex = blocks.findIndex((block) => block.id === overId);
+          // Guard: never remove the last text block, only set selectedIndex to -1
+          if (onlyOne && block.type === "text") {
+            s.selectedIndex = -1;
+            return;
+          }
 
-        if (overId === "end-block") {
-          overIndex = blocks.length;
-        } else if (activeIndex <= overIndex && overIndex !== -1) {
-          overIndex = overIndex - 1;
-        }
+          blocks.splice(index, 1);
 
-        if (
-          activeIndex !== -1 &&
-          overIndex !== -1 &&
-          activeIndex !== overIndex
-        ) {
-          const [removed] = blocks.splice(activeIndex, 1);
-          blocks.splice(overIndex, 0, removed);
-          s.selectedIndex = overIndex;
-        }
-      }),
-    addPage: (name: string = "Page") =>
-      set((s) => {
-        const url = new URL(window.location.href);
-        url.searchParams.set("p", name);
-        if (s.data.pages.length >= 4) return;
-        s.data.pages.push({
-          id: crypto.randomUUID(),
-          name,
-          blocks: [
-            {
+          // If we just emptied the page, seed a fresh text block
+          if (blocks.length === 0) {
+            blocks.push({
               id: crypto.randomUUID(),
               type: "text",
-              props: {
-                content: "This is " + name,
-              },
-            },
-          ],
-        });
-        window.history.pushState(null, "", url.toString());
-        s.selectedIndex = 0;
-      }),
-    removePage: (pageIndex: number) =>
-      set((s) => {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("p");
-        s.data.pages.splice(pageIndex, 1);
-        if (s.pageIndex >= s.data.pages.length) {
-          s.pageIndex = s.data.pages.length - 1;
-        }
-        s.selectedIndex = 0;
-        window.history.pushState(null, "", url.toString());
-      }),
-    runCleanup: () => {
-      set((s) => {
-        const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
-        if (blocks.length <= 1 && blocks[0]?.type === "text") return;
+              props: { content: "" },
+            });
+            s.selectedIndex = 0;
+            return;
+          }
 
-        // Keep track of filtered count before selectedIndex
-        let removedBeforeSelected = 0;
-        s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
-          if (
-            typeof block.props?.content !== "string" ||
-            s.selectedIndex === index
-          ) {
-            return true;
-          }
-          const length = normalizeHtml(block.props?.content).trim().length;
-          if (length === 0) {
-            if (index < s.selectedIndex) removedBeforeSelected += 1;
-            return false;
-          }
-          return true;
+          // Select the block before the deleted one, clamped to 0
+          s.selectedIndex = Math.max(-1, index - 1);
+        }),
+      setState: (updater: (draft: EditorState) => void) =>
+        set((state) => {
+          updater(state);
+        }),
+      initialize: (data: SiteObject) => {
+        set((state) => {
+          state.data = data;
+          state.isInitialized = true;
         });
-        s.selectedIndex -= removedBeforeSelected;
-        if (s.selectedIndex < 0) s.selectedIndex = 0;
-      });
-    },
-  }))
+
+        // Nuke whatever accumulated before init, making this the new floor
+        useEditorStore.temporal.getState().clear();
+      },
+      reorderBlocks: (activeId: string, overId: string) =>
+        set((s) => {
+          const blocks = s.data.pages[s.pageIndex].blocks;
+          if (!blocks) return;
+
+          const activeIndex = blocks.findIndex(
+            (block) => block.id === activeId
+          );
+          let overIndex = blocks.findIndex((block) => block.id === overId);
+
+          if (overId === "end-block") {
+            overIndex = blocks.length;
+          } else if (activeIndex <= overIndex && overIndex !== -1) {
+            overIndex = overIndex - 1;
+          }
+
+          if (
+            activeIndex !== -1 &&
+            overIndex !== -1 &&
+            activeIndex !== overIndex
+          ) {
+            const [removed] = blocks.splice(activeIndex, 1);
+            blocks.splice(overIndex, 0, removed);
+            s.selectedIndex = overIndex;
+          }
+        }),
+      addPage: (name: string = "Page") =>
+        set((s) => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("p", name);
+          if (s.data.pages.length >= 4) return;
+          s.data.pages.push({
+            id: crypto.randomUUID(),
+            name,
+            blocks: [
+              {
+                id: crypto.randomUUID(),
+                type: "text",
+                props: {
+                  content: "This is " + name,
+                },
+              },
+            ],
+          });
+          window.history.pushState(null, "", url.toString());
+          s.selectedIndex = 0;
+        }),
+      removePage: (pageIndex: number) =>
+        set((s) => {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("p");
+          s.data.pages.splice(pageIndex, 1);
+          if (s.pageIndex >= s.data.pages.length) {
+            s.pageIndex = s.data.pages.length - 1;
+          }
+          s.selectedIndex = 0;
+          window.history.pushState(null, "", url.toString());
+        }),
+      runCleanup: () => {
+        set((s) => {
+          const blocks = s.data.pages[s.pageIndex]?.blocks ?? [];
+          if (blocks.length <= 1 && blocks[0]?.type === "text") return;
+
+          // Keep track of filtered count before selectedIndex
+          let removedBeforeSelected = 0;
+          s.data.pages[s.pageIndex].blocks = blocks.filter((block, index) => {
+            if (
+              typeof block.props?.content !== "string" ||
+              s.selectedIndex === index
+            ) {
+              return true;
+            }
+            const length = normalizeHtml(block.props?.content).trim().length;
+            if (length === 0) {
+              if (index < s.selectedIndex) removedBeforeSelected += 1;
+              return false;
+            }
+            return true;
+          });
+          s.selectedIndex -= removedBeforeSelected;
+          if (s.selectedIndex < 0) s.selectedIndex = 0;
+        });
+      },
+    })),
+    {
+      // Only snapshot `data` — ephemeral UI state never enters history
+      partialize: (state) => ({ data: state.data }),
+
+      // Deduplicate: don't record a new snapshot if data didn't actually change
+      // (e.g. a setSelectedIndex call that runs alongside a data mutation
+      //  shouldn't push a duplicate undo step)
+      equality: (a, b) => JSON.stringify(a.data) === JSON.stringify(b.data),
+
+      onSave: (state) => {
+        if (!state.isInitialized) return undefined;
+      },
+
+      limit: 100,
+    }
+  )
 );

@@ -40,6 +40,14 @@ export default function useShortcuts() {
       e.preventDefault();
       e.stopPropagation();
       addBlock("text", selectedIndex + 1);
+    } else if (e.ctrlKey) {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex(selectedIndex - 1);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex(selectedIndex + 1);
+      }
     }
   };
 

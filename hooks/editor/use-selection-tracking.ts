@@ -17,17 +17,6 @@ export default function useSelectionTracking() {
           return;
         }
 
-        // gets the focus node/block in the selection (tail index)
-        const anchorEl = SELECTION.anchorNode;
-        const lastEl = SELECTION.focusNode;
-
-        const tailIndex = Number(
-          getAttributeFromNode(lastEl, "data-block-index")
-        );
-        const anchorIndex = Number(
-          getAttributeFromNode(anchorEl, "data-block-index")
-        );
-
         const allContentEditors = document.querySelectorAll(
           "[data-class='editor-contenteditable']"
         );
@@ -40,6 +29,16 @@ export default function useSelectionTracking() {
         const activeEditorIds = spannedContentEditors.map((el: Element) =>
           el.getAttribute("id")
         ) as string[];
+
+        const activeBlockIndexes = spannedContentEditors.map((el: Element) =>
+          Number(el.getAttribute("data-block-index"))
+        );
+
+        const anchorIndex = activeBlockIndexes[0] ?? 0;
+        const tailIndex =
+          activeBlockIndexes.length > 0
+            ? activeBlockIndexes[activeBlockIndexes.length - 1]
+            : 0;
 
         // calc position using selection bounding rect
         let x: number = 0;
@@ -55,8 +54,10 @@ export default function useSelectionTracking() {
           s.meta.isMultiSelection = isMultiSelection;
           s.meta.isSelecting = false;
           s.meta.activeEditorIds = activeEditorIds;
-          s.meta.anchorIndex = anchorIndex;
-          s.meta.tailIndex = tailIndex;
+          s.meta.anchorIndex =
+            SELECTION.direction === "backward" ? tailIndex : anchorIndex;
+          s.meta.tailIndex =
+            SELECTION.direction === "backward" ? anchorIndex : tailIndex;
 
           s.position.x = x;
           s.position.y = y;

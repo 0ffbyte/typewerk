@@ -9,7 +9,7 @@ import { useSelectionStore } from "@/store/selection-store";
 import Prism from "prismjs";
 import sanitize from "sanitize-html";
 import { SANITIZE_CONFIG } from "@/lib/sanitize";
-import { cn, THEME_MAPPING } from "@/lib/utils";
+import { cn, moveCaretToEnd, THEME_MAPPING } from "@/lib/utils";
 
 import SlashMenu from "./slashMenu";
 
@@ -47,7 +47,6 @@ const ContentEditable = ({
 
   const preventNewLine = useEditorStore((state) => state.preventNewLine);
   const isEditable = useEditorStore((state) => state.isEditable);
-  const state = useEditorStore((state) => state);
   const theme = useEditorStore((s) => s.data.theme);
 
   const isMultiline = useSelectionStore((s) => s.meta.isMultiSelection);
@@ -56,14 +55,16 @@ const ContentEditable = ({
   const isComposingRef = useRef(false);
 
   const [isEmpty, setIsEmpty] = useState(true);
+
   /** sync external value → DOM (only when not editing) */
   useEffect(() => {
     const el = innerRef.current;
     if (!el) return;
 
-    if (!isFocusedRef.current && el.innerHTML !== value) {
-      el.innerHTML = value || "";
-      setIsEmpty(!el.textContent?.trim());
+    if (el.innerHTML !== value) {
+      el.innerHTML = sanitize(value, SANITIZE_CONFIG) || "";
+      setIsEmpty(!el.innerText?.trim());
+      moveCaretToEnd(el);
     }
   }, [value]);
 
@@ -71,6 +72,7 @@ const ContentEditable = ({
   const emitSanitizedEdit = useCallback(() => {
     if (!innerRef.current || !onEdit) return;
     onEdit(sanitize(innerRef.current.innerHTML, SANITIZE_CONFIG));
+    setIsEmpty(!innerRef.current.innerText?.trim());
   }, [onEdit]);
 
   /** handle input */
@@ -159,7 +161,6 @@ const ContentEditable = ({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      // Block formatting shortcuts when formatting is disabled (Ctrl/Cmd + B/I/U/K)
       if (!allowFormatting && (e.ctrlKey || e.metaKey)) {
         const key = e.key.toLowerCase();
         if (key === "b" || key === "i" || key === "u" || key === "k") {
@@ -175,9 +176,11 @@ const ContentEditable = ({
 
         const range = selection.getRangeAt(0);
         const br = document.createElement("br");
+
         range.insertNode(br);
         range.setStartAfter(br);
-        range.setEndAfter(br);
+        range.collapse(true);
+
         selection.removeAllRanges();
         selection.addRange(range);
         emitSanitizedEdit();
@@ -185,7 +188,7 @@ const ContentEditable = ({
         e.preventDefault();
       }
     },
-    [isEmpty, allowFormatting, multiLine, isMultiline]
+    [isEmpty, allowFormatting, multiLine, isMultiline, emitSanitizedEdit] // add emitSanitizedEdit
   );
 
   return (
@@ -205,8 +208,8 @@ const ContentEditable = ({
           THEME_MAPPING.typography[theme?.typography],
           syntaxHighlighting &&
             "caret-blue-500 text-red-500/0 font-mono whitespace-pre overflow-x-auto text-[14px] sm:text-[14px] sm:leading-[24px] min-h-[24px]",
-          isMultiline && "border-purple-500",
-          !isEditable && "border-red-500",
+          !isEditable && "border-red-500/0",
+          isMultiline && "border-purple-500/0",
           className
         )}
         style={{

@@ -9,11 +9,12 @@ import SelectionToolbar from "./selection-toolbar";
 import type { SiteObject } from "@/app/types";
 import { useEditorStore } from "@/store/editor-store";
 
-import useSync from "@/hooks/editor/use-sync";
-import useBackspace from "@/hooks/editor/useBackspace";
-import useSelectionTracking from "@/hooks/editor/useSelectionTracking";
-import usePageTracking from "@/hooks/editor/use-page-tracking";
+import useSyncV2 from "@/hooks/editor/use-sync-v2";
+import useHistory from "@/hooks/editor/use-history";
 import useShorcuts from "@/hooks/editor/use-shortcuts";
+import useBackspace from "@/hooks/editor/use-backspace";
+import usePageTracking from "@/hooks/editor/use-page-tracking";
+import useSelectionTracking from "@/hooks/editor/use-selection-tracking";
 
 // editor-shell.tsx
 export default function EditorShell({
@@ -29,11 +30,12 @@ export default function EditorShell({
   const reorderBlocks = useEditorStore((s) => s.reorderBlocks);
   const pageData = useEditorStore((s) => s.data.pages[s.pageIndex]);
 
+  useSyncV2(siteId);
+  useHistory();
   useShorcuts();
   useBackspace();
   usePageTracking();
   useSelectionTracking();
-  //useSync(siteId, isInitialized);
 
   // initializes state
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function EditorShell({
   return (
     <div
       id="root"
-      className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[680px] lg:w-[680px] pt-[92px] select-none"
+      className="flex flex-col items-start justify-start h-full flex-1 w-full max-w-[648px] lg:w-[648px] pt-[92px] select-none"
     >
       <Header />
       <DndContext
@@ -83,14 +85,13 @@ export default function EditorShell({
 
 // DEBUGGER
 import { useSelectionStore } from "@/store/selection-store";
-import { AnimatePresence } from "motion/react";
 const Debugger = () => {
   const state = useEditorStore((s) => s);
   const selection = useSelectionStore((s) => s);
 
   const [currentData, setCurrentData] = useState<
     "selection" | "editor" | "hidden"
-  >("selection");
+  >("editor");
 
   if (currentData === "hidden") return null;
 

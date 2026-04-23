@@ -1,4 +1,5 @@
 "use client";
+
 // selection toolbar 2.0
 import { useShallow } from "zustand/shallow";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -19,6 +20,7 @@ import {
   UnderlineIcon,
   Link2Icon as LinkIcon,
   CopyIcon,
+  CardStackIcon as MultiIcon,
 } from "@radix-ui/react-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -60,8 +62,11 @@ const SelectionToolbar = () => {
   }, [activeEditorIds]);
 
   const anchorBlockType = useMemo(() => {
-    return blocks[anchorIndex]?.type || blocks[tailIndex]?.type;
-  }, [anchorIndex]);
+    const type = isMultiSelection
+      ? "multi"
+      : blocks[anchorIndex]?.type || blocks[tailIndex]?.type || "text";
+    return type;
+  }, [anchorIndex, tailIndex]);
 
   const toggleFormat = useCallback(
     (command: "bold" | "italic" | "underline" | "createLink") => {
@@ -124,7 +129,13 @@ const SelectionToolbar = () => {
     [foundTags]
   );
 
-  if (!selection || isSelecting || isMobile || !activeEditorIds.length)
+  if (
+    !selection ||
+    !selection.toString().trim().length ||
+    isSelecting ||
+    isMobile ||
+    !activeEditorIds.length
+  )
     return null;
 
   return (
@@ -170,10 +181,7 @@ const SelectionToolbar = () => {
         <CopyIcon />
       </button>
 
-      <SelectionSelectSwap
-        selection={selection}
-        anchorBlockType={anchorBlockType}
-      />
+      <SelectSwap selection={selection} anchorBlockType={anchorBlockType} />
       {allowFormatting && !isMultiSelection && (
         <>
           <button
@@ -243,6 +251,8 @@ const SelectionToolbar = () => {
   );
 };
 
+/** SelectSwap */
+import { deleteCrossEditorSelection } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -268,17 +278,20 @@ const BLOCK_ICON_MAPPING: Record<string, React.ReactNode> = {
   callout: <ExclamationTriangleIcon color="var(--color-zinc-400)" />,
   code: <CodeIcon color="var(--color-zinc-400)" />,
   checklist: <CheckCircledIcon color="var(--color-zinc-400)" />,
+  multi: <MultiIcon color="var(--color-zinc-400)" />,
 };
 
-const SelectionSelectSwap = ({
+const SelectSwap = ({
   selection,
   anchorBlockType,
 }: {
   selection: Selection;
   anchorBlockType: string;
 }) => {
+  const activeEditorIds = useSelectionStore((s) => s.meta.activeEditorIds);
+  const tailIndex = useSelectionStore((s) => s.meta.tailIndex);
   const addBlock = useEditorStore((s) => s.addBlock);
-  const selectedIndex = useEditorStore((s) => s.selectedIndex);
+  const runCleanup = useEditorStore((s) => s.runCleanup);
 
   return (
     <div className="w-[100x]">
@@ -286,20 +299,14 @@ const SelectionSelectSwap = ({
         defaultValue={anchorBlockType}
         onValueChange={(value) => {
           if (!selection || selection.rangeCount === 0) return;
-
           const range = selection.getRangeAt(0);
-          const extraction = range.extractContents();
-
-          // preserve line breaks
-          const div = document.createElement("div");
-          div.appendChild(extraction);
-
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-
-          addBlock(value as BlockType, selectedIndex, div.innerText);
-          div.remove();
+          const clonedContents = range.cloneContents();
+          const tempDiv = document.createElement("div");
+          tempDiv.appendChild(clonedContents);
+          const text = tempDiv.innerText;
+          addBlock(value as BlockType, tailIndex + 1, text);
+          deleteCrossEditorSelection(selection, activeEditorIds);
+          requestAnimationFrame(() => runCleanup());
         }}
       >
         <SelectTrigger className="text-sm border-none w-full px-2">

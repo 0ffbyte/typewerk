@@ -36,17 +36,21 @@ export default function Header() {
         break;
 
       case "ArrowUp":
-        e.preventDefault();
-        headingRef.current?.focus();
+        if (e.ctrlKey) {
+          e.preventDefault();
+          headingRef.current?.focus();
+        }
         break;
 
       case "ArrowDown":
-        if (
-          s.data.pages[s.pageIndex].blocks.length === 0 ||
-          s.data.pages[s.pageIndex].blocks[0].type !== "text"
-        )
-          s.addBlock("text", 0);
-        else s.setSelectedIndex(0);
+        if (e.ctrlKey) {
+          if (
+            s.data.pages[s.pageIndex].blocks.length === 0 ||
+            s.data.pages[s.pageIndex].blocks[0].type !== "text"
+          )
+            s.addBlock("text", 0);
+          else s.setSelectedIndex(0);
+        }
         break;
 
       case "Backspace":
@@ -114,7 +118,7 @@ export default function Header() {
             "https://i.pinimg.com/736x/09/eb/c2/09ebc21f1af4b96e9f50619207646c71.jpg"
           }
           alt="header image"
-          className="w-[64px] h-[64px] rounded-lg object-cover border hover:cursor-pointer hover:opacity-80 hidden"
+          className="w-[56px] h-[56px] mb-2 rounded-lg object-cover hover:cursor-pointer hover:opacity-80 hidden"
           onClick={handleUpdateUrl}
         />
 

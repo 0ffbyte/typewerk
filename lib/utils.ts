@@ -1,3 +1,4 @@
+import { useEditorStore } from "@/store/editor-store";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -54,6 +55,50 @@ export function unwrapSafe(element: Element): Node[] {
   return moved;
 }
 
+export function deleteCrossEditorSelection(
+  selection: Selection,
+  activeEditorIds: string[]
+) {
+  const range = selection.getRangeAt(0);
+
+  document
+    .querySelectorAll("[data-class='editor-contenteditable']")
+    .forEach((el) => {
+      const editorId = el.getAttribute("id") ?? "";
+      console.log("editorId", editorId);
+      if (
+        !activeEditorIds.includes(editorId) ||
+        !selection.containsNode(el, true)
+      )
+        return;
+
+      console.log("deleting content...");
+
+      // Clamp the range to only the portion inside this element
+      const elRange = document.createRange();
+      elRange.selectNodeContents(el);
+
+      const start =
+        range.compareBoundaryPoints(Range.START_TO_START, elRange) > 0
+          ? range
+          : elRange;
+
+      const end =
+        range.compareBoundaryPoints(Range.END_TO_END, elRange) < 0
+          ? range
+          : elRange;
+
+      const clampedRange = document.createRange();
+      clampedRange.setStart(start.startContainer, start.startOffset);
+      clampedRange.setEnd(end.endContainer, end.endOffset);
+
+      clampedRange.deleteContents();
+
+      const inputEvent = new Event("input", { bubbles: true });
+      el.dispatchEvent(inputEvent);
+    });
+}
+
 export function moveCaretToEnd(el: HTMLDivElement) {
   // Move caret to the end of contentEditable
   const range = document.createRange();
@@ -95,41 +140,45 @@ export const getAttributeFromNode = (
   return null;
 };
 
-export const getFoundTags = (selection: Selection | null): string[] => {
+export const getFoundTags = (
+  selection: Selection | null,
+  { includeCollapsed = false }: { includeCollapsed?: boolean } = {}
+): string[] => {
   if (!selection || selection.rangeCount === 0) return [];
+  if (!includeCollapsed && selection.isCollapsed) return [];
 
   const range = selection.getRangeAt(0);
   const tags = new Set<string>();
 
-  // Walk ancestors of the common container
-  let node: Node | null =
-    range.commonAncestorContainer.nodeType === Node.TEXT_NODE
-      ? range.commonAncestorContainer.parentNode
-      : range.commonAncestorContainer;
-
-  while (node && node.nodeType === Node.ELEMENT_NODE) {
-    tags.add((node as Element).tagName.toLowerCase());
-    node = node.parentNode;
-  }
-
-  // Walk all elements that intersect the range (catches inline spans mid-selection)
-  const root =
+  // Resolve the effective root element (never a text node)
+  const effectiveRoot: Node =
     range.commonAncestorContainer.nodeType === Node.TEXT_NODE
       ? range.commonAncestorContainer.parentNode!
       : range.commonAncestorContainer;
 
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
-    acceptNode(n) {
-      return range.intersectsNode(n)
-        ? NodeFilter.FILTER_ACCEPT
-        : NodeFilter.FILTER_SKIP;
-    },
-  });
+  // Phase 1: walk ancestors of the common container upward
+  let ancestor: Node | null = effectiveRoot;
+  while (ancestor?.nodeType === Node.ELEMENT_NODE) {
+    tags.add((ancestor as Element).tagName.toLowerCase());
+    ancestor = ancestor.parentNode;
+  }
 
-  let current = walker.currentNode as Element;
-  while (current) {
-    if (current.tagName) tags.add(current.tagName.toLowerCase());
-    current = walker.nextNode() as Element;
+  // Phase 2: walk all elements within the range (catches inline tags mid-selection)
+  const walker = document.createTreeWalker(
+    effectiveRoot,
+    NodeFilter.SHOW_ELEMENT,
+    {
+      acceptNode: (n) =>
+        range.intersectsNode(n)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT, // prune non-intersecting subtrees
+    }
+  );
+
+  let current: Node | null = walker.nextNode(); // skip root itself, already handled
+  while (current !== null) {
+    tags.add((current as Element).tagName.toLowerCase());
+    current = walker.nextNode();
   }
 
   return Array.from(tags);

@@ -6,7 +6,7 @@ export type BlockProps = {
   id: string;
 };
 
-export type BaseBlock = {
+export type Block = {
   id: string;
   type: keyof typeof BlockRegistry;
   props: Record<string, any>;
@@ -15,7 +15,13 @@ export type BaseBlock = {
 export type Page = {
   id: string;
   name: string;
-  blocks: BaseBlock[];
+  blocks: Block[];
+};
+
+export type Header = {
+  image: string;
+  heading: string;
+  subheading: string;
 };
 
 export type Accent = keyof typeof THEME_MAPPING.accent;
@@ -26,11 +32,16 @@ export type Theme = {
 };
 
 export type SiteObject = {
-  header: {
-    image: string;
-    heading: string;
-    subheading: string;
-  };
-  theme: Theme;
+  header: Header;
   pages: Page[];
+  theme: Theme;
+};
+
+export type UserSite = {
+  id: string;
+  header: Header;
+  subdomain: string;
+  pageCount: number;
+  createdAt: string;
+  status: "draft" | "published" | "archived";
 };

@@ -16,13 +16,17 @@ export default async function Page({
   const site = await getSite(site_id);
   if (!site) return notFound();
 
-  const { siteObject, id } = site;
+  const siteObject = {
+    header: site.header,
+    pages: site.pages,
+    theme: site.theme,
+  };
   const sanitizedSite = sanitizeSiteObject(siteObject);
   return (
     <div className="flex min-h-screen w-fit mx-auto">
       <TOC />
-      <EditorShell initialState={sanitizedSite} siteId={id} />
-      <Toolbar siteId={id} />
+      <EditorShell initialState={sanitizedSite} siteId={site.id} />
+      <Toolbar siteId={site.id} />
     </div>
   );
 }

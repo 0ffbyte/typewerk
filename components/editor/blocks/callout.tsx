@@ -105,6 +105,7 @@ const CalloutBlock = ({
     <div
       className={cn(
         "w-full rounded-lg border flex gap-2 group p-2 h-full items-start",
+        "inset-shadow-sheen",
         CALLOUT_TYPE_MAPPING[type].border,
         CALLOUT_TYPE_MAPPING[type].text,
         CALLOUT_TYPE_MAPPING[type].background
